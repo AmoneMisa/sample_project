@@ -102,7 +102,6 @@ const tabs2 = [
 ];
 
 const tabLine = useTemplateRef('tabLineElement');
-const currentTabIndex = ref(0);
 
 function moveTabLine(index: number) {
   tabLine.value.style.left = `${(100 / tabs.length) * index}%`;
@@ -112,8 +111,8 @@ function moveTabLine(index: number) {
 
 <template>
   <u-page>
-    <u-page-header title="Examine the Potential of
-AI Chating AI WritingAI Chating AI Hack" description="Unleash Brainwave's AI potential. Use the open AI
+    <h1 class="font-bold text-7xl text-center">Examine the Potential of <animated-rotated-x-text :texts-list="['AI Chating', 'AI Writing' ,'AI Chating', 'AI Writing']"/> AI Hack</h1>
+    <u-page-header description="Unleash Brainwave's AI potential. Use the open AI
 conversation app Pixcels Themes" class="text-center m-auto"/>
     <u-page-body class="gap-16 grid">
       <u-form class="flex justify-center flex-col items-center gap-3 m-auto bg-accented p-3.5 w-96 rounded-md">
@@ -140,7 +139,7 @@ conversation app Pixcels Themes" class="text-center m-auto"/>
           </div>
           <div ref="tabLineElement"
                class="relative h-2 w-1/4 bg-primary pointer-events-none transition-transform top-20 rounded-sm"/>
-          <u-tabs :items="tabs" @update:modelValue="moveTabLine" v-model="currentTabIndex">
+          <u-tabs :items="tabs" @update:modelValue="moveTabLine">
             <template #content="{ item }">
               <div class="relative rounded-t-xl border-t-4 border-l-1 border-r-1 border-b-0 bg-muted/5 shadow-sm">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6">

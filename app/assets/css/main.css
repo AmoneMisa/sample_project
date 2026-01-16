@@ -8,12 +8,13 @@
   --color-secondary: #CD99FF;
   --color-primary-gradient-start: #805AF5;
   --color-primary-gradient-end: #CD99FF;
+  --color-primary-gradient: var(linear-gradient(to right, var(--color-primary-gradient-start), var(--color-primary-gradient-end)));
   --half-border: linear-gradient(180deg, var(--color-primary-gradient-start) 0%, var(--color-primary-gradient-start), transparent 77%);
 }
 
 :root {
   --ui-container: var(--container-8xl);
-  --color-primary: var(linear-gradient(to right, var(--color-primary-gradient-start), var(--color-primary-gradient-end)));
+  --color-primary-gradient: var(linear-gradient(to right, var(--color-primary-gradient-start), var(--color-primary-gradient-end)));
   --half-border: var(--half-border);
   --ui-text-inverted: var(--color-white);
   --ui-text-muted: #BCC3D7;
