@@ -3,10 +3,20 @@
 
 @theme {
   --container-8xl: 90rem;
+  --color-primary: #805AF5;
+  --color-primary-alt: #35316f;
+  --color-secondary: #CD99FF;
+  --color-primary-gradient-start: #805AF5;
+  --color-primary-gradient-end: #CD99FF;
+  --half-border: linear-gradient(180deg, var(--color-primary-gradient-start) 0%, var(--color-primary-gradient-start), transparent 77%);
 }
 
 :root {
   --ui-container: var(--container-8xl);
+  --color-primary: var(linear-gradient(to right, var(--color-primary-gradient-start), var(--color-primary-gradient-end)));
+  --half-border: var(--half-border);
+  --ui-text-inverted: var(--color-white);
+  --ui-text-muted: #BCC3D7;
 }
 
 textarea {

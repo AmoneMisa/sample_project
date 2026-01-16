@@ -127,7 +127,7 @@ conversation app Pixcels Themes" class="text-center m-auto"/>
         </u-form-field>
       </u-form>
       <u-container class="max-w-6xl mx-auto">
-        <img src="/images/admin-panel.jpg" class="w-full rounded-lg" alt="admin panel"/>
+        <img src="/images/slider-main-image.png" class="w-full rounded-lg" alt="admin panel"/>
       </u-container>
       <u-container class="flex items-center justify-center">
         <p class="text-2xl font-semibold text-center text-muted">TRUEST 800,000+ HIGHLY PRODUCTIVE COMPANY</p>
@@ -207,18 +207,21 @@ conversation app Pixcels Themes" class="text-center m-auto"/>
           <img alt="AI Collaboration" src="/images/split-2-background.png"/>
         </div>
       </u-container>
-      <u-container class="bg-purple-400">
-        <div>
-          <u-page-header title="Join our aI Experts community"
-                         description="Meet and learn from 80+ creators & companies who share how thay use AI to create better content at lightning speed."/>
-        </div>
+      <u-container class="bg-violet-500 rounded-xl flex justify-between px-20 py-16">
+        <u-page-header
+            class="border-none w-5/12"
+            title="Join our aI Experts community"
+            description="Meet and learn from 80+ creators & companies who share how thay use AI to create better content at lightning speed."/>
         <div>
           <img src="/images/bg-shape-01.png" alt="Join our aI Experts community">
         </div>
-        <div>
-          <img src="/images/team-01.png" alt="team on GitHub">
-          <u-button/>
-        </div>
+        <u-container class="w-1/4 gap-6 flex flex-col">
+          <img src="/images/team-01.png" alt="team on GitHub" class="flex-none">
+          <u-button class="justify-center">Join Now Today Free</u-button>
+        </u-container>
+      </u-container>
+      <u-container>
+        <price-cards />
       </u-container>
 
     </u-page-body>
