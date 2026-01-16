@@ -1,0 +1,27 @@
+{
+  "name": "sample_project",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@nuxt/ui": "^4.3.0",
+    "@prisma/adapter-mariadb": "^7.2.0",
+    "@prisma/client": "^7.2.0",
+    "mariadb": "^3.4.5",
+    "nuxt": "^4.2.2",
+    "prisma": "^7.2.0",
+    "tailwindcss": "^4.1.18",
+    "vue": "^3.5.26",
+    "vue-i18n": "^11.2.8",
+    "vue-router": "^4.6.4"
+  },
+  "devDependencies": {
+    "sass-embedded": "^1.97.2"
+  }
+}
