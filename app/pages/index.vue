@@ -56,9 +56,58 @@ const tabs: TabsItem[] = [
   }
 ];
 
-const activeTab = ref(tabs[0].label);
+const cards = [
+  {
+    title: 'Ask anything',
+    description: 'Quickly find answers without searching multiple sources.',
+    icon: 'i-lucide-message-square'
+  },
+  {
+    title: 'Connect everywhere',
+    description: 'Access AI from any device or platform.',
+    icon: 'i-lucide-bar-chart-3'
+  },
+  {
+    title: 'Fast responding',
+    description: 'Get instant replies powered by smart models.',
+    icon: 'i-lucide-zap'
+  }
+];
 
-const currentTab = computed(() => tabs.find(t => t.label === activeTab.value));
+const tabs2 = [
+  {
+    label: '01 Connect with AI',
+    title: 'Connect with AI',
+    description: 'Identify the platform or interface through which you can access the chatbot.',
+    image: '/images/split-1.png'
+  },
+  {
+    label: '02 Streamline Workflow',
+    title: 'Streamline Workflow',
+    description: 'Automate repetitive tasks and boost productivity with AI-powered tools.',
+    image: '/images/split-2.png'
+  },
+  {
+    label: '03 Cybersecurity',
+    title: 'Cybersecurity',
+    description: 'Protect your data and systems with intelligent threat detection.',
+    image: '/images/split-3.png'
+  },
+  {
+    label: '04 Data Analysis',
+    title: 'Data Analysis',
+    description: 'Extract insights from complex datasets using AI-driven analytics.',
+    image: '/images/split-4.png'
+  }
+];
+
+const tabLine = useTemplateRef('tabLineElement');
+const currentTabIndex = ref(0);
+
+function moveTabLine(index: number) {
+  tabLine.value.style.left = `${(100 / tabs.length) * index}%`;
+}
+
 </script>
 
 <template>
@@ -89,10 +138,11 @@ conversation app Pixcels Themes" class="text-center m-auto"/>
             <p class="text-2xl font-semibold text-muted text-center">RAINBOW UNLOCKS THE POTENTIAL ai</p>
             <h2 class="text-3xl font-bold text-center">Generative AI made for creators.</h2>
           </div>
-          <u-tabs class="flex flex-wrap gap-4" :items="tabs">
+          <div ref="tabLineElement"
+               class="relative h-2 w-1/4 bg-primary pointer-events-none transition-transform top-20 rounded-sm"/>
+          <u-tabs :items="tabs" @update:modelValue="moveTabLine" v-model="currentTabIndex">
             <template #content="{ item }">
-              <div class="relative rounded-xl border bg-muted/5 shadow-sm overflow-hidden">
-                <div class="h-2 w-full bg-primary"/>
+              <div class="relative rounded-t-xl border-t-4 border-l-1 border-r-1 border-b-0 bg-muted/5 shadow-sm">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6">
                   <div class="space-y-4">
                     <h2 class="text-2xl font-bold text-primary">{{ item.title }}</h2>
@@ -113,6 +163,61 @@ conversation app Pixcels Themes" class="text-center m-auto"/>
               </div>
             </template>
           </u-tabs>
+        </div>
+      </u-container>
+      <u-carousel :items="cards" v-slot="{ item }" loop dots arrows class="max-w-6xl mx-auto">
+        <div
+            class="relative bg-muted/5 border border-primary/30 rounded-t-xl rounded-b-none p-6 shadow-md overflow-hidden transition-colors duration-300 hover:border-primary"
+        >
+          <div
+              class="absolute inset-0 pointer-events-none rounded-t-xl border-2 border-primary opacity-30 group-hover:opacity-100 transition-opacity duration-300"/>
+          <div
+              class="w-12 h-12 flex items-center justify-center rounded-full bg-primary/10 text-primary mb-4 z-10 relative">
+            <u-icon :name="item.icon" class="text-xl"/>
+          </div>
+          <div class="z-10 relative space-y-2">
+            <h3 class="text-xl font-bold text-white">{{ item.title }}</h3>
+            <p class="text-muted">{{ item.description }}</p>
+            <u-button variant="link" color="primary">Explore More →</u-button>
+          </div>
+        </div>
+      </u-carousel>
+      <u-tabs :items="tabs2" class="flex flex-col-reverse gap-6">
+        <template #content="{ item }">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+            <div class="space-y-4">
+              <h2 class="text-3xl font-bold text-white">{{ item.title }}</h2>
+              <p class="text-muted text-lg">{{ item.description }}</p>
+              <u-button color="primary">Try It Now →</u-button>
+            </div>
+
+            <div>
+              <img :src="item.image" :alt="item.title" class="w-full max-w-md mx-auto"/>
+            </div>
+          </div>
+        </template>
+      </u-tabs>
+      <u-container>
+        <u-page-header title="AI Chat app for seamless collaboration" headline="AI Collaboration"
+                       :ui="{title: 'mx-auto', headline: 'justify-center'}"/>
+        <u-button>Try it now →</u-button>
+        <div class="relative">
+          <img alt="AI Collaboration" src="/images/split-2-logo.png"
+               class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-12 py-8 rounded-xl shadow-2xl/30 shadow-purple-500 ring-2 ring-neutral-900"/>
+          <img alt="AI Collaboration" src="/images/split-2-background.png"/>
+        </div>
+      </u-container>
+      <u-container class="bg-purple-400">
+        <div>
+          <u-page-header title="Join our aI Experts community"
+                         description="Meet and learn from 80+ creators & companies who share how thay use AI to create better content at lightning speed."/>
+        </div>
+        <div>
+          <img src="/images/bg-shape-01.png" alt="Join our aI Experts community">
+        </div>
+        <div>
+          <img src="/images/team-01.png" alt="team on GitHub">
+          <u-button/>
         </div>
       </u-container>
 
