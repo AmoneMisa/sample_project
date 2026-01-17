@@ -7,16 +7,16 @@ const props = defineProps({
     type: Array as PropType<string[]>,
     required: true
   }
-})
+});
 
-const currentIndex = ref(0)
-let timer: number | undefined
+const currentIndex = ref(0);
+let timer: number | undefined;
 
 onMounted(() => {
   if (props.textsList.length <= 1) return
   timer = window.setInterval(() => {
     currentIndex.value = (currentIndex.value + 1) % props.textsList.length
-  }, 3000)
+  }, 3000);
 })
 
 onUnmounted(() => {
@@ -42,14 +42,11 @@ onUnmounted(() => {
 
 .inner {
   display: inline-block;
-
-  /* градиентный текст — сюда */
   background-image: linear-gradient(to right, #805AF5, #CD99FF);
   -webkit-background-clip: text;
   background-clip: text;
-  color: transparent;              /* вместо -webkit-text-fill-color на родителе */
-  -webkit-text-fill-color: transparent; /* можно оставить тут, если хочешь */
-
+  color: transparent;
+  -webkit-text-fill-color: transparent;
   transition: transform 0.3s ease, opacity 0.3s ease;
   transform-origin: center;
   backface-visibility: hidden;
@@ -60,27 +57,29 @@ onUnmounted(() => {
   opacity: 0;
 }
 
-/* enter */
 .flip-enter-active {
   transition: transform 0.3s ease, opacity 0.3s ease;
 }
+
 .flip-enter-from {
   transform: rotateX(-90deg);
   opacity: 0;
 }
+
 .flip-enter-to {
   transform: rotateX(0deg);
   opacity: 1;
 }
 
-/* leave */
 .flip-leave-active {
   transition: transform 0.3s ease, opacity 0.3s ease;
 }
+
 .flip-leave-from {
   transform: rotateX(0deg);
   opacity: 1;
 }
+
 .flip-leave-to {
   transform: rotateX(90deg);
   opacity: 0;

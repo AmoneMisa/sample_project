@@ -74,65 +74,63 @@ const plans = ref([
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-      <u-card
-          v-for="(plan, index) in plans"
-          :key="plan.name"
-          :ui="{
-          root: 'flex flex-col p-6 rounded-xl transition-all duration-300',
-          body: plan.highlight ? 'bg-primary/10' : 'bg-muted/5',
-          header: plan.highlight ? 'ring-2 ring-primary' : '',
-          footer: plan.highlight ? 'border-primary' : 'border-muted/20'
+        <u-card
+            v-for="(plan, index) in plans"
+            :key="plan.name"
+            :ui="{
+          root: 'flex flex-col p-6 folder-figure-holder ring-0 rounded-md',
+          body: 'folder-figure-inner'
         }"
-      >
-        <div v-if="plan.highlight" class="flex justify-center mb-2">
-          <u-badge color="primary" variant="solid">Best Offer</u-badge>
-        </div>
+        >
+          <div v-if="plan.highlight" class="flex justify-center mb-2">
+            <u-badge color="primary" variant="solid">Best Offer</u-badge>
+          </div>
 
-        <div class="text-center space-y-1">
-          <h3 class="text-xl font-bold">{{ plan.name }}</h3>
-          <p class="text-muted text-sm">{{ plan.description }}</p>
-          <p class="text-2xl font-semibold text-primary">
-            {{ isYearly ? plan.yearly : plan.monthly }}
-          </p>
-        </div>
+          <div class="text-center space-y-1">
+            <h3 class="text-xl font-bold">{{ plan.name }}</h3>
+            <p class="text-muted text-sm">{{ plan.description }}</p>
+            <p class="text-2xl font-semibold text-primary">
+              {{ isYearly ? plan.yearly : plan.monthly }}
+            </p>
+          </div>
 
-        <u-separator class="my-4"/>
+          <u-separator class="my-4"/>
 
-        <div class="flex-1">
-          <p class="font-semibold text-muted mb-2">Features</p>
+          <div class="flex-1">
+            <p class="font-semibold text-muted mb-2">Features</p>
 
-          <u-page-list class="space-y-1 text-sm text-muted spoiler-list" :class="{'spoiler_open': !plan.expanded}"
-                       :items="plan.features"
-                       :data-plan-index="index">
-            <li
-                v-for="feature in plan.features"
-                :key="feature"
-                class="flex items-center gap-2"
+            <u-page-list class="space-y-1 text-sm text-muted spoiler-list" :class="{'spoiler_open': !plan.expanded}"
+                         :items="plan.features"
+                         :data-plan-index="index">
+              <li
+                  v-for="feature in plan.features"
+                  :key="feature"
+                  class="flex items-center gap-2"
+              >
+                <u-icon name="i-lucide-check" class="text-primary"/>
+                <span>{{ feature }}</span>
+              </li>
+            </u-page-list>
+
+            <u-button
+                v-if="plan.features.length > 3"
+                variant="link"
+                color="primary"
+                class="mt-2 px-0"
+                @click="plan.expanded = !plan.expanded"
+                :data-plan-index="index"
             >
-              <u-icon name="i-lucide-check" class="text-primary"/>
-              <span>{{ feature }}</span>
-            </li>
-          </u-page-list>
+              {{ plan.expanded ? 'Show Less' : 'Show More' }}
+            </u-button>
+          </div>
 
-          <u-button
-              v-if="plan.features.length > 3"
-              variant="link"
-              color="primary"
-              class="mt-2 px-0"
-              @click="plan.expanded = !plan.expanded"
-              :data-plan-index="index"
-          >
-            {{ plan.expanded ? 'Show Less' : 'Show More' }}
-          </u-button>
-        </div>
+          <u-separator class="my-4"/>
 
-        <u-separator class="my-4"/>
-
-        <div class="flex flex-col items-center gap-2">
-          <u-button color="primary" class="w-full justify-center">Get Started</u-button>
-          <span class="text-xs text-muted">Limited Offer</span>
-        </div>
-      </u-card>
+          <div class="flex flex-col items-center gap-2">
+            <u-button color="primary" class="w-full justify-center">Get Started</u-button>
+            <span class="text-xs text-muted">Limited Offer</span>
+          </div>
+        </u-card>
     </div>
   </u-container>
 </template>

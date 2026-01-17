@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import type {TabsItem} from "#ui/components/Tabs.vue";
+import TextareaRequestForm from "~/components/TextareaRequestForm.vue";
+import FeaturesCarousel from "~/components/FeaturesCarousel.vue";
+import TabsWithUnderButtons from "~/components/TabsWithUnderButtons.vue";
 
 const tabs: TabsItem[] = [
   {
@@ -100,106 +103,30 @@ const tabs2 = [
     image: '/images/split-4.png'
   }
 ];
-
-const tabLine = useTemplateRef('tabLineElement');
-
-function moveTabLine(index: number) {
-  tabLine.value.style.left = `${(100 / tabs.length) * index}%`;
-}
-
 </script>
 
 <template>
   <u-page>
-    <h1 class="font-bold text-7xl text-center">Examine the Potential of <animated-rotated-x-text :texts-list="['AI Chating', 'AI Writing' ,'AI Chating', 'AI Writing']"/> AI Hack</h1>
-    <u-page-header description="Unleash Brainwave's AI potential. Use the open AI
-conversation app Pixcels Themes" class="text-center m-auto"/>
+    <h1 class="font-bold text-7xl text-center">Examine the Potential of
+      <animated-rotated-x-text :texts-list="['AI Chating', 'AI Writing' ,'AI Chating', 'AI Writing']"/>
+      AI Hack
+    </h1>
+    <u-page-header description="Unleash Brainwave's AI potential. Use the open AI conversation app Pixcels Themes" class="text-center m-auto"/>
     <u-page-body class="gap-16 grid">
-      <u-form class="flex justify-center flex-col items-center gap-3 m-auto bg-accented p-3.5 w-96 rounded-md">
-        <u-form-field>
-          <u-textarea :rows="4" placeholder="Type something to promt AI..." size="xl" :required="true"
-                      :autoresize="false" class="w-80"/>
-        </u-form-field>
-        <u-separator/>
-        <u-form-field class="w-80">
-          <u-button class="w-full justify-center">Start with AI</u-button>
-        </u-form-field>
-      </u-form>
+      <textarea-request-form placeholder="Type something to promt AI..." button-text="Start with AI" />
       <u-container class="max-w-6xl mx-auto">
         <img src="/images/slider-main-image.png" class="w-full rounded-lg" alt="admin panel"/>
       </u-container>
       <u-container class="flex items-center justify-center">
-        <p class="text-2xl font-semibold text-center text-muted">TRUEST 800,000+ HIGHLY PRODUCTIVE COMPANY</p>
+        <p class="text-2xl font-semibold text-center text-muted uppercase">Truest 800,000+ highly productive company</p>
       </u-container>
-      <u-container class="grid grid-cols-1 gap-12 py-16">
-        <div class="space-y-8">
-          <div class="space-y-2 text-center lg:text-left">
-            <p class="text-2xl font-semibold text-muted text-center">RAINBOW UNLOCKS THE POTENTIAL ai</p>
-            <h2 class="text-3xl font-bold text-center">Generative AI made for creators.</h2>
-          </div>
-          <div ref="tabLineElement"
-               class="relative h-2 w-1/4 bg-primary pointer-events-none transition-transform top-20 rounded-sm"/>
-          <u-tabs :items="tabs" @update:modelValue="moveTabLine">
-            <template #content="{ item }">
-              <div class="relative rounded-t-xl border-t-4 border-l-1 border-r-1 border-b-0 bg-muted/5 shadow-sm">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6">
-                  <div class="space-y-4">
-                    <h2 class="text-2xl font-bold text-primary">{{ item.title }}</h2>
-                    <p class="text-muted text-base">{{ item.text }}</p>
-                    <u-page-list class="list-disc list-inside text-muted space-y-1">
-                      <li v-for="li in item.list" :key="li">{{ li }}</li>
-                    </u-page-list>
-                    <u-button size="xl" color="primary">Start Exploring Now →</u-button>
-                  </div>
-                  <div>
-                    <img
-                        :src="item.image"
-                        :alt="item.title"
-                        class="w-full rounded-xl shadow-lg transition-all duration-300 min-h-96"
-                    />
-                  </div>
-                </div>
-              </div>
-            </template>
-          </u-tabs>
-        </div>
-      </u-container>
-      <u-carousel :items="cards" v-slot="{ item }" loop dots arrows class="max-w-6xl mx-auto">
-        <div
-            class="relative bg-muted/5 border border-primary/30 rounded-t-xl rounded-b-none p-6 shadow-md overflow-hidden transition-colors duration-300 hover:border-primary"
-        >
-          <div
-              class="absolute inset-0 pointer-events-none rounded-t-xl border-2 border-primary opacity-30 group-hover:opacity-100 transition-opacity duration-300"/>
-          <div
-              class="w-12 h-12 flex items-center justify-center rounded-full bg-primary/10 text-primary mb-4 z-10 relative">
-            <u-icon :name="item.icon" class="text-xl"/>
-          </div>
-          <div class="z-10 relative space-y-2">
-            <h3 class="text-xl font-bold text-white">{{ item.title }}</h3>
-            <p class="text-muted">{{ item.description }}</p>
-            <u-button variant="link" color="primary">Explore More →</u-button>
-          </div>
-        </div>
-      </u-carousel>
-      <u-tabs :items="tabs2" class="flex flex-col-reverse gap-6">
-        <template #content="{ item }">
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-            <div class="space-y-4">
-              <h2 class="text-3xl font-bold text-white">{{ item.title }}</h2>
-              <p class="text-muted text-lg">{{ item.description }}</p>
-              <u-button color="primary">Try It Now →</u-button>
-            </div>
-
-            <div>
-              <img :src="item.image" :alt="item.title" class="w-full max-w-md mx-auto"/>
-            </div>
-          </div>
-        </template>
-      </u-tabs>
-      <u-container>
-        <u-page-header title="AI Chat app for seamless collaboration" headline="AI Collaboration"
+      <tabs-with-background :tabs="tabs" title="Generative AI made for creators." headline="Rainbow unlocks the potential AI" />
+      <features-carousel :cards="cards" button-text="Explore More →" />
+      <tabs-with-under-buttons :tabs="tabs2" button-text="Try It Now →" />
+      <u-container class="flex flex-col justify-center">
+        <u-page-header title="AI Chat app for seamless collaboration" headline="AI Collaboration" class="border-0"
                        :ui="{title: 'mx-auto', headline: 'justify-center'}"/>
-        <u-button>Try it now →</u-button>
+        <u-button class=" m-auto justify-center h-16 w-48 text-lg">Try it now →</u-button>
         <div class="relative">
           <img alt="AI Collaboration" src="/images/split-2-logo.png"
                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-12 py-8 rounded-xl shadow-2xl/30 shadow-purple-500 ring-2 ring-neutral-900"/>
@@ -215,18 +142,35 @@ conversation app Pixcels Themes" class="text-center m-auto"/>
           <img src="/images/bg-shape-01.png" alt="Join our aI Experts community">
         </div>
         <u-container class="w-1/4 gap-6 flex flex-col">
-          <img src="/images/team-01.png" alt="team on GitHub" class="flex-none">
-          <u-button class="justify-center">Join Now Today Free</u-button>
+          <img src="/images/team-01.png" alt="team on GitHub" class="flex-none mx-auto w-fit">
+          <u-button class="justify-center text-black bg-white hover:bg-primary hover:text-white h-12 text-base">Join Now Today Free</u-button>
         </u-container>
       </u-container>
       <u-container>
-        <price-cards />
+        <price-cards/>
       </u-container>
-
+      <u-container class="flex gap-20">
+          <feature-card
+              icon="i-lucide-dollar-sign"
+              title="100% No-Risk, Money Back Guarantee!"
+              description="Refunds will be issued within period of 14 days from the purchase date"
+          />
+          <feature-card
+              icon="i-lucide-user"
+              title="Upgrade or Cancel Anytime"
+              description="Passages there are many variations of Lorem Ipsum available."
+          />
+          <feature-card
+              icon="i-lucide-heart"
+              title="Not sure yet? Try the free version"
+              description="Refunds will be issued within period of 14 days from the purchase date"
+          />
+      </u-container>
     </u-page-body>
   </u-page>
 </template>
 
-<style scoped>
+<style lang="scss">
+
 
 </style>
