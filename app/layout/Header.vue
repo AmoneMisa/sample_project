@@ -33,15 +33,19 @@ const items = [
 <template>
   <u-header class="header bg-transparent border-0 static">
     <template #left>
-      <div class="header__logo max-h-[35px]">
+      <a class="header__logo max-h-[35px]" href="/">
         <img alt="Logo" src="/images/logo.png">
-      </div>
+      </a>
     </template>
     <template #default>
       <u-navigation-menu :items="items" class="header__menu" />
     </template>
     <template #right>
-        <u-locale-select class="header__lang" v-model="locale" :locales="[en, ru, kk]" :ui="{base: 'bg-transparent gradient-button-figure'}" />
+        <u-locale-select class="header__lang " v-model="locale" :locales="[en, ru, kk]" :ui="{
+          base: 'gradient-button-figure gradient-button-figure_reverse',
+          leading: 'self-baseline',
+          value: 'px-2'
+        }" />
     </template>
   </u-header>
 </template>
