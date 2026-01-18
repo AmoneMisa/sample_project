@@ -52,25 +52,16 @@ const plans = ref([
 </script>
 
 <template>
-  <u-container class="py-20 space-y-12">
-    <div class="text-center space-y-3">
-      <u-page-header title="Pricing plans for everyone" headline="pricing" class="border-0"
-                     :ui="{title: 'mx-auto', headline: 'justify-center gradient-text text-md'}"/>
-
-      <div class="inline-flex items-center gap-3 bg-muted/10 px-4 py-2 rounded-full text-sm">
-        <span :class="isYearly ? 'text-muted' : 'text-primary font-semibold'">
+  <u-container class="py-20 space-y-12 price-cards">
+    <div class="text-center space-y-3 price-cards__header">
+      <page-header title="Pricing plans for everyone" headline="Pricing" class="mb-8" />
+      <div class="price-cards__switcher">
+        <button class="price-cards__switcher-button" :class="{'price-cards__switcher-button_active': !isYearly}" @click="isYearly = false">
           Monthly
-        </span>
-
-        <u-switch
-            v-model="isYearly"
-            :value="'yearly'"
-            :unchecked-value="'monthly'"
-        />
-
-        <span :class="isYearly ? 'text-muted' : 'text-primary font-semibold'">
-          Yearly <span class="text-primary">–10%</span>
-        </span>
+        </button>
+        <button class="price-cards__switcher-button" :class="{'price-cards__switcher-button_active': isYearly}"  @click="isYearly = true">
+          Yearly <span class="price-cards__switcher-button-badge">–10%</span>
+        </button>
       </div>
     </div>
 
@@ -163,5 +154,48 @@ const plans = ref([
   &:after {
     content: none;
   }
+}
+
+.price-cards__switcher {
+  padding: 13px 18px;
+  border: 2px solid var(--ui-border);
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between !important;
+  align-items: center;
+  max-width: 306px;
+  margin: 0 auto;
+}
+
+.price-cards__switcher-button {
+  padding: 6px 25px;
+  font-size: 16px;
+  line-height: 1.67;
+  font-weight: 500;
+  color: var(--color-white);
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  border: none;
+  outline: none;
+}
+
+.price-cards__switcher-button-badge {
+  margin-left: 10px;
+  font-size: 12px;
+  line-height: 1.3;
+  border-radius: 3px;
+  padding: 3px 4px;
+  border: none;
+  background: #85EA80;
+  font-weight: normal;
+  color: #000;
+}
+
+.price-cards__switcher-button_active {
+  background: var(--color-gray);
+  color: var(--color-white);
 }
 </style>

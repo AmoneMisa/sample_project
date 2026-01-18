@@ -49,7 +49,7 @@ function moveTabLine(index: number) {
                 <u-page-list class="list-disc list-inside text-muted space-y-1">
                   <li v-for="li in item.list" :key="li">{{ li }}</li>
                 </u-page-list>
-                <u-button size="xl" color="primary">Start Exploring Now →</u-button>
+                <custom-button>Start Exploring Now →</custom-button>
               </div>
               <div>
                 <img

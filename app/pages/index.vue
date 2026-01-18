@@ -168,8 +168,8 @@ const testimonials = [
       <features-carousel :cards="cards" button-text="Explore More →"/>
       <tabs-with-under-buttons :tabs="tabs2" button-text="Try It Now →"/>
       <u-container class="flex flex-col justify-center">
-        <page-header title="AI Chat app for seamless collaboration" headline="AI Collaboration" />
-        <u-button class=" m-auto justify-center h-16 w-48 text-lg">Try it now →</u-button>
+        <page-header title="AI Chat app for seamless collaboration" headline="AI Collaboration" titleClasses="max-w-[530px]" />
+        <custom-button class="m-auto justify-center h-16 w-48 text-lg mt-5">Try it now →</custom-button>
         <div class="relative logo-shadow">
           <div class="logo-shadow__logo absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-12 py-8 rounded-xl ring-2 ring-neutral-900">
             <img alt="AI Collaboration" src="/images/split-2-logo.png"

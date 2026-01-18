@@ -32,6 +32,7 @@
     --ui-border: rgba(255, 255, 255, 0.05);
     --color-lessdark: #2E313D;
     --secondary-bg-gradient: linear-gradient(107deg, #171A21 0.52%, rgba(23, 26, 33, 0) 99.49%);
+    --color-gray: #3E414B;
 }
 
 :root {
@@ -50,6 +51,7 @@
     --ui-border: rgba(255, 255, 255, 0.05);
     --color-lessdark: #2E313D;
     --secondary-bg-gradient: linear-gradient(107deg, #171A21 0.52%, rgba(23, 26, 33, 0) 99.49%);
+    --color-gray: #3E414B;
 }
 
 body {
@@ -185,6 +187,7 @@ textarea:active {
 .button-white {
     background: var(--color-white);
     color: var(--color-black);
+    transition: all .3s ease-in-out;
 }
 
 .button-white:hover {
