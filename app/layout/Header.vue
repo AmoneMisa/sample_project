@@ -38,7 +38,9 @@ const items = [
 <template>
   <u-header class="header">
     <template #left>
-      <div class="header__logo">Logo</div>
+      <div class="header__logo max-h-[35px]">
+        <img alt="Logo" src="/images/logo.png">
+      </div>
     </template>
     <template #default>
       <u-navigation-menu :items="items" />

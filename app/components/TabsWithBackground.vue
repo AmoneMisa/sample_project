@@ -28,11 +28,13 @@ function moveTabLine(index: number) {
 
 <template>
   <u-container class="grid grid-cols-1 gap-12 py-16">
-    <div class="space-y-8">
+    <div class="relative">
       <u-page-header :title="title" :headline="headline" :description="description" class="border-0 mb-0"
-                     :ui="{title: 'mx-auto', headline: 'justify-center'}"/>
-      <div ref="tabLineElement"
-           class="relative h-2 w-1/4 bg-primary pointer-events-none transition-transform rounded-sm tab-control-line m-0 "/>
+                     :ui="{title: 'mx-auto', headline: 'justify-center gradient-text text-md'}"/>
+      <div class="p-1 absolute w-full">
+        <div ref="tabLineElement"
+             class="relative h-2 w-1/4 bg-primary pointer-events-none transition-transform rounded-sm m-0 tab-control-line"/>
+      </div>
       <u-tabs :items="tabs" @update:modelValue="moveTabLine" :ui="{
               slots: {
                 list: 'gap-12'
@@ -66,7 +68,7 @@ function moveTabLine(index: number) {
 
 <style scoped lang="scss">
 .tab-control-line {
-  transition: left .3s ease;
-  top: 50px;
+  transition: left .2s ease;
+  top: 40px;
 }
 </style>

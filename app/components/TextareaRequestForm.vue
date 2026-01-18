@@ -12,7 +12,7 @@ defineProps({
   },
   rows: {
     type: Number,
-    default: 4
+    default: 2
   },
   autoresize: {
     type: Boolean,
@@ -22,14 +22,16 @@ defineProps({
 </script>
 
 <template>
-  <u-form class="flex justify-center flex-col items-center gap-3 m-auto bg-accented p-3.5 w-96 rounded-md">
-    <u-form-field>
-      <u-textarea :rows="rows" :placeholder="placeholder" size="xl" :required="true"
-                  :autoresize="false" class="w-80"/>
+  <u-form class="flex justify-center flex-col items-center gap-3 m-auto p-6 max-w-[540px] w-full rounded-xl bg-dark">
+    <u-form-field class="w-full">
+      <u-textarea :rows="rows" :placeholder="placeholder" :required="true"
+                  :autoresize="false" class="w-full"/>
     </u-form-field>
-    <u-separator/>
-    <u-form-field class="w-80">
-      <u-button class="w-full justify-center">{{ buttonText }}</u-button>
+    <u-separator class="py-2.5" :ui="{
+      border: ''
+    }"/>
+    <u-form-field class="w-full">
+      <u-button class="w-full justify-center gradient-button">{{ buttonText }}</u-button>
     </u-form-field>
   </u-form>
 </template>

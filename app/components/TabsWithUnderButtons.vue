@@ -21,7 +21,7 @@ defineProps({
           <p class="text-muted text-lg">{{ item.description }}</p>
           <u-button color="primary">Try It Now →</u-button>
         </div>
-        <div>
+        <div class="min-h-[450px]">
           <img :src="item.image" :alt="item.title" class="w-full max-w-md mx-auto"/>
         </div>
       </div>

@@ -13,9 +13,9 @@ const currentIndex = ref(0);
 let timer: number | undefined;
 
 onMounted(() => {
-  if (props.textsList.length <= 1) return
+  if (props.textsList.length <= 1) return;
   timer = window.setInterval(() => {
-    currentIndex.value = (currentIndex.value + 1) % props.textsList.length
+    currentIndex.value = (currentIndex.value + 1) % props.textsList.length;
   }, 3000);
 })
 
@@ -26,11 +26,11 @@ onUnmounted(() => {
 
 <template>
   <span class="animated-rotated-text">
-    <Transition name="flip" mode="out-in">
-      <span remind class="inner" :key="currentIndex">
+    <transition name="flip" mode="out-in">
+      <span class="animated-rotated-text__inner gradient-text" :key="currentIndex">
         {{ props.textsList[currentIndex] }}
       </span>
-    </Transition>
+    </transition>
   </span>
 </template>
 
@@ -38,18 +38,12 @@ onUnmounted(() => {
 .animated-rotated-text {
   display: inline-block;
   perspective: 400px;
+  line-height: initial;
 }
 
-.inner {
-  display: inline-block;
-  background-image: linear-gradient(to right, #805AF5, #CD99FF);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
+.animated-rotated-text__inner {
   transition: transform 0.3s ease, opacity 0.3s ease;
   transform-origin: center;
-  backface-visibility: hidden;
 }
 
 .flip {

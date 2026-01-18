@@ -103,6 +103,45 @@ const tabs2 = [
     image: '/images/split-4.png'
   }
 ];
+
+const testimonials = [
+  {
+    name: 'Guy Hawkins',
+    role: 'Nursing Assistant',
+    quote: 'Pixcels-Themes has become such an integral part of our work! By putting our',
+    avatar: '/images/brand-t.png',
+    logo: '/logos/modx.svg',
+    rating: 5
+  }, {
+    name: 'Guy Hawkins',
+    role: 'Nursing Assistant',
+    quote: 'Pixcels-Themes has become such an integral part of our work! By putting our',
+    avatar: '/images/brand-t.png',
+    logo: '/logos/modx.svg',
+    rating: 5
+  }, {
+    name: 'Guy Hawkins',
+    role: 'Nursing Assistant',
+    quote: 'Pixcels-Themes has become such an integral part of our work! By putting our',
+    avatar: '/images/brand-t.png',
+    logo: '/logos/modx.svg',
+    rating: 5
+  }, {
+    name: 'Guy Hawkins',
+    role: 'Nursing Assistant',
+    quote: 'Pixcels-Themes has become such an integral part of our work! By putting our',
+    avatar: '/images/brand-t.png',
+    logo: '/logos/modx.svg',
+    rating: 5
+  }, {
+    name: 'Guy Hawkins',
+    role: 'Nursing Assistant',
+    quote: 'Pixcels-Themes has become such an integral part of our work! By putting our',
+    avatar: '/images/brand-t.png',
+    logo: '/logos/modx.svg',
+    rating: 5
+  },
+];
 </script>
 
 <template>
@@ -111,66 +150,115 @@ const tabs2 = [
       <animated-rotated-x-text :texts-list="['AI Chating', 'AI Writing' ,'AI Chating', 'AI Writing']"/>
       AI Hack
     </h1>
-    <u-page-header description="Unleash Brainwave's AI potential. Use the open AI conversation app Pixcels Themes" class="text-center m-auto"/>
+    <u-page-header description="Unleash Brainwave's AI potential. Use the open AI conversation app Pixcels Themes"
+                   class="text-center m-auto"/>
     <u-page-body class="gap-16 grid">
-      <textarea-request-form placeholder="Type something to promt AI..." button-text="Start with AI" />
+      <textarea-request-form placeholder="Type something to promt AI..." button-text="Start with AI"/>
       <u-container class="max-w-6xl mx-auto">
         <img src="/images/slider-main-image.png" class="w-full rounded-lg" alt="admin panel"/>
       </u-container>
       <u-container class="flex items-center justify-center">
         <p class="text-2xl font-semibold text-center text-muted uppercase">Truest 800,000+ highly productive company</p>
       </u-container>
-      <tabs-with-background :tabs="tabs" title="Generative AI made for creators." headline="Rainbow unlocks the potential AI" />
-      <features-carousel :cards="cards" button-text="Explore More →" />
-      <tabs-with-under-buttons :tabs="tabs2" button-text="Try It Now →" />
+      <tabs-with-background :tabs="tabs" title="Generative AI made for creators."
+                            headline="Rainbow unlocks the potential AI" :ui="{headline: 'gradient-text'}"/>
+      <features-carousel :cards="cards" button-text="Explore More →"/>
+      <tabs-with-under-buttons :tabs="tabs2" button-text="Try It Now →"/>
       <u-container class="flex flex-col justify-center">
         <u-page-header title="AI Chat app for seamless collaboration" headline="AI Collaboration" class="border-0"
-                       :ui="{title: 'mx-auto', headline: 'justify-center'}"/>
+                       :ui="{title: 'mx-auto', headline: 'justify-center gradient-text text-md'}"/>
         <u-button class=" m-auto justify-center h-16 w-48 text-lg">Try it now →</u-button>
-        <div class="relative">
-          <img alt="AI Collaboration" src="/images/split-2-logo.png"
-               class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-12 py-8 rounded-xl shadow-2xl/30 shadow-purple-500 ring-2 ring-neutral-900"/>
+        <div class="relative logo-shadow">
+          <div class="logo-shadow__logo absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-12 py-8 rounded-xl ring-2 ring-neutral-900">
+            <img alt="AI Collaboration" src="/images/split-2-logo.png"
+                 class=""/>
+          </div>
           <img alt="AI Collaboration" src="/images/split-2-background.png"/>
         </div>
       </u-container>
-      <u-container class="bg-violet-500 rounded-xl flex justify-between px-20 py-16">
+      <u-container class="violet-block rounded-xl flex justify-between py-16 max-h-[265px]">
         <u-page-header
-            class="border-none w-5/12"
+            class="border-none max-w-[590px] py-0"
             title="Join our aI Experts community"
-            description="Meet and learn from 80+ creators & companies who share how thay use AI to create better content at lightning speed."/>
-        <div>
+            description="Meet and learn from 80+ creators & companies who share how thay use AI to create better content at lightning speed."
+            :ui="{
+              description: 'text-white'
+            }"
+        />
+        <div class="flex items-center">
           <img src="/images/bg-shape-01.png" alt="Join our aI Experts community">
         </div>
         <u-container class="w-1/4 gap-6 flex flex-col">
           <img src="/images/team-01.png" alt="team on GitHub" class="flex-none mx-auto w-fit">
-          <u-button class="justify-center text-black bg-white hover:bg-primary hover:text-white h-12 text-base">Join Now Today Free</u-button>
+          <u-button class="justify-center h-12 text-base brightness-125 button-white">Join Now
+            Today Free
+          </u-button>
         </u-container>
       </u-container>
       <u-container>
         <price-cards/>
       </u-container>
       <u-container class="flex gap-20">
-          <feature-card
-              icon="i-lucide-dollar-sign"
-              title="100% No-Risk, Money Back Guarantee!"
-              description="Refunds will be issued within period of 14 days from the purchase date"
-          />
-          <feature-card
-              icon="i-lucide-user"
-              title="Upgrade or Cancel Anytime"
-              description="Passages there are many variations of Lorem Ipsum available."
-          />
-          <feature-card
-              icon="i-lucide-heart"
-              title="Not sure yet? Try the free version"
-              description="Refunds will be issued within period of 14 days from the purchase date"
-          />
+        <feature-card
+            icon="i-lucide-dollar-sign"
+            title="100% No-Risk, Money Back Guarantee!"
+            description="Refunds will be issued within period of 14 days from the purchase date"
+        />
+        <feature-card
+            icon="i-lucide-user"
+            title="Upgrade or Cancel Anytime"
+            description="Passages there are many variations of Lorem Ipsum available."
+        />
+        <feature-card
+            icon="i-lucide-heart"
+            title="Not sure yet? Try the free version"
+            description="Refunds will be issued within period of 14 days from the purchase date"
+        />
       </u-container>
+      <testimonial-carousel headline="Assisting Individuals" title="The opinions of the community"
+                            :testimonials="testimonials"/>
+      <review-logos
+          title="Based on 20,000+ reviews on"
+          :logos="[
+    { src: '/images/brand-01.png', alt: 'G2 Crowd' },
+    { src: '/images/brand-02.png', alt: 'Capterra' },
+    { src: '/images/brand-03.png', alt: 'GetApp' },
+    { src: '/images/brand-04.png', alt: 'TrustRadius' }
+  ]"/>
+      <app-download-promo headline="Get Started With Pixcels" title="Experience Products in AI
+" description="Based on the conversation with the AI chatbot, you will receive
+personalized recommendations."/>
     </u-page-body>
   </u-page>
 </template>
 
-<style lang="scss">
+<style scoped lang="scss">
+.violet-block {
+  padding: 68px 80px 60px;
+  background-color: var(--color-primary);
+}
 
+.logo-shadow {
+  &:before {
+    content: "";
+    background: linear-gradient(133deg, #ADFA4B 1.34%, #9872EA 1.35%, #4D72F5 76.16%, #FA11FF 105.35%);
+    filter: blur(32.5px);
+    background-size: 400%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    z-index: -2;
+    width: 240px;
+    height: 240px;
+    border-radius: 24px;
+    animation: styles_moving-gradient 16s linear infinite;
+  }
+}
 
+.logo-shadow__logo {
+  background-color: #0E0C15;
+}
 </style>

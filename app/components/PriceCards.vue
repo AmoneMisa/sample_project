@@ -54,7 +54,8 @@ const plans = ref([
 <template>
   <u-container class="py-20 space-y-12">
     <div class="text-center space-y-3">
-      <h2 class="text-3xl font-bold">Pricing plans for everyone</h2>
+      <u-page-header title="Pricing plans for everyone" headline="pricing" class="border-0"
+                     :ui="{title: 'mx-auto', headline: 'justify-center gradient-text text-md'}"/>
 
       <div class="inline-flex items-center gap-3 bg-muted/10 px-4 py-2 rounded-full text-sm">
         <span :class="isYearly ? 'text-muted' : 'text-primary font-semibold'">
@@ -78,8 +79,8 @@ const plans = ref([
             v-for="(plan, index) in plans"
             :key="plan.name"
             :ui="{
-          root: 'flex flex-col p-6 folder-figure-holder ring-0 rounded-md',
-          body: 'folder-figure-inner'
+          root: 'flex flex-col p-6 folder-figure-holder ring-0 rounded-md bg-transparent',
+          body: 'folder-figure-inner flex flex-col h-full'
         }"
         >
           <div v-if="plan.highlight" class="flex justify-center mb-2">
@@ -99,7 +100,7 @@ const plans = ref([
           <div class="flex-1">
             <p class="font-semibold text-muted mb-2">Features</p>
 
-            <u-page-list class="space-y-1 text-sm text-muted spoiler-list" :class="{'spoiler_open': !plan.expanded}"
+            <u-page-list class="space-y-1 text-sm text-muted spoiler-list" :class="{'spoiler_open': plan.expanded}"
                          :items="plan.features"
                          :data-plan-index="index">
               <li
@@ -141,16 +142,6 @@ const plans = ref([
   overflow: hidden;
   max-height: 85px;
 
-  &.spoiler_open {
-    max-height: 120px;
-
-    &:after {
-      opacity: 0;
-    }
-  }
-}
-
-.spoiler_open {
   &:after {
     content: "";
     position: absolute;
@@ -159,10 +150,18 @@ const plans = ref([
     right: 0;
     height: 35px;
     border-radius: 5px;
-    background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.4));
+    background: linear-gradient(to bottom, transparent, #0e0c15);
     transition: opacity .2s ease-out;
     opacity: 1;
     pointer-events: none;
+  }
+}
+
+.spoiler_open {
+  max-height: initial;
+
+  &:after {
+    content: none;
   }
 }
 </style>
