@@ -21,7 +21,7 @@ const slides = computed(() => {
 
 <template>
   <div class="space-y-6">
-    <u-page-header :title="title" :description="description" :headline="headline" class="border-0"/>
+    <page-header :title="title" :description="description" :headline="headline" :isCentered="false" class="mb-14"/>
 
     <u-carousel
         v-model="selected"
@@ -44,8 +44,8 @@ const slides = computed(() => {
             v-for="(t, index) in group"
             :key="index"
             :ui="{
-              root: 'folder-figure-holder p-6 ring-0 bg-transparent',
-              body: 'folder-figure-inner h-fill-available'
+              root: 'folder-icon ring-0 bg-transparent',
+              body: 'h-fill-available sm:p-8 p-8'
             }"
         >
           <div class="flex gap-1 mb-3">
@@ -76,3 +76,57 @@ const slides = computed(() => {
     </u-carousel>
   </div>
 </template>
+
+<style scoped lang="scss">
+.folder-icon {
+  position: relative;
+  cursor: pointer;
+  background: transparent;
+  overflow: hidden;
+  clip-path: polygon(
+          2% 0%,
+          33.65% 0%,
+          45.5% 20.16%,
+          100% 20.55%,
+          100% 98%,
+          98.58% 99.6%,
+          1.18% 99.6%,
+          0% 97.63%,
+          0% 1.98%,
+          1.18% 0.79%
+  );
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, var(--color-primary-gradient-start), var(--color-primary-gradient-end));
+    transition: background-color 0.3s ease;
+    z-index: -1;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-color: var(--background-color);
+    clip-path: polygon(
+            2% 0%,
+            33.65% 0%,
+            45.5% 20.16%,
+            100% 20.55%,
+            100% 98%,
+            98.58% 99.6%,
+            1.18% 99.6%,
+            0% 97.63%,
+            0% 1.98%,
+            1.18% 0.79%
+    );
+    z-index: -1;
+  }
+
+  &:hover::after {
+    background: linear-gradient(to left, var(--color-primary-gradient-start), var(--color-primary-gradient-end));
+  }
+}
+</style>

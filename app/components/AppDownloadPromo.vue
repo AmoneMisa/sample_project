@@ -17,15 +17,15 @@ defineProps<{
         }"/>
 
       <div class="flex gap-4">
-        <a href="https://googleplaymarket.com" class="card__download-button">
+        <a href="https://googleplaymarket.com" class="card__download-button transition-transform">
           <img src="/images/play-app.png" alt="play market link"/>
         </a>
-        <a href="https://appstore.com" class="card__download-button">
+        <a href="https://appstore.com" class="card__download-button transition-transform scale-105">
           <img src="/images/apple-app.png" alt="appstore link"/>
         </a>
       </div>
     </div>
-    <div class="flex justify-center gap-6 -z-1 left-0 right-0 absolute card__center">
+    <div class="flex justify-center gap-6 -z-1 left-0 right-0 absolute card__center pointer-events-none">
       <img
           alt="background shape"
           src="/images/bg-shape.png"
@@ -46,7 +46,6 @@ defineProps<{
 .card {
   max-height: 550px;
   background-image: url("/images/bg-img-01.png");
-  background-size: cover;
   background-repeat: no-repeat;
   display: flex;
   justify-content: space-between;

@@ -200,17 +200,17 @@ const testimonials = [
       </u-container>
       <u-container class="flex gap-20">
         <feature-card
-            icon="i-lucide-dollar-sign"
+            image="service-icon-01.png"
             title="100% No-Risk, Money Back Guarantee!"
             description="Refunds will be issued within period of 14 days from the purchase date"
         />
         <feature-card
-            icon="i-lucide-user"
+            image="service-icon-02.png"
             title="Upgrade or Cancel Anytime"
             description="Passages there are many variations of Lorem Ipsum available."
         />
         <feature-card
-            icon="i-lucide-heart"
+            image="service-icon-03.png"
             title="Not sure yet? Try the free version"
             description="Refunds will be issued within period of 14 days from the purchase date"
         />

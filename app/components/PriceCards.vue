@@ -74,7 +74,7 @@ const plans = ref([
           body: 'folder-figure-inner flex flex-col h-full'
         }"
         >
-          <div v-if="plan.highlight" class="flex justify-center mb-2">
+          <div v-if="plan.highlight" class="flex justify-center absolute">
             <u-badge color="primary" variant="solid">Best Offer</u-badge>
           </div>
 

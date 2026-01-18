@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineProps<{
-  icon: string
+  image: string
   title: string
   description: string
 }>()
@@ -9,14 +9,14 @@ defineProps<{
 <template>
   <u-card
       :ui="{
-        root: 'flex flex-col items-center text-center gap-3 p-6 rounded-xl bg-muted/5 transition-transform hover:-translate-y-1 hover:shadow-lg'
+        root: 'ring-0 flex flex-col items-center text-center gap-3 p-6 rounded-xl transition-transform hover:-translate-y-1'
       }"
   >
-    <div class="bg-muted/10 p-4 rounded-full">
-      <u-icon :name="icon" class="text-primary size-6"/>
+    <div class="p-4 rounded-full">
+      <img class="mx-auto" alt="service image" :src="`/images/${image}`"/>
     </div>
 
-    <h3 class="text-base font-semibold">{{ title }}</h3>
-    <p class="text-sm text-muted">{{ description }}</p>
+    <h3 class="text-2xl font-semibold mb-3">{{ title }}</h3>
+    <p class="text-base text-muted">{{ description }}</p>
   </u-card>
 </template>
