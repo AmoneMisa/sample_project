@@ -7,22 +7,18 @@ const items = [
   {
     label: 'Главная',
     to: '/',
-    icon: 'i-lucide-home'
   },
   {
     label: 'Каталог',
-    icon: 'i-lucide-box',
     children: [
       {
         label: 'Одежда',
         to: '/catalog/clothing',
-        icon: 'i-lucide-shirt',
         description: 'Мужская и женская одежда'
       },
       {
         label: 'Обувь',
         to: '/catalog/shoes',
-        icon: 'i-lucide-shoe',
         description: 'Кроссовки, ботинки и др.'
       }
     ]
@@ -30,27 +26,94 @@ const items = [
   {
     label: 'Контакты',
     to: '/contacts',
-    icon: 'i-lucide-phone'
   }
 ];
 </script>
 
 <template>
-  <u-header class="header">
+  <u-header class="header bg-transparent border-0 static">
     <template #left>
       <div class="header__logo max-h-[35px]">
         <img alt="Logo" src="/images/logo.png">
       </div>
     </template>
     <template #default>
-      <u-navigation-menu :items="items" />
+      <u-navigation-menu :items="items" class="header__menu" />
     </template>
     <template #right>
-        <u-locale-select  v-model="locale" :locales="[en, ru, kk]" />
+        <u-locale-select class="header__lang" v-model="locale" :locales="[en, ru, kk]" :ui="{base: 'bg-transparent gradient-button-figure'}" />
     </template>
   </u-header>
 </template>
 
-<style scoped>
+<style lang="scss">
+.header__menu {
+  margin: 0;
+  padding: 0 16px;
+  border: 1px solid var(--ui-border);
+  border-radius: 50px;
+  background: var(--color-blackest);
+  max-height: 52px;
 
+  ul li > a,
+  ul li > button {
+    position: relative;
+    padding: 13px 17px;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--color-link);
+    transition: color 0.3s ease;
+
+    &::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 75%;
+      transform: translate(-50%, -50%);
+      width: 100%;
+      height: 8px;
+      background: linear-gradient(
+              90deg,
+              var(--color-primary-gradient-start),
+              var(--color-primary-gradient-end)
+      );
+      border-radius: 100%;
+      filter: blur(16px);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 0;
+    }
+
+    &::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      margin: 0 auto;
+      width: 0;
+      height: 4px;
+      background: linear-gradient(
+              90deg,
+              var(--color-primary-gradient-start),
+              var(--color-primary-gradient-end)
+      );
+      border-radius: 12px;
+      opacity: 0;
+      transition: 0.3s ease;
+      z-index: 1;
+    }
+
+    &:hover {
+      &::before,
+      &::after {
+        opacity: 1;
+      }
+
+      &:after {
+        width: 45px;
+      }
+    }
+  }
+}
 </style>
