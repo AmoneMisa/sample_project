@@ -31,7 +31,7 @@ const items = [
 </script>
 
 <template>
-  <u-header class="header bg-transparent border-0 static">
+  <u-header class="header bg-transparent border-0">
     <template #left>
       <a class="header__logo max-h-[35px]" href="/">
         <img alt="Logo" src="/images/logo.png">
@@ -54,6 +54,10 @@ const items = [
 </template>
 
 <style lang="scss">
+.header {
+
+}
+
 .header__menu {
   margin: 0;
   padding: 0 16px;
