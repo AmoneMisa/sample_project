@@ -20,11 +20,14 @@ const slides = computed(() => {
 </script>
 
 <template>
+  <page-header title="Chat Smarter, Not Harder with" headline="Assisting individuals" :isCentered="false" :isFullWidth="false" />
   <u-carousel :items="slides" v-slot="{ item: group }" loop indicators dots arrows
               :ui="{
         item: 'px-4',
         indicators: 'mt-4 flex justify-center gap-2',
-        indicator: 'size-2 rounded-full bg-muted data-[active=true]:bg-primary'
+        indicator: 'size-2 rounded-full bg-muted data-[active=true]:bg-primary',
+        dots: 'gap-4',
+        dot: 'tab-circle-button'
       }"
   >
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -41,7 +44,7 @@ const slides = computed(() => {
         <div class="z-10 relative space-y-2">
           <h3 class="text-xl font-bold text-white">{{ item.title }}</h3>
           <p class="text-muted">{{ item.description }}</p>
-          <u-button variant="link" color="primary">{{ buttonText }}</u-button>
+          <custom-button buttonType="link">{{ buttonText}}</custom-button>
         </div>
       </u-card>
     </div>

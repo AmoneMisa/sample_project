@@ -31,7 +31,7 @@ defineProps({
       border: ''
     }"/>
     <u-form-field class="w-full">
-      <u-button class="w-full justify-center gradient-button">{{ buttonText }}</u-button>
+      <custom-button class="w-full justify-center" button-type="gradient-white">{{buttonText}}</custom-button>
     </u-form-field>
   </u-form>
 </template>

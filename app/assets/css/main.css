@@ -2,251 +2,293 @@
 @import "@nuxt/ui";
 
 @keyframes styles_moving-gradient {
-  0% {
-    background-position: 0 0;
-    opacity: 0.5;
-  }
-  50% {
-    background-position: 400% 0;
-    opacity: 1;
-  }
-  100% {
-    background-position: 0 0;
-    opacity: 0.5;
-  }
+    0% {
+        background-position: 0 0;
+        opacity: 0.5;
+    }
+    50% {
+        background-position: 400% 0;
+        opacity: 1;
+    }
+    100% {
+        background-position: 0 0;
+        opacity: 0.5;
+    }
 }
 
 @theme {
-  --container-8xl: 90rem;
-  --color-primary: #805AF5;
-  --color-primary-alt: #35316f;
-  --color-secondary: #CD99FF;
-  --color-primary-gradient-start: #805AF5;
-  --color-primary-gradient-end: #CD99FF;
-  --color-primary-gradient: var(linear-gradient(to right, var(--color-primary-gradient-start), var(--color-primary-gradient-end)));
-  --half-border: linear-gradient(180deg, var(--color-primary-gradient-start) 0%, var(--color-primary-gradient-start), transparent 77%);
-  --background-color: #0E0C15;
-  --shadow-light: 1px 1px 6px rgba(0,0,0,0.25);
-  --shadow-primary: 0 0 20px 5px rgba(20, 126, 243, 0.1);
-  --color-dark: #21242D;
-  --ui-border: rgba(255,255,255,0.05);
+    --container-8xl: 90rem;
+    --color-primary: #805AF5;
+    --color-primary-alt: #35316f;
+    --color-secondary: #CD99FF;
+    --color-primary-gradient-start: #805AF5;
+    --color-primary-gradient-end: #CD99FF;
+    --color-primary-gradient: var(linear-gradient(to right, var(--color-primary-gradient-start), var(--color-primary-gradient-end)));
+    --half-border: linear-gradient(180deg, var(--color-primary-gradient-start) 0%, var(--color-primary-gradient-start), transparent 77%);
+    --ui-bg: #0E0C15;
+    --shadow-light: 1px 1px 6px rgba(0, 0, 0, 0.25);
+    --shadow-primary: 0 0 20px 5px rgba(20, 126, 243, 0.1);
+    --color-dark: #21242D;
+    --ui-border: rgba(255, 255, 255, 0.05);
+    --color-lessdark: #2E313D;
+    --secondary-bg-gradient: linear-gradient(107deg, #171A21 0.52%, rgba(23, 26, 33, 0) 99.49%);
 }
 
 :root {
-  --ui-container: var(--container-8xl);
-  --color-primary-gradient: var(linear-gradient(to right, var(--color-primary-gradient-start), var(--color-primary-gradient-end)));
-  --half-border: var(--half-border);
-  --ui-text-inverted: var(--color-white);
-  --ui-text-muted: #BCC3D7;
-  --background-color: #0E0C15;
-  --shadow-light: 1px 1px 6px rgba(0,0,0,0.25);
-  --shadow-primary: 0 0 20px 5px rgba(20, 126, 243, 0.1);
-  --color-dark: #21242D;
-  --color-blackest: #16181E;
-  --color-link: #BCC3D7;
-  --ui-border: rgba(255,255,255,0.05);
+    --ui-container: var(--container-8xl);
+    --color-primary-gradient: var(linear-gradient(to right, var(--color-primary-gradient-start), var(--color-primary-gradient-end)));
+    --half-border: var(--half-border);
+    --ui-text-inverted: var(--color-white);
+    --ui-text-muted: #BCC3D7;
+    --background-color: #0E0C15;
+    --ui-bg: #0E0C15;
+    --shadow-light: 1px 1px 6px rgba(0, 0, 0, 0.25);
+    --shadow-primary: 0 0 20px 5px rgba(20, 126, 243, 0.1);
+    --color-dark: #21242D;
+    --color-blackest: #16181E;
+    --color-link: #BCC3D7;
+    --ui-border: rgba(255, 255, 255, 0.05);
+    --color-lessdark: #2E313D;
+    --secondary-bg-gradient: linear-gradient(107deg, #171A21 0.52%, rgba(23, 26, 33, 0) 99.49%);
 }
 
 body {
-  background-color: var(--background-color);
+    background-color: var(--background-color);
 }
 
 h1 {
-  font-weight: initial;
+    font-weight: initial;
 }
 
 img {
-  display: block;
-  max-height: inherit;
+    display: block;
+    max-height: inherit;
+}
+
+button {
+    cursor: pointer;
 }
 
 textarea {
-  resize: none;
-  min-height: 100px;
-  background: var(--color-blackest);
-  border: 2px solid transparent;
-  color: var(--color-link);
-  font-weight: 400;
-  height: auto;
-  line-height: 28px;
-  box-shadow: none;
-  outline: none;
-  padding: 15px;
-  font-size: 16px;
-  transition: .3s;
+    resize: none;
+    min-height: 100px;
+    background: var(--color-blackest);
+    border: 2px solid transparent;
+    color: var(--color-link);
+    font-weight: 400;
+    height: auto;
+    line-height: 28px;
+    box-shadow: none;
+    outline: none;
+    padding: 15px;
+    font-size: 16px;
+    transition: .3s;
 }
 
 textarea:focus,
 textarea:active {
-  border: 2px solid var(--color-primary);
+    border: 2px solid var(--color-primary);
 }
 
 .gradient-button {
-  padding: 0 28px;
-  border-style: solid;
-  border-width: 0px;
-  border-color: transparent;
-  border-radius: 8px;
-  background: transparent linear-gradient(to right, var(--color-primary-gradient-start), var(--color-primary-gradient-end));
-  background-size: 200% auto;
-  transition-duration: 300ms;
-  color: var(--color-white);
-  font-size: 16px;
-  font-weight: 500;
-  text-align: center;
-  text-decoration: none;
-  text-shadow: var(--shadow-light);
-  display: inline-block;
-  height: 50px;
-  line-height: 50px;
-  letter-spacing: 0.5px;
-  transition: 0.4s;
-  cursor: pointer;
-}
-
-.gradient-button-figure {
-  position: relative;
-  padding: 0 30px;
-  height: 45px;
-  line-height: 45px;
-  background: transparent;
-  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 14px, 100% 100%, 0 100%);
-  border-radius: 2px;
-  color: var(--color-white);
-  font-size: 16px;
-  font-weight: 500;
-  overflow: hidden;
-  cursor: pointer;
-}
-
-.gradient-button-figure::before {
-  content: "";
-  position: absolute;
-  background: linear-gradient(to right, var(--color-primary-gradient-start), var(--color-primary-gradient-end));
-  border-radius: 2px;
-  inset: 0;
-  z-index: -1;
-  transition: background-color 0.3s ease;
-}
-
-.gradient-button-figure::after {
-  content: "";
-  position: absolute;
-  background-color: var(--background-color);
-  clip-path: polygon(2px 2px, calc(100% - 20px) 2px, calc(100% - 2px) 16px, calc(100% - 2px) calc(100% - 2px), 2px calc(100% - 2px));
-  border-radius: 2px;
-  inset: 0;
-  z-index: -1;
-}
-
-.gradient-button-figure:hover:before {
-  background: linear-gradient(to left, var(--color-primary-gradient-start), var(--color-primary-gradient-end));
-}
-
-.gradient-button-figure_reverse {
-  clip-path: polygon( calc(100%) 0, 18px 0, 0 14px, 0 100%, calc(100%) 100% );
-}
-
-.gradient-button-figure_reverse::after {
-  clip-path: polygon( calc(100% - 2px) 2px, 20px 2px, 2px 16px, 2px calc(100% - 2px), calc(100% - 2px) calc(100% - 2px) );
-}
-
-.gradient-button-figure_reverse::before {
-  background: linear-gradient(to left, var(--color-primary-gradient-start), var(--color-primary-gradient-end));
-}
-
-.gradient-button-figure_reverse:hover:before {
-  background: linear-gradient(to right, var(--color-primary-gradient-start), var(--color-primary-gradient-end));
+    padding: 0 28px;
+    border-style: solid;
+    border-width: 0px;
+    border-color: transparent;
+    border-radius: 8px;
+    background: transparent linear-gradient(to right, var(--color-primary-gradient-start), var(--color-primary-gradient-end));
+    background-size: 200% auto;
+    transition-duration: 300ms;
+    color: var(--color-white);
+    font-size: 16px;
+    font-weight: 500;
+    text-align: center;
+    text-decoration: none;
+    text-shadow: var(--shadow-light);
+    display: inline-block;
+    height: 50px;
+    line-height: 50px;
+    letter-spacing: 0.5px;
+    transition: 0.4s;
 }
 
 .gradient-button:hover {
-  box-shadow: var(--shadow-primary);
-  -webkit-filter: brightness(125%);
-  filter: brightness(125%);
-  color: var(--color-white);
-  text-decoration: none;
+    box-shadow: var(--shadow-primary);
+    -webkit-filter: brightness(125%);
+    filter: brightness(125%);
+    color: var(--color-white);
+    text-decoration: none;
 }
 
-.button-white{
-  background: var(--color-white);
-  color: var(--color-black);
+.gradient-button_black {
+    color: var(--color-black);
+}
+
+.gradient-button_black:hover {
+    color: var(--color-black);
+}
+
+.gradient-button-figure {
+    position: relative;
+    padding: 0 30px;
+    height: 45px;
+    line-height: 45px;
+    background: transparent;
+    clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 14px, 100% 100%, 0 100%);
+    border-radius: 2px;
+    color: var(--color-white);
+    font-size: 16px;
+    font-weight: 500;
+    overflow: hidden;
+}
+
+.gradient-button-figure::before {
+    content: "";
+    position: absolute;
+    background: linear-gradient(to right, var(--color-primary-gradient-start), var(--color-primary-gradient-end));
+    border-radius: 2px;
+    inset: 0;
+    z-index: -1;
+    transition: background-color 0.3s ease;
+}
+
+.gradient-button-figure::after {
+    content: "";
+    position: absolute;
+    background-color: var(--background-color);
+    clip-path: polygon(2px 2px, calc(100% - 20px) 2px, calc(100% - 2px) 16px, calc(100% - 2px) calc(100% - 2px), 2px calc(100% - 2px));
+    border-radius: 2px;
+    inset: 0;
+    z-index: -1;
+}
+
+.gradient-button-figure:hover:before {
+    background: linear-gradient(to left, var(--color-primary-gradient-start), var(--color-primary-gradient-end));
+}
+
+.gradient-button-figure_reverse {
+    clip-path: polygon(calc(100%) 0, 18px 0, 0 14px, 0 100%, calc(100%) 100%);
+}
+
+.gradient-button-figure_reverse::after {
+    clip-path: polygon(calc(100% - 2px) 2px, 20px 2px, 2px 16px, 2px calc(100% - 2px), calc(100% - 2px) calc(100% - 2px));
+}
+
+.gradient-button-figure_reverse::before {
+    background: linear-gradient(to left, var(--color-primary-gradient-start), var(--color-primary-gradient-end));
+}
+
+.gradient-button-figure_reverse:hover:before {
+    background: linear-gradient(to right, var(--color-primary-gradient-start), var(--color-primary-gradient-end));
+}
+
+.button-white {
+    background: var(--color-white);
+    color: var(--color-black);
 }
 
 .button-white:hover {
-  background: var(--color-primary);
-  color: var(--color-white);
+    background: var(--color-primary);
+    color: var(--color-white);
 }
 
 .folder-figure-inner {
-  position: relative;
-  z-index: 3;
-  padding: 30px;
-  clip-path: polygon(0 0, calc(100% - 36px) 0, 100% 30px, 100% 100%, 0 100%);
-  border-radius: var(--radius);
-  background: #0E0C15;
-  border: 0;
+    position: relative;
+    z-index: 3;
+    padding: 30px;
+    clip-path: polygon(0 0, calc(100% - 36px) 0, 100% 30px, 100% 100%, 0 100%);
+    border-radius: var(--radius);
+    background: #0E0C15;
+    border: 0;
 }
 
 .folder-figure-holder {
-  height: 100%;
-  position: relative;
-  display: inline-block;
-  padding: 2px;
-  transition: all 0.3s ease-in-out;
+    height: 100%;
+    position: relative;
+    display: inline-block;
+    padding: 2px;
+    transition: all 0.3s ease-in-out;
 }
 
 .folder-figure-holder:hover {
-  box-shadow: 0px 19px 19px rgba(190, 140, 253, 0.03);
+    box-shadow: 0px 19px 19px rgba(190, 140, 253, 0.03);
 }
 
-.folder-figure-holder:hover::after{
-  opacity: 1;
-  visibility: initial;
+.folder-figure-holder:hover::after {
+    opacity: 1;
+    visibility: initial;
 }
 
 .folder-figure-holder:before,
 .folder-figure-holder:after {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background: #1A1A1E;
-  content: "";
-  clip-path: polygon(0 0, calc(100% - 36px) 0, 100% 30px, 100% 100%, 0 100%);
-  border-radius: var(--radius);
-  transition: all 0.3s ease-in-out;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: #1A1A1E;
+    content: "";
+    clip-path: polygon(0 0, calc(100% - 36px) 0, 100% 30px, 100% 100%, 0 100%);
+    border-radius: var(--radius);
+    transition: all 0.3s ease-in-out;
 }
 
 .folder-figure-holder:after {
-  background: linear-gradient(to right, var(--color-primary-gradient-start), var(--color-primary-gradient-end));
-  opacity: 0;
-  visibility: hidden;
-  filter: drop-shadow(0px 29px 36px rgba(190, 140, 253, 0.09));
+    background: linear-gradient(to right, var(--color-primary-gradient-start), var(--color-primary-gradient-end));
+    opacity: 0;
+    visibility: hidden;
+    filter: drop-shadow(0px 29px 36px rgba(190, 140, 253, 0.09));
 }
 
 .custom-border:after {
-  position: absolute;
-  left: 0;
-  top: 0;
-  transition: all 0.3s;
-  width: 100%;
-  height: 100%;
-  z-index: -1;
-  background: linear-gradient(180deg, var(--color-primary-gradient-start) 0%, var(--color-primary-gradient-start), transparent 77%);
-  content: "";
-  border-radius: 20px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    transition: all 0.3s;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background: linear-gradient(180deg, var(--color-primary-gradient-start) 0%, var(--color-primary-gradient-start), transparent 77%);
+    content: "";
+    border-radius: 20px;
 }
 
 .h-fill-available {
-  height: -webkit-fill-available;
+    height: -webkit-fill-available;
 }
 
 .gradient-text {
-  background-image: linear-gradient(to right, var(--color-primary-gradient-start), var(--color-primary-gradient-end));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  backface-visibility: hidden;
-  text-transform: capitalize;
+    background-image: linear-gradient(to right, var(--color-primary-gradient-start), var(--color-primary-gradient-end));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    backface-visibility: hidden;
+    text-transform: capitalize;
+    color: transparent;
+}
+
+.tab-circle-button {
+    position: relative;
+    background-color: var(--background-color);
+}
+
+.tab-circle-button::after {
+    content: "";
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    background-color: var(--color-lessdark);
+    transition: .4s ease-in-out;
+    cursor: pointer;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    border: 3px solid var(--background-color);
+}
+
+.tab-circle-button[data-state="active"]::after {
+    background-color: transparent;
+    border: 2px solid var(--color-primary);
 }

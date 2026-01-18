@@ -79,27 +79,31 @@ const cards = [
 
 const tabs2 = [
   {
-    label: '01 Connect with AI',
-    title: 'Connect with AI',
-    description: 'Identify the platform or interface through which you can access the chatbot.',
+    label: 'Connect with AI',
+    title: 'Connect with Al chatbot',
+    description: 'Dentify the platform or interface through which you can access the chatbot. This could be a website, a messaging app, or a dedicated application.',
+    headline: 'How it work',
     image: '/images/split-1.png'
   },
   {
-    label: '02 Streamline Workflow',
-    title: 'Streamline Workflow',
-    description: 'Automate repetitive tasks and boost productivity with AI-powered tools.',
+    label: 'Streamline Workflow',
+    title: 'Streamline Your Workflow',
+    description: 'Discover tools and techniques to optimize your workflow, making your tasks more efficient and manageable.',
+    headline: 'Exploring Efficiency',
     image: '/images/split-2.png'
   },
   {
-    label: '03 Cybersecurity',
-    title: 'Cybersecurity',
-    description: 'Protect your data and systems with intelligent threat detection.',
+    label: 'Cybersecurity',
+    title: 'Protecting Your Digital Presence',
+    description: 'Gain insights into cybersecurity measures and strategies to safeguard your online identity and sensitive information.',
+    headline: 'Navigating Cybersecurity',
     image: '/images/split-3.png'
   },
   {
-    label: '04 Data Analysis',
-    title: 'Data Analysis',
-    description: 'Extract insights from complex datasets using AI-driven analytics.',
+    label: 'Data Analysis',
+    title: 'Demystifying Data Analytics',
+    description: 'Learn the fundamentals of data analysis, including tools and methodologies, to extract meaningful insights from raw data.',
+    headline: 'Mastering Data Analysis',
     image: '/images/split-4.png'
   }
 ];
@@ -150,8 +154,7 @@ const testimonials = [
       <animated-rotated-x-text :texts-list="['AI Chating', 'AI Writing' ,'AI Chating', 'AI Writing']"/>
       AI Hack
     </h1>
-    <u-page-header description="Unleash Brainwave's AI potential. Use the open AI conversation app Pixcels Themes"
-                   class="text-center m-auto"/>
+    <page-header description="Unleash Brainwave's AI potential. Use the open AI conversation app Pixcels Themes" descriptionSize="24" />
     <u-page-body class="gap-16 grid">
       <textarea-request-form placeholder="Type something to promt AI..." button-text="Start with AI"/>
       <u-container class="max-w-6xl mx-auto">
@@ -165,8 +168,7 @@ const testimonials = [
       <features-carousel :cards="cards" button-text="Explore More →"/>
       <tabs-with-under-buttons :tabs="tabs2" button-text="Try It Now →"/>
       <u-container class="flex flex-col justify-center">
-        <u-page-header title="AI Chat app for seamless collaboration" headline="AI Collaboration" class="border-0"
-                       :ui="{title: 'mx-auto', headline: 'justify-center gradient-text text-md'}"/>
+        <page-header title="AI Chat app for seamless collaboration" headline="AI Collaboration" />
         <u-button class=" m-auto justify-center h-16 w-48 text-lg">Try it now →</u-button>
         <div class="relative logo-shadow">
           <div class="logo-shadow__logo absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-12 py-8 rounded-xl ring-2 ring-neutral-900">
@@ -190,9 +192,7 @@ const testimonials = [
         </div>
         <u-container class="w-1/4 gap-6 flex flex-col">
           <img src="/images/team-01.png" alt="team on GitHub" class="flex-none mx-auto w-fit">
-          <u-button class="justify-center h-12 text-base brightness-125 button-white">Join Now
-            Today Free
-          </u-button>
+          <custom-button class="justify-center h-12 text-base" button-type="white">Join Now Today Free</custom-button>
         </u-container>
       </u-container>
       <u-container>

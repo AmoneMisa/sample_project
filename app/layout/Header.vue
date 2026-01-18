@@ -41,11 +41,14 @@ const items = [
       <u-navigation-menu :items="items" class="header__menu" />
     </template>
     <template #right>
-        <u-locale-select class="header__lang " v-model="locale" :locales="[en, ru, kk]" :ui="{
+        <u-locale-select class="header__lang" v-model="locale" :locales="[en, ru, kk]" :ui="{
           base: 'gradient-button-figure gradient-button-figure_reverse',
           leading: 'self-baseline',
+          trailingIcon: 'text-primary',
+          content: 'bg-default text-white border-2 border-default',
           value: 'px-2'
         }" />
+      <u-button class="capitalize gradient-button-figure">Get start</u-button>
     </template>
   </u-header>
 </template>

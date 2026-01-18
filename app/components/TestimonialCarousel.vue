@@ -34,7 +34,9 @@ const slides = computed(() => {
         :ui="{
         item: 'px-4',
         indicators: 'mt-4 flex justify-center gap-2',
-        indicator: 'size-2 rounded-full bg-muted data-[active=true]:bg-primary'
+        indicator: 'size-2 rounded-full bg-muted data-[active=true]:bg-primary',
+        dots: 'gap-4',
+        dot: 'tab-circle-button'
       }"
     >
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">

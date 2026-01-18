@@ -15,14 +15,14 @@ defineProps({
 <template>
   <u-tabs :items="tabs" class="flex flex-col-reverse gap-6">
     <template #content="{ item }">
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-        <div class="space-y-4">
-          <h2 class="text-3xl font-bold text-white">{{ item.title }}</h2>
-          <p class="text-muted text-lg">{{ item.description }}</p>
-          <u-button color="primary">Try It Now →</u-button>
+      <div class="flex items-center">
+        <div class="min-h-[450px] max-w-[40%]">
+          <img :src="item.image" :alt="item.title" class="w-full"/>
         </div>
-        <div class="min-h-[450px]">
-          <img :src="item.image" :alt="item.title" class="w-full max-w-md mx-auto"/>
+        <div class="flex flex-col w-full px-20 py-7 max-w-[55%]">
+          <page-header :title="item.title" :description="item.description" :headline="item.headline"
+                       :isCentered="false" descriptionClasses="mt-8"/>
+          <custom-button class="w-fit mt-8">Try It Now →</custom-button>
         </div>
       </div>
     </template>
