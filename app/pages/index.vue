@@ -3,6 +3,7 @@ import type {TabsItem} from "#ui/components/Tabs.vue";
 import TextareaRequestForm from "~/components/TextareaRequestForm.vue";
 import FeaturesCarousel from "~/components/FeaturesCarousel.vue";
 import TabsWithUnderButtons from "~/components/TabsWithUnderButtons.vue";
+import ImagesCarousel from "~/components/ImagesCarousel.vue";
 
 const tabs: TabsItem[] = [
   {
@@ -150,28 +151,38 @@ const testimonials = [
 
 <template>
   <u-page>
-    <h1 class="font-bold text-7xl text-center">Examine the Potential of
+    <h1 class="font-bold text-7xl text-center max-w-[60%] mx-auto">Examine the Potential of
       <animated-rotated-x-text :texts-list="['AI Chating', 'AI Writing' ,'AI Chating', 'AI Writing']"/>
       AI Hack
     </h1>
-    <page-header description="Unleash Brainwave's AI potential. Use the open AI conversation app Pixcels Themes" descriptionSize="24" />
+    <page-header description="Unleash Brainwave's AI potential. Use the open AI conversation app Pixcels Themes"
+                 descriptionSize="24"/>
     <u-page-body class="gap-16 grid">
       <textarea-request-form placeholder="Type something to promt AI..." button-text="Start with AI"/>
       <u-container class="max-w-6xl mx-auto">
         <img src="/images/slider-main-image.png" class="w-full rounded-lg" alt="admin panel"/>
       </u-container>
-      <u-container class="flex items-center justify-center">
-        <p class="text-2xl font-semibold text-center text-muted uppercase">Truest 800,000+ highly productive company</p>
+      <u-container class="flex items-center flex-col justify-center">
+        <h3 class="text-2xl font-semibold text-center text-muted uppercase mb-8">Truest 800,000+ highly productive company</h3>
+        <images-carousel :images="[
+  '/images/spotify.png',
+  '/images/woocommerce.png',
+  '/images/slack.png',
+  '/images/strapi.png',
+  '/images/mapbox.png'
+]"/>
       </u-container>
       <tabs-with-background :tabs="tabs" title="Generative AI made for creators."
                             headline="Rainbow unlocks the potential AI" :ui="{headline: 'gradient-text'}"/>
       <features-carousel :cards="cards" button-text="Explore More →"/>
       <tabs-with-under-buttons :tabs="tabs2" button-text="Try It Now →"/>
       <u-container class="flex flex-col justify-center">
-        <page-header title="AI Chat app for seamless collaboration" headline="AI Collaboration" titleClasses="max-w-[530px]" />
+        <page-header title="AI Chat app for seamless collaboration" headline="AI Collaboration"
+                     titleClasses="max-w-[530px]"/>
         <custom-button class="m-auto justify-center h-16 w-48 text-lg mt-5">Try it now →</custom-button>
         <div class="relative logo-shadow">
-          <div class="logo-shadow__logo absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-12 py-8 rounded-xl ring-2 ring-neutral-900">
+          <div
+              class="logo-shadow__logo absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-12 py-8 rounded-xl ring-2 ring-neutral-900">
             <img alt="AI Collaboration" src="/images/split-2-logo.png"
                  class=""/>
           </div>

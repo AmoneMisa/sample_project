@@ -264,13 +264,17 @@ textarea:active {
 }
 
 .gradient-text {
-    background-image: linear-gradient(to right, var(--color-primary-gradient-start), var(--color-primary-gradient-end));
+    background: linear-gradient(90deg, var(--color-primary-gradient-start) 0%, #CE99FF 100%);
+    text-transform: uppercase;
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
     backface-visibility: hidden;
-    text-transform: capitalize;
     color: transparent;
+
+    .animated-rotated-text & {
+        text-transform: capitalize;
+    }
 }
 
 .tab-circle-button {
