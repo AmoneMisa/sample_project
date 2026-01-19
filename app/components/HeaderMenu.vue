@@ -1,41 +1,43 @@
 <script setup lang="ts">
+const {t} = useI18n();
+
 const menu = [
   {
     type: "simple",
-    label: "Home",
+    label: "menu.home",
     href: "/"
   },
   {
     type: "dropdown-simple",
-    label: "Tools",
+    label: "menu.tools",
     items: [
-      {label: "Text Generator", badge: "Cool", href: "/text"},
-      {label: "Image Generator", href: "/image"},
-      {label: "Code Generator", badge: "discount", href: "/code"}
+      {label: "menu.textGenerator", badge: "badge.cool", href: "/text"},
+      {label: "menu.imageGenerator", href: "/image"},
+      {label: "menu.codeGenerator", badge: "badge.discount", href: "/code"}
     ]
   },
   {
     type: "dropdown-mega",
-    label: "Pages",
+    label: "menu.pages",
     columns: [
       {
-        title: "Inner Pages",
+        title: "menu.innerPages",
         items: [
-          {label: "Blog", href: "/blog"},
-          {label: "Pricing", href: "/pricing"}
+          {label: "menu.blog", href: "/blog"},
+          {label: "menu.pricing", href: "/pricing"}
         ]
       },
       {
-        title: "Dashboard",
+        title: "menu.dashboard",
         items: [
-          {label: "Profile", href: "/profile"},
-          {label: "Sessions", badge: "easy to buy", href: "/sessions"}
+          {label: "menu.profile", href: "/profile"},
+          {label: "menu.sessions", badge: "badge.easyToBuy", href: "/sessions"}
         ]
       }
     ],
     image: {
       src: "/images/menu-img-2.png",
-      position: "right" // "left"
+      position: "right"
     }
   }
 ];
@@ -44,8 +46,7 @@ const menu = [
 <template>
   <nav class="header-menu">
     <ul class="header-menu__list">
-      <li
-          v-for="(item, i) in menu"
+      <li v-for="(item, i) in menu"
           :key="i"
           class="header-menu__item"
           :class="{
@@ -58,11 +59,11 @@ const menu = [
             class="header-menu__link"
             :href="item.href"
         >
-          {{ item.label }}
+          {{ t(item.label) }}
         </a>
         <div v-else-if="item.type === 'dropdown-simple'" class="header-menu__trigger">
         <span class="header-menu__link">
-          {{ item.label }}
+            {{ t(item.label) }}
         </span>
 
           <ul class="header-menu__dropdown">
@@ -72,14 +73,14 @@ const menu = [
                 class="header-menu__dropdown-item"
             >
               <a class="header-menu__dropdown-link" :href="sub.href">
-                {{ sub.label }} <span class="header-menu__badge" v-if="sub.badge">{{ sub.badge }}</span>
+                {{ t(sub.label) }} <span v-if="sub.badge" class="header-menu__badge">{{ t(sub.badge) }}</span>
               </a>
             </li>
           </ul>
         </div>
         <div v-else-if="item.type === 'dropdown-mega'" class="header-menu__trigger">
         <span class="header-menu__link">
-          {{ item.label }}
+            {{ t(item.label) }}
         </span>
           <div class="header-menu__mega">
             <div
@@ -87,7 +88,7 @@ const menu = [
                 :key="c"
                 class="header-menu__mega-column"
             >
-              <h3 class="header-menu__mega-title">{{ col.title }}</h3>
+              <h3 class="header-menu__mega-title">{{ t(col.title) }}</h3>
 
               <ul class="header-menu__mega-list">
                 <li
@@ -96,7 +97,7 @@ const menu = [
                     class="header-menu__mega-item"
                 >
                   <a class="header-menu__mega-link" :href="sub.href">
-                    {{ sub.label }} <span class="header-menu__badge" v-if="sub.badge">{{ sub.badge }}</span>
+                    {{ t(sub.label) }} <span v-if="sub.badge" class="header-menu__badge">{{ t(sub.badge) }}</span>
                   </a>
                 </li>
               </ul>
@@ -367,6 +368,8 @@ const menu = [
   align-items: center;
   max-height: 460px;
   margin: -16px;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 
   img {
     width: -webkit-fill-available;

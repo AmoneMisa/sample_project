@@ -1,11 +1,16 @@
 <script setup lang="ts">
-import {en, ru, kk} from '@nuxt/ui/locale'
+import {en, ru, kk} from '@nuxt/ui/locale';
 import HeaderMenu from "~/components/HeaderMenu.vue";
 
-const locale = ref('ru');
 const header = useTemplateRef('header');
 const isSticky = ref(false);
 const isVisible = ref(false);
+
+const { locale, setLocale, t } = useI18n();
+const currentLocale = computed({
+  get: () => locale.value,
+  set: (v) => setLocale(v)
+});
 
 onMounted(() => {
   const el = header.value?.$el;
@@ -50,14 +55,14 @@ onMounted(() => {
       <header-menu />
     </template>
     <template #right>
-      <u-locale-select class="header__lang" v-model="locale" :locales="[en, ru, kk]" :ui="{
+      <u-locale-select class="header__lang" v-model="currentLocale" :locales="[en, ru, kk]" :ui="{
           base: 'gradient-button-figure gradient-button-figure_reverse',
           leading: 'self-baseline',
           trailingIcon: 'text-primary',
           content: 'bg-default text-white border-2 border-default',
           value: 'px-2'
         }"/>
-      <u-button class="capitalize gradient-button-figure">Get start</u-button>
+      <u-button class="capitalize gradient-button-figure">{{ t('button.getStart') }}</u-button>
     </template>
   </u-header>
 </template>

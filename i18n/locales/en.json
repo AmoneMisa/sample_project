@@ -1,0 +1,77 @@
+{
+  "menu": {
+    "home": "Home",
+    "tools": "Tools",
+    "pages": "Pages",
+    "innerPages": "Inner Pages",
+    "dashboard": "Dashboard",
+    "textGenerator": "Text Generator",
+    "imageGenerator": "Image Generator",
+    "codeGenerator": "Code Generator",
+    "blog": "Blog",
+    "pricing": "Pricing",
+    "profile": "Profile",
+    "sessions": "Sessions"
+  },
+  "badge": {
+    "cool": "Cool",
+    "discount": "Discount",
+    "easyToBuy": "Easy to buy"
+  },
+  "button": {
+    "getStart": "Get start"
+  },
+  "hero": {
+    "title": "Examine the Potential of AI Writing AI Hack",
+    "subtitle": "Unleash Brainwave's AI potential. Use the open AI conversation app Pixcels Themes",
+    "cta": "Start with AI"
+  },
+  "form": {
+    "placeholder": "Type something to prompt AI...",
+    "button": "Start with AI"
+  },
+  "trust": {
+    "title": "Trusted by 800,000+ highly productive companies"
+  },
+  "tabs": {
+    "headline": "Rainbow unlocks the potential AI",
+    "title": "Generative AI made for creators.",
+    "audio": {
+      "title": "AI Audio Generation",
+      "features": [
+        "Transformer Models",
+        "Conditional Generative Models",
+        "Pre-trained Models",
+        "Variational Autoencoders"
+      ],
+      "cta": "Start Exploring Now →"
+    },
+    "code": {
+      "title": "Code"
+    },
+    "photo": {
+      "title": "Photo"
+    },
+    "video": {
+      "title": "Video"
+    }
+  },
+  "carousel": {
+    "headline": "Assisting individuals",
+    "title": "Chat Smarter, Not Harder with"
+  },
+  "howItWorks": {
+    "headline": "How it works",
+    "title": "Connect with AI chatbot",
+    "description": "Identify the platform or interface through which you can access the chatbot. This could be a website, a messaging app, or a dedicated application.",
+    "cta": "Try It Now →"
+  },
+  "collaboration": {
+    "headline": "AI Collaboration",
+    "title": "AI Chat app for seamless collaboration",
+    "cta": "Try it now →"
+  },
+  "community": {
+    "title": "Join our AI Experts community"
+  }
+}
