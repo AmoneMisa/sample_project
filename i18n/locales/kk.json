@@ -22,9 +22,12 @@
     "getStart": "Бастау"
   },
   "hero": {
-    "title": "AI Writing және AI Hack мүмкіндігін зерттеңіз",
+    "title": "және AI Hack",
+    "title2": "мүмкіндігін зерттеңіз",
     "subtitle": "Brainwave мүмкіндігін ашыңыз. Pixcels Themes AI чат қолданбасын пайдаланыңыз",
-    "cta": "AI арқылы бастау"
+    "cta": "AI арқылы бастау",
+    "rotated1": "AI Chating",
+    "rotated2": "AI Writing"
   },
   "form": {
     "placeholder": "AI үшін мәтін енгізіңіз...",

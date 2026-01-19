@@ -22,9 +22,12 @@
     "getStart": "Get start"
   },
   "hero": {
-    "title": "Examine the Potential of AI Writing AI Hack",
+    "title": "Examine the Potential of",
+    "title2": "AI Hack",
     "subtitle": "Unleash Brainwave's AI potential. Use the open AI conversation app Pixcels Themes",
-    "cta": "Start with AI"
+    "cta": "Start with AI",
+    "rotated1": "AI Chating",
+    "rotated2": "AI Writing"
   },
   "form": {
     "placeholder": "Type something to prompt AI...",

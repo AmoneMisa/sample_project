@@ -22,9 +22,12 @@
     "getStart": "Начать"
   },
   "hero": {
-    "title": "Исследуйте потенциал AI Writing и AI Hack",
+    "title": "Исследуйте потенциал ",
+    "title2": "AI Hack",
     "subtitle": "Раскройте потенциал Brainwave. Используйте приложение для общения с ИИ от Pixcels Themes",
-    "cta": "Начать с ИИ"
+    "cta": "Начать с ИИ",
+    "rotated1": "AI Chating",
+    "rotated2": "AI Writing"
   },
   "form": {
     "placeholder": "Введите что‑нибудь, чтобы запросить ИИ...",

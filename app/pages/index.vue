@@ -5,6 +5,8 @@ import FeaturesCarousel from "~/components/FeaturesCarousel.vue";
 import TabsWithUnderButtons from "~/components/TabsWithUnderButtons.vue";
 import ImagesCarousel from "~/components/ImagesCarousel.vue";
 
+const {t} = useI18n();
+
 const tabs: TabsItem[] = [
   {
     label: 'Audio',
@@ -151,99 +153,148 @@ const testimonials = [
 
 <template>
   <u-page>
-    <h1 class="font-bold text-7xl text-center max-w-[60%] mx-auto">Examine the Potential of
-      <animated-rotated-x-text :texts-list="['AI Chating', 'AI Writing' ,'AI Chating', 'AI Writing']"/>
-      AI Hack
+    <h1 class="font-bold text-7xl text-center max-w-[60%] mx-auto">
+      {{ t('hero.title') }}
+      <animated-rotated-x-text :texts-list="[t('hero.rotated1'), t('hero.rotated2'), t('hero.rotated1'), t('hero.rotated2')]" />
     </h1>
-    <page-header description="Unleash Brainwave's AI potential. Use the open AI conversation app Pixcels Themes"
-                 descriptionSize="24"/>
+
+    <page-header
+        :description="t('hero.subtitle')"
+        descriptionSize="24"
+    />
+
     <u-page-body class="gap-16 grid">
-      <textarea-request-form placeholder="Type something to promt AI..." button-text="Start with AI"/>
+
+      <textarea-request-form
+          :placeholder="t('form.placeholder')"
+          :button-text="t('form.button')"
+      />
+
       <u-container class="max-w-6xl mx-auto admin-panel">
         <div class="admin-panel__image">
           <img src="/images/slider-main-image.png" class="w-full rounded-lg" alt="admin panel"/>
         </div>
       </u-container>
+
       <u-container class="flex items-center flex-col justify-center">
-        <h3 class="text-2xl font-semibold text-center text-muted uppercase mb-8">Truest 800,000+ highly productive company</h3>
+        <h3 class="text-2xl font-semibold text-center text-muted uppercase mb-8">
+          {{ t('trust.title') }}
+        </h3>
+
         <images-carousel :images="[
-  '/images/spotify.png',
-  '/images/woocommerce.png',
-  '/images/slack.png',
-  '/images/strapi.png',
-  '/images/mapbox.png'
-]"/>
+          '/images/spotify.png',
+          '/images/woocommerce.png',
+          '/images/slack.png',
+          '/images/strapi.png',
+          '/images/mapbox.png'
+        ]"/>
       </u-container>
-      <tabs-with-background :tabs="tabs" title="Generative AI made for creators."
-                            headline="Rainbow unlocks the potential AI" :ui="{headline: 'gradient-text gradient-text_up'}"/>
-      <features-carousel :cards="cards" button-text="Explore More →"/>
-      <tabs-with-under-buttons class="bg-full" :tabs="tabs2" button-text="Try It Now →"/>
+
+      <tabs-with-background
+          :tabs="tabs"
+          :title="t('tabs.title')"
+          :headline="t('tabs.headline')"
+          :ui="{ headline: 'gradient-text gradient-text_up' }"
+      />
+
+      <features-carousel
+          :cards="cards"
+          :button-text="t('features.button')"
+      />
+
+      <tabs-with-under-buttons
+          class="bg-full"
+          :tabs="tabs2"
+          :button-text="t('howItWorks.cta')"
+      />
+
       <u-container class="flex flex-col justify-center">
-        <page-header title="AI Chat app for seamless collaboration" headline="AI Collaboration"
-                     titleClasses="max-w-[530px]"/>
-        <custom-button class="m-auto justify-center h-16 w-48 text-lg mt-5">Try it now →</custom-button>
+        <page-header
+            :title="t('collaboration.title')"
+            :headline="t('collaboration.headline')"
+            titleClasses="max-w-[530px]"
+        />
+
+        <custom-button class="m-auto justify-center h-16 w-48 text-lg mt-5">
+          {{ t('collaboration.cta') }}
+        </custom-button>
+
         <div class="relative logo-shadow">
-          <div
-              class="logo-shadow__logo absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-12 py-8 rounded-xl ring-2 ring-neutral-900">
-            <img alt="AI Collaboration" src="/images/split-2-logo.png"
-                 class=""/>
+          <div class="logo-shadow__logo absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-12 py-8 rounded-xl ring-2 ring-neutral-900">
+            <img alt="AI Collaboration" src="/images/split-2-logo.png"/>
           </div>
           <img alt="AI Collaboration" src="/images/split-2-background.png"/>
         </div>
       </u-container>
+
       <u-container class="violet-block rounded-xl flex justify-between py-16 max-h-[265px]">
         <u-page-header
             class="border-none max-w-[590px] py-0"
-            title="Join our aI Experts community"
-            description="Meet and learn from 80+ creators & companies who share how thay use AI to create better content at lightning speed."
-            :ui="{
-              description: 'text-white'
-            }"
+            :title="t('community.title')"
+            :description="t('community.description')"
+            :ui="{ description: 'text-white' }"
         />
+
         <div class="flex items-center">
-          <img src="/images/bg-shape-01.png" alt="Join our aI Experts community">
+          <img src="/images/bg-shape-01.png" alt="Join our AI Experts community">
         </div>
+
         <u-container class="w-1/4 gap-6 flex flex-col">
           <img src="/images/team-01.png" alt="team on GitHub" class="flex-none mx-auto w-fit">
-          <custom-button class="justify-center h-12 text-base" button-type="white">Join Now Today Free</custom-button>
+          <custom-button class="justify-center h-12 text-base" button-type="white">
+            {{ t('community.cta') }}
+          </custom-button>
         </u-container>
       </u-container>
+
       <u-container>
         <price-cards/>
       </u-container>
+
       <u-container class="flex gap-20">
         <feature-card
             image="service-icon-01.png"
-            title="100% No-Risk, Money Back Guarantee!"
-            description="Refunds will be issued within period of 14 days from the purchase date"
+            :title="t('guarantee.title1')"
+            :description="t('guarantee.desc1')"
         />
         <feature-card
             image="service-icon-02.png"
-            title="Upgrade or Cancel Anytime"
-            description="Passages there are many variations of Lorem Ipsum available."
+            :title="t('guarantee.title2')"
+            :description="t('guarantee.desc2')"
         />
         <feature-card
             image="service-icon-03.png"
-            title="Not sure yet? Try the free version"
-            description="Refunds will be issued within period of 14 days from the purchase date"
+            :title="t('guarantee.title3')"
+            :description="t('guarantee.desc3')"
         />
       </u-container>
-      <testimonial-carousel headline="Assisting Individuals" title="The opinions of the community"
-                            :testimonials="testimonials"/>
+
+      <testimonial-carousel
+          :headline="t('testimonials.headline')"
+          :title="t('testimonials.title')"
+          :testimonials="testimonials"
+      />
+
       <review-logos
-          title="Based on 20,000+ reviews on"
+          :title="t('reviews.title')"
           :logos="[
-    { src: '/images/brand-01.png', alt: 'G2 Crowd' },
-    { src: '/images/brand-02.png', alt: 'Capterra' },
-    { src: '/images/brand-03.png', alt: 'GetApp' },
-    { src: '/images/brand-04.png', alt: 'TrustRadius' }
-  ]"/>
-      <app-download-promo headline="Get Started With Pixcels" title="Experience Products in AI
-" description="Based on the conversation with the AI chatbot, you will receive
-personalized recommendations."/>
+          { src: '/images/brand-01.png', alt: 'G2 Crowd' },
+          { src: '/images/brand-02.png', alt: 'Capterra' },
+          { src: '/images/brand-03.png', alt: 'GetApp' },
+          { src: '/images/brand-04.png', alt: 'TrustRadius' }
+        ]"
+      />
+
+      <app-download-promo
+          :headline="t('download.headline')"
+          :title="t('download.title')"
+          :description="t('download.description')"
+      />
+
     </u-page-body>
   </u-page>
 </template>
+
 
 <style scoped lang="scss">
 .violet-block {
