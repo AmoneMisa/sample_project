@@ -26,13 +26,16 @@ defineProps({
     default: true
   },
   headLineClasses: {
-    type: String
+    type: String,
+    default: ""
   },
   titleClasses: {
-    type: String
+    type: String,
+    default: ""
   },
   descriptionClasses: {
-    type: String
+    type: String,
+    default: ""
   }
 })
 </script>

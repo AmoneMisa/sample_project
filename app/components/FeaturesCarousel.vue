@@ -20,37 +20,59 @@ const slides = computed(() => {
 </script>
 
 <template>
-  <page-header title="Chat Smarter, Not Harder with" headline="Assisting individuals" :isCentered="false" :isFullWidth="false" />
-  <u-carousel :items="slides" v-slot="{ item: group }" loop indicators dots arrows
-              :ui="{
+  <carousel :items="slides" v-slot="{ item: group }" loop indicators dots
+            :ui="{
         item: 'px-4',
         indicators: 'mt-4 flex justify-center gap-2',
         indicator: 'size-2 rounded-full bg-muted data-[active=true]:bg-primary',
         dots: 'gap-4',
         dot: 'tab-circle-button'
       }"
+            title="Chat Smarter, Not Harder with" headline="Assisting individuals"
+            headLineClasses="gradient-text_cap"
   >
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
       <u-card v-for="(item, index) in group"
               :key="index"
               :ui="{
               root: 'folder-figure-holder p-6 ring-0 bg-transparent',
-              body: 'folder-figure-inner h-fill-available'
+              body: 'folder-figure-inner h-fill-available background-shape-image'
             }">
         <div
             class="w-12 h-12 flex items-center justify-center rounded-full bg-primary/10 text-primary mb-4 z-10 relative">
-          <u-icon :name="item.icon" class="text-xl"/>
+          <img :alt="item.title" :src="item.icon" class="text-xl"/>
         </div>
         <div class="z-10 relative space-y-2">
           <h3 class="text-xl font-bold text-white">{{ item.title }}</h3>
           <p class="text-muted">{{ item.description }}</p>
-          <custom-button buttonType="link">{{ buttonText}}</custom-button>
+          <custom-button buttonType="link">{{ buttonText }}</custom-button>
         </div>
       </u-card>
     </div>
-  </u-carousel>
+  </carousel>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss">
+.background-shape-image {
+  &:after {
+    content: "";
+    background-image: url("/images/service-card-bg.png");
+    top: 12%;
+    height: auto;
+    width: 60%;
+    z-index: 2;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+  }
 
+  &:hover {
+    &:after {
+      opacity: 1;
+    }
+  }
+}
 </style>

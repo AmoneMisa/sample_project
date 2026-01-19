@@ -22,40 +22,57 @@ const props = defineProps({
 const tabLine = useTemplateRef('tabLineElement');
 
 function moveTabLine(index: number) {
-  tabLine.value.style.left = `${(100 / props.tabs.length) * index}%`;
+  const triggers = document.querySelectorAll('.tabs__trigger');
+  const active = triggers[index] as HTMLElement;
+
+  if (!active || !tabLine.value) return;
+
+  const gap = 10;
+  const lineHalf = 80 / 2;
+
+  const tabLeft = active.offsetLeft + index * gap;
+  const tabCenter = tabLeft + active.offsetWidth / 2;
+
+  tabLine.value.style.left = `${tabCenter - lineHalf}px`;
 }
+
+onMounted(() => {
+  moveTabLine(0);
+})
 </script>
 
 <template>
-  <u-container class="grid grid-cols-1 gap-12 py-16">
+  <u-container class="grid grid-cols-1 gap-12 py-16 tabs">
     <div class="relative">
-      <u-page-header :title="title" :headline="headline" :description="description" class="border-0 mb-0"
-                     :ui="{title: 'mx-auto', headline: 'justify-center gradient-text text-md'}"/>
+      <page-header :title="title" :headline="headline" :description="description" :isCentered="true" class="mb-16"/>
       <div class="p-1 absolute w-full">
         <div ref="tabLineElement"
-             class="relative h-2 w-1/4 bg-primary pointer-events-none transition-transform rounded-sm m-0 tab-control-line"/>
+             class="relative h-2 w-1/4 bg-primary pointer-events-none transition-transform rounded-sm m-0 tabs__control-line"/>
       </div>
-      <u-tabs :items="tabs" @update:modelValue="moveTabLine" :ui="{
-              slots: {
-                list: 'gap-12'
-              }
-          }">
+      <u-tabs
+          :items="tabs"
+          @update:modelValue="moveTabLine"
+          :ui="{
+            trigger: 'tabs__trigger ',
+            list: 'tabs__list bg-transparent',
+            indicator: 'bg-transparent'
+          }"
+      >
         <template #content="{ item }">
           <div class="relative custom-border p-0.5">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 bg-zinc-900 rounded-3xl">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 bg-zinc-900 rounded-3xl fade-on-switch">
               <div class="space-y-4">
-                <h2 class="text-2xl font-bold text-primary">{{ item.title }}</h2>
-                <p class="text-muted text-base">{{ item.text }}</p>
+                <h2 class="text-white text-5xl">{{ item.title }}</h2>
                 <u-page-list class="list-disc list-inside text-muted space-y-1">
                   <li v-for="li in item.list" :key="li">{{ li }}</li>
                 </u-page-list>
                 <custom-button>Start Exploring Now →</custom-button>
               </div>
-              <div>
+              <div class="tabs-background__image">
                 <img
                     :src="item.image"
                     :alt="item.title"
-                    class="w-full rounded-xl shadow-lg transition-all duration-300 min-h-96"
+                    class="rounded-xl shadow-lg transition-all duration-300"
                 />
               </div>
             </div>
@@ -66,9 +83,57 @@ function moveTabLine(index: number) {
   </u-container>
 </template>
 
-<style scoped lang="scss">
-.tab-control-line {
+<style lang="scss">
+.tabs__control-line {
   transition: left .2s ease;
-  top: 40px;
+  top: 60px;
+  width: 100px;
+}
+
+.tabs__trigger {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 32px;
+  border-radius: 100px;
+  background: var(--color-dark);
+  color: var(--color-white);
+  border: none;
+  cursor: pointer;
+  transition: box-shadow 0.3s ease;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 2px;
+    background: transparent;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: 0;
+    transition: background .3s ease-in-out;
+  }
+}
+
+.tabs__trigger[data-state="active"],
+.tabs__trigger:hover {
+  &:before {
+    background: linear-gradient(
+            to left,
+            var(--color-primary-gradient-start),
+            var(--color-primary-gradient-end)
+    );
+  }
+}
+
+.tabs-background__image {
+  img {
+    min-height: 400px;
+    min-width: 400px;
+  }
 }
 </style>

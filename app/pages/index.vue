@@ -63,18 +63,18 @@ const tabs: TabsItem[] = [
 const cards = [
   {
     title: 'Ask anything',
-    description: 'Quickly find answers without searching multiple sources.',
-    icon: 'i-lucide-message-square'
+    description: 'Lets users quickly find answers to their questions without having to search through multiple sources.',
+    icon: '/svg/service-icon-01.svg'
   },
   {
     title: 'Connect everywhere',
-    description: 'Access AI from any device or platform.',
-    icon: 'i-lucide-bar-chart-3'
+    description: 'Lets users quickly find answers to their questions without having to search through multiple sources.',
+    icon: '/svg/service-icon-02.svg'
   },
   {
     title: 'Fast responding',
-    description: 'Get instant replies powered by smart models.',
-    icon: 'i-lucide-zap'
+    description: 'Lets users quickly find answers to their questions without having to search through multiple sources.',
+    icon: '/svg/service-icon-03.svg'
   }
 ];
 
@@ -159,8 +159,10 @@ const testimonials = [
                  descriptionSize="24"/>
     <u-page-body class="gap-16 grid">
       <textarea-request-form placeholder="Type something to promt AI..." button-text="Start with AI"/>
-      <u-container class="max-w-6xl mx-auto">
-        <img src="/images/slider-main-image.png" class="w-full rounded-lg" alt="admin panel"/>
+      <u-container class="max-w-6xl mx-auto admin-panel">
+        <div class="admin-panel__image">
+          <img src="/images/slider-main-image.png" class="w-full rounded-lg" alt="admin panel"/>
+        </div>
       </u-container>
       <u-container class="flex items-center flex-col justify-center">
         <h3 class="text-2xl font-semibold text-center text-muted uppercase mb-8">Truest 800,000+ highly productive company</h3>
@@ -173,9 +175,9 @@ const testimonials = [
 ]"/>
       </u-container>
       <tabs-with-background :tabs="tabs" title="Generative AI made for creators."
-                            headline="Rainbow unlocks the potential AI" :ui="{headline: 'gradient-text'}"/>
+                            headline="Rainbow unlocks the potential AI" :ui="{headline: 'gradient-text gradient-text_up'}"/>
       <features-carousel :cards="cards" button-text="Explore More →"/>
-      <tabs-with-under-buttons :tabs="tabs2" button-text="Try It Now →"/>
+      <tabs-with-under-buttons class="bg-full" :tabs="tabs2" button-text="Try It Now →"/>
       <u-container class="flex flex-col justify-center">
         <page-header title="AI Chat app for seamless collaboration" headline="AI Collaboration"
                      titleClasses="max-w-[530px]"/>
@@ -270,6 +272,36 @@ personalized recommendations."/>
 }
 
 .logo-shadow__logo {
-  background-color: #0E0C15;
+  background-color: var(--background-color);
+}
+
+.admin-panel {
+  max-width: 1210px;
+  padding-right: calc(1.5rem * .5);
+  padding-left: calc(1.5rem * .5);
+  margin-top: 0;
+}
+
+.admin-panel__image {
+  background-size: contain;
+  background: url('/images/slider-main-bg.png') no-repeat top center;
+  padding: 70px 70px 42px;
+  position: relative;
+  z-index: 3;
+  margin-top: 60px;
+  overflow: hidden;
+  border-radius: 12px;
+
+  &:before {
+      content: "";
+      position: absolute;
+      height: 100%;
+      width: 100%;
+      top: -40%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: url('/images/main-banner-bg-shape.png');
+      z-index: -5;
+  }
 }
 </style>

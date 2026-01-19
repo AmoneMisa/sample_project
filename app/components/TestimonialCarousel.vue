@@ -21,23 +21,20 @@ const slides = computed(() => {
 
 <template>
   <div class="space-y-6">
-    <page-header :title="title" :description="description" :headline="headline" :isCentered="false" class="mb-14"/>
-
-    <u-carousel
-        v-model="selected"
-        :items="slides"
-        arrows
-        indicators
-        dots
-        loop
-        v-slot="{item: group}"
-        :ui="{
+    <carousel v-model="selected"
+              :items="slides"
+              indicators
+              dots
+              loop
+              v-slot="{item: group}"
+              :ui="{
         item: 'px-4',
         indicators: 'mt-4 flex justify-center gap-2',
         indicator: 'size-2 rounded-full bg-muted data-[active=true]:bg-primary',
         dots: 'gap-4',
         dot: 'tab-circle-button'
       }"
+              :title="title" :description="description" :headline="headline" :isCentered="false" class="mb-14"
     >
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
         <u-card
@@ -73,7 +70,8 @@ const slides = computed(() => {
           </div>
         </u-card>
       </div>
-    </u-carousel>
+
+    </carousel>
   </div>
 </template>
 
