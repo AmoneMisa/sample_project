@@ -5,20 +5,13 @@ export default defineNuxtConfig({
     css: ['~/assets/css/main.css'],
     i18n: {
         defaultLocale: 'ru',
-        langDir: 'locales',
-        strategy: 'no_prefix',
+        langDir: null,
         locales: [
-            {
-                code: 'en', file: 'en.json', name: 'English'
-            }, {
-                code: 'ru',
-                file: 'ru.json',
-                name: 'Русский'
-            },
-            {
-                code: 'kk', file: 'kk.json', name: 'Қазақша'
-            }
+            { code: 'en', name: 'English' },
+            { code: 'ru', name: 'Русский' },
+            { code: 'kk', name: 'Қазақша' }
         ],
+        strategy: 'no_prefix',
         detectBrowserLanguage: {
             useCookie: true, // Crucial: This tells i18n to use a cookie
             cookieKey: 'i18n_lang', // Default cookie name, you can change it
@@ -27,5 +20,10 @@ export default defineNuxtConfig({
             fallbackLocale: 'ru', // Fallback if detected browser lang isn't available
         },
     },
-    experimental: { appManifest: false }
-})
+    experimental: {appManifest: false},
+    runtimeConfig: {
+        public: {
+            apiBase: 'http://localhost:8002', // твой FastAPI
+        }
+    }
+});

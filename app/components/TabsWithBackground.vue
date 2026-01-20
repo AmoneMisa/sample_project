@@ -28,15 +28,15 @@ function moveTabLine(index: number) {
 }
 
 function resolveList(list?: TabsItem['list']): string[] {
-  if (!list) return []
+  if (!list) return [];
 
   if (typeof list === 'string') {
     const raw = tm(list) as unknown
-    if (Array.isArray(raw)) return raw.map((x) => (typeof x === 'string' ? x : rt(x)))
-    return []
+    if (Array.isArray(raw)) return raw.map((x) => (typeof x === 'string' ? x : rt(x)));
+    return [];
   }
 
-  return list.map((x) => (typeof x === 'string' ? t(x) : String(x)))
+  return list.map((x) => (typeof x === 'string' ? t(x) : String(x)));
 }
 
 onMounted(() => {
@@ -68,7 +68,7 @@ onMounted(() => {
           <div class="relative custom-border p-0.5">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 bg-zinc-900 rounded-3xl fade-on-switch">
               <div class="space-y-4">
-                <h2 class="text-white text-5xl">{{  t(item.title) }}</h2>
+                <h2 class="text-white text-5xl">{{t(item.title) }}</h2>
                 <u-page-list v-if="item.list" class="list-disc list-inside text-muted space-y-1">
                   <li v-for="(li, idx) in resolveList(item.list)" :key="idx">
                     {{ li }}

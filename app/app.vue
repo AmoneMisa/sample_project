@@ -7,6 +7,7 @@
       </u-container>
     </u-main>
     <custom-footer/>
+    <i18n-loader-overlay />
   </u-app>
 </template>
 <script setup lang="ts">

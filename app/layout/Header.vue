@@ -6,11 +6,38 @@ const header = useTemplateRef('header');
 const isSticky = ref(false);
 const isVisible = ref(false);
 
-const { locale, setLocale, t } = useI18n();
-const currentLocale = computed({
-  get: () => locale.value,
-  set: (v) => setLocale(v)
-});
+type Lang = { code: string; name?: string };
+
+const { locale, setLocaleCookie, setLocale, t } = useI18n();
+
+const config = useRuntimeConfig();
+const api = config.public.apiBase;
+
+const { data: langs, pending: langsPending, error: langsError } = await useFetch<Lang[]>(
+    '/languages/enabled',
+    { baseURL: api }
+);
+const uiLocaleMap: Record<string, any> = { en, ru, kk };
+const localesForSelect = computed(() =>
+    (langs.value ?? [])
+        .map((l) => uiLocaleMap[l.code])
+        .filter(Boolean)
+);
+
+const safeLocalesForSelect = computed(() =>
+    localesForSelect.value.length ? localesForSelect.value : [en, ru, kk]
+);
+
+async function onLocaleChange(v: any) {
+  const code = typeof v === 'string' ? v : v?.code;
+  if (!code) return;
+  console.log(code);
+  console.log(locale.value);
+  if (code === locale.value) return;
+  setLocaleCookie(code);
+  await setLocale(code);
+  console.log(locale.value);
+}
 
 onMounted(() => {
   const el = header.value?.$el;
@@ -55,13 +82,20 @@ onMounted(() => {
       <header-menu />
     </template>
     <template #right>
-      <u-locale-select class="header__lang" v-model="currentLocale" :locales="[en, ru, kk]" :ui="{
+      <u-locale-select
+          class="header__lang"
+          :model-value="locale"
+          @update:model-value="onLocaleChange"
+          :locales="safeLocalesForSelect"
+          :disabled="langsPending && !langs"
+          :ui="{
           base: 'gradient-button-figure gradient-button-figure_reverse',
           leading: 'self-baseline',
           trailingIcon: 'text-primary',
           content: 'bg-default text-white border-2 border-default',
           value: 'px-2'
-        }"/>
+        }"
+      />
       <u-button class="capitalize gradient-button-figure">{{ t('button.getStart') }}</u-button>
     </template>
   </u-header>
