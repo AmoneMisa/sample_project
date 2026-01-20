@@ -97,7 +97,7 @@ onUnmounted(clearAll);
   display: inline-block;
   perspective: 400px;
   line-height: initial;
-  width: 350px;
+  width: 390px;
 }
 
 .animated-rotated-text__inner {

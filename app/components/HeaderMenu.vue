@@ -73,7 +73,7 @@ const menu = [
                 class="header-menu__dropdown-item"
             >
               <a class="header-menu__dropdown-link" :href="sub.href">
-                {{ t(sub.label) }} <span v-if="sub.badge" class="header-menu__badge">{{ t(sub.badge) }}</span>
+                {{ t(sub.label) }} <span v-if="sub.badge" class="header-menu__badge line-clamp-1">{{ t(sub.badge) }}</span>
               </a>
             </li>
           </ul>
@@ -97,7 +97,7 @@ const menu = [
                     class="header-menu__mega-item"
                 >
                   <a class="header-menu__mega-link" :href="sub.href">
-                    {{ t(sub.label) }} <span v-if="sub.badge" class="header-menu__badge">{{ t(sub.badge) }}</span>
+                    {{ t(sub.label) }} <span v-if="sub.badge" class="header-menu__badge line-clamp-1">{{ t(sub.badge) }}</span>
                   </a>
                 </li>
               </ul>
@@ -393,7 +393,6 @@ const menu = [
   color: var(--color-white);
   font-size: 10px;
   font-weight: 500;
-  display: inline-block;
   position: relative;
   z-index: 2;
   letter-spacing: 0.5px;
