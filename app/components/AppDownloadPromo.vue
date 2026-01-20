@@ -7,8 +7,8 @@ defineProps<{
 </script>
 
 <template>
-  <div class="flex items-center card min-h-[550px] gap-10">
-    <div class="flex flex-col justify-between max-w-1/2 card__left-side">
+  <div class="flex items-center card min-h-[550px] lg:min-h-[450px] md:min-h-[350px] sm:min-h-[250px] gap-10">
+    <div class="flex flex-col justify-between max-w-1/2 card__left-side md:max-w-full">
       <page-header :title="title" :description="description" :headline="headline"
                    class="flex flex-col gap-5 items-start text-left"
                    :ui="{
@@ -29,7 +29,7 @@ defineProps<{
       <img
           alt="background shape"
           src="/images/bg-shape.png"
-          class="max-h-[500px] min-h-[450px] rounded-xl"
+          class="max-h-[500px] min-h-[450px] lg:min-h-[350px] md:min-h-[250px] sm:min-h-[150px] rounded-xl"
       />
     </div>
     <div class="flex justify-center gap-6 card__right-side">
@@ -55,10 +55,18 @@ defineProps<{
 .card__left-side {
   padding: 95px 0 95px 50px;
   height: -webkit-fill-available;
+
+  @media (max-width: 1024px) {
+    padding: 95px 0 35px 30px;
+  }
 }
 
 .card__right-side {
   margin-top: -58px;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 }
 
 .card__download-button {
@@ -75,5 +83,9 @@ defineProps<{
 .card__center {
   z-index: auto;
   top: 15%;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 }
 </style>

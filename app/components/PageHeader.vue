@@ -53,7 +53,7 @@ defineProps({
                  :class="{'m-auto': isCentered}"
                  :ui="Object.assign({title: `${isCentered ? 'mx-auto' : 'mx-0 text-left'} ${titleSize === '48' ? 'text-5xl sm:text-5xl' : 'sm:text-4xl text-4xl'}  ${!isFullWidth? 'max-w-[390px]' : ''} ${titleClasses}`,
                   headline: `${isCentered ? 'justify-center' : 'text-left'} gradient-text text-md  ${!isFullWidth? 'max-w-[390px]' : ''} ${headLineClasses}`,
-                  description: `${descriptionSize === '24' ? 'text-2xl' : 'text-md'} ${isCentered ? 'justify-center' : 'text-left'} ${!isFullWidth? 'max-w-[390px]' : ''} ${descriptionClasses}`
+                  description: `${descriptionSize === '24' ? 'text-2xl sm:text-lg' : 'text-md sm:text-base'} ${isCentered ? 'justify-center' : 'text-left'} ${!isFullWidth? 'max-w-[390px]' : ''} ${descriptionClasses}`
                  }, ui)"
   />
 </template>

@@ -19,8 +19,8 @@ const {t} = useI18n();
 </script>
 
 <template>
-  <footer class="footer py-20">
-    <u-container class="grid grid-cols-4 gap-10">
+  <footer class="footer py-20 lg:py-14 md:py-8">
+    <u-container class="grid grid-cols-4 gap-10  md:grid-cols-2 sm:grid-cols-1">
       <div class="footer__column">
         <div class="footer__col-item">
           <a class="header__logo max-h-[35px]" href="/">
@@ -104,7 +104,6 @@ const {t} = useI18n();
 }
 
 .footer__link {
-  font-size: 16px;
   display: inline-block;
   color: var(--color-link);
   line-height: 25px;

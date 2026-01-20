@@ -63,6 +63,27 @@
 
 body {
     background-color: var(--background-color);
+    font-size: 16px;
+
+    h1:not(.text-7xl) {
+        font-size: 48px;
+    }
+
+    @media (max-width: 1024px) {
+        font-size: 15px;
+
+        h1:not(.text-7xl) {
+            font-size: 36px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        font-size: 14px;
+
+        h1:not(.text-7xl) {
+            font-size: 28px;
+        }
+    }
 }
 
 h1 {
@@ -72,6 +93,7 @@ h1 {
 img {
     display: block;
     max-height: inherit;
+    max-width: 100%;
 }
 
 button {

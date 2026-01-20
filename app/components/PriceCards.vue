@@ -67,7 +67,7 @@ const plans = ref([
       </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 sm:grid-cols-2 gap-8">
       <u-card
           v-for="(plan, index) in plans"
           :key="plan.key"
@@ -76,7 +76,7 @@ const plans = ref([
           body: 'folder-figure-inner flex flex-col h-full'
         }"
       >
-        <div v-if="plan.highlight" class="flex justify-center absolute">
+        <div v-if="plan.highlight" class="flex justify-center absolute price-cards__highlight">
           <u-badge color="primary" variant="solid">
             {{ t('pricing.badge.bestOffer') }}
           </u-badge>
@@ -182,7 +182,7 @@ const plans = ref([
 }
 
 .price-cards__switcher-button {
-  padding: 6px 25px;
+  padding: 6px;
   font-size: 16px;
   line-height: 1.67;
   font-weight: 500;
@@ -211,5 +211,10 @@ const plans = ref([
 .price-cards__switcher-button_active {
   background: var(--color-gray);
   color: var(--color-white);
+}
+
+.price-cards__highlight {
+  top: 0;
+  right: 130px;
 }
 </style>

@@ -1,11 +1,11 @@
 <script setup lang="ts">
-const isLoading = useI18nLoading()
+const isLoading = useI18nLoading();
 
-if (process.client) {
+if (import.meta.client) {
   watch(isLoading, (v) => {
     document.documentElement.style.overflow = v ? 'hidden' : ''
     document.body.style.overflow = v ? 'hidden' : ''
-  }, { immediate: true })
+  }, { immediate: true });
 }
 </script>
 
@@ -48,8 +48,10 @@ if (process.client) {
 }
 
 .i18n-overlay__progress {
-  width: 44px;
-  height: 44px;
+  width: 80px;
+  height: 80px;
+  align-items: center;
+  justify-content: center;
 }
 
 .fade-enter-active,

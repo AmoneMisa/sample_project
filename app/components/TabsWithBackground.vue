@@ -45,7 +45,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <u-container class="grid grid-cols-1 gap-12 py-16 tabs">
+  <u-container class="grid grid-cols-1 gap-12 py-16 tabs max-w-full">
     <div class="relative">
       <page-header :title="title" :headline="headline" :description="description" :isCentered="true" class="mb-16"/>
       <div class="p-1 absolute w-full">

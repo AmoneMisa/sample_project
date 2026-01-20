@@ -136,13 +136,13 @@ const testimonials = [
 
 <template>
   <u-page>
-    <h1 class="font-bold text-7xl text-center max-w-[60%] mx-auto">{{ t('hero.title') }}
+    <h1 class="font-bold text-7xl text-center max-w-[60%] mx-auto xl:text-6xl lg:text-5xl sm:text-4xl">{{ t('hero.title') }}
       <animated-rotated-x-text :texts-list="['AI Chating', 'AI Writing' ,'AI Chating', 'AI Writing']"/>
       {{ t('hero.title2') }}
     </h1>
     <page-header description="hero.subtitle"
                  descriptionSize="24"/>
-    <u-page-body class="gap-16 grid">
+    <u-page-body class="gap-16 grid justify-center">
       <textarea-request-form
           placeholder="form.placeholder"
           button-text="form.button"
@@ -201,7 +201,7 @@ const testimonials = [
       <u-container>
         <price-cards/>
       </u-container>
-      <u-container class="flex gap-20">
+      <u-container class="flex gap-20 lg:gap-16 md:gap-12 sm:gap-8 flex-wrap justify-center">
         <feature-card
             image="service-icon-01.png"
             title="page.featureCards.noRisk.title"
@@ -280,6 +280,8 @@ const testimonials = [
   margin-top: 60px;
   overflow: hidden;
   border-radius: 12px;
+  max-width: 100%;
+  background-size: cover;
 
   &:before {
     content: "";
@@ -291,6 +293,10 @@ const testimonials = [
     transform: translateX(-50%);
     background: url('/images/main-banner-bg-shape.png');
     z-index: -5;
+  }
+
+  @media (max-width: 1024px) {
+    padding: 30px 30px 12px;
   }
 }
 </style>

@@ -98,6 +98,13 @@ onUnmounted(clearAll);
   perspective: 400px;
   line-height: initial;
   width: 390px;
+
+  @media (max-width: 1240px) {
+    width: 265px;
+  }
+  @media (max-width: 1024px) {
+    width: 195px;
+  }
 }
 
 .animated-rotated-text__inner {

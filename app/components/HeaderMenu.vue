@@ -182,7 +182,6 @@ const menu = [
 
 .header-menu__link {
   padding: 13px 17px;
-  font-size: 16px;
   font-weight: 500;
   color: var(--color-link);
   transition: color 0.3s ease;

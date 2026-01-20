@@ -31,12 +31,9 @@ const safeLocalesForSelect = computed(() =>
 async function onLocaleChange(v: any) {
   const code = typeof v === 'string' ? v : v?.code;
   if (!code) return;
-  console.log(code);
-  console.log(locale.value);
   if (code === locale.value) return;
   setLocaleCookie(code);
   await setLocale(code);
-  console.log(locale.value);
 }
 
 onMounted(() => {
