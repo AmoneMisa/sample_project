@@ -23,7 +23,7 @@ export default defineNuxtConfig({
     experimental: {appManifest: false},
     runtimeConfig: {
         public: {
-            apiBase: 'http://localhost:8002', // твой FastAPI
+            apiBase: 'http://localhost:8000',
         }
     }
 });
