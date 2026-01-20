@@ -1,25 +1,16 @@
 <script setup lang="ts">
-const props = defineProps({
-  tabs: {
-    type: Array,
-    default: [],
-    required: true
-  },
-  title: {
-    type: String,
-    default: ""
-  },
-  headline: {
-    type: String,
-    default: ""
-  },
-  description: {
-    type: String,
-    default: ""
-  },
-});
+import type {TabsItem} from "#ui/components/Tabs.vue";
+
+const props = defineProps<{
+  tabs: TabsItem[]
+  title?: string
+  headline?: string
+  description?: string
+  ctaKey?: string
+}>();
 
 const tabLine = useTemplateRef('tabLineElement');
+const {t, tm, rt} = useI18n();
 
 function moveTabLine(index: number) {
   const triggers = document.querySelectorAll('.tabs__trigger');
@@ -34,6 +25,18 @@ function moveTabLine(index: number) {
   const tabCenter = tabLeft + active.offsetWidth / 2;
 
   tabLine.value.style.left = `${tabCenter - lineHalf}px`;
+}
+
+function resolveList(list?: TabsItem['list']): string[] {
+  if (!list) return []
+
+  if (typeof list === 'string') {
+    const raw = tm(list) as unknown
+    if (Array.isArray(raw)) return raw.map((x) => (typeof x === 'string' ? x : rt(x)))
+    return []
+  }
+
+  return list.map((x) => (typeof x === 'string' ? t(x) : String(x)))
 }
 
 onMounted(() => {
@@ -58,20 +61,26 @@ onMounted(() => {
             indicator: 'bg-transparent'
           }"
       >
+        <template #default="{ item }">
+          {{ t(item.label) }}
+        </template>
         <template #content="{ item }">
           <div class="relative custom-border p-0.5">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 bg-zinc-900 rounded-3xl fade-on-switch">
               <div class="space-y-4">
-                <h2 class="text-white text-5xl">{{ item.title }}</h2>
-                <u-page-list class="list-disc list-inside text-muted space-y-1">
-                  <li v-for="li in item.list" :key="li">{{ li }}</li>
+                <h2 class="text-white text-5xl">{{  t(item.title) }}</h2>
+                <u-page-list v-if="item.list" class="list-disc list-inside text-muted space-y-1">
+                  <li v-for="(li, idx) in resolveList(item.list)" :key="idx">
+                    {{ li }}
+                  </li>
                 </u-page-list>
-                <custom-button>Start Exploring Now →</custom-button>
+
+                <custom-button>{{ t('tabs.audio.cta') }}</custom-button>
               </div>
               <div class="tabs-background__image">
                 <img
                     :src="item.image"
-                    :alt="item.title"
+                    :alt="t(item.title)"
                     class="rounded-xl shadow-lg transition-all duration-300"
                 />
               </div>

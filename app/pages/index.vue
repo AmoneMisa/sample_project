@@ -6,107 +6,86 @@ import TabsWithUnderButtons from "~/components/TabsWithUnderButtons.vue";
 import ImagesCarousel from "~/components/ImagesCarousel.vue";
 
 const {t} = useI18n();
-
 const tabs: TabsItem[] = [
   {
-    label: 'Audio',
+    label: 'tabs.audio.label',
     icon: 'i-lucide-volume-2',
-    title: 'AI Audio Generation',
-    text: 'Audio generating AI refers to artificial intelligence that creates sound from text or data.',
-    list: [
-      'Transformer Models',
-      'Conditional Generative Models',
-      'Pre-trained Models',
-      'Variational Autoencoders'
-    ],
+    title: 'tabs.audio.title',
+    text: 'tabs.audio.text',
+    list: 'tabs.audio.features',
     image: '/images/chat-export-audio.png'
   },
   {
-    label: 'Code',
+    label: 'tabs.code.label',
     icon: 'i-lucide-terminal',
-    title: 'AI Code Generation',
-    text: 'Generate clean, functional code from natural language prompts using advanced models.',
-    list: [
-      'Syntax-aware transformers',
-      'Contextual completion',
-      'Multi-language support',
-      'Secure-by-default scaffolding'
-    ],
+    title: 'tabs.code.title',
+    text: 'tabs.code.text',
+    list: 'tabs.code.features',
     image: '/images/chat-export-code.png'
   },
   {
-    label: 'Photo',
+    label: 'tabs.photo.label',
     icon: 'i-lucide-image',
-    title: 'AI Photo Generation',
-    text: 'Produce high-quality visuals from text prompts using generative diffusion models.',
-    list: [
-      'Stable Diffusion',
-      'Style Transfer',
-      'Inpainting & Outpainting',
-      'Prompt-to-image pipelines'
-    ],
+    title: 'tabs.photo.title',
+    text: 'tabs.photo.text',
+    list: 'tabs.photo.features',
     image: '/images/chat-export-photo.png'
   },
   {
-    label: 'Video',
+    label: 'tabs.video.label',
     icon: 'i-lucide-video',
-    title: 'AI Video Generation',
-    text: 'Create dynamic video content from scripts, storyboards, or voice input.',
-    list: [
-      'Scene synthesis',
-      'Lip-syncing',
-      'Motion interpolation',
-      'Multi-modal rendering'
-    ],
+    title: 'tabs.video.title',
+    text: 'tabs.video.text',
+    list: 'tabs.video.features',
     image: '/images/chat-export-video.png'
   }
 ];
 
 const cards = [
   {
-    title: 'Ask anything',
-    description: 'Lets users quickly find answers to their questions without having to search through multiple sources.',
+    title: 'cards.ask.title',
+    description: 'cards.ask.description',
     icon: '/svg/service-icon-01.svg'
   },
   {
-    title: 'Connect everywhere',
-    description: 'Lets users quickly find answers to their questions without having to search through multiple sources.',
+    title: 'cards.connect.title',
+    description: 'cards.connect.description',
     icon: '/svg/service-icon-02.svg'
   },
   {
-    title: 'Fast responding',
-    description: 'Lets users quickly find answers to their questions without having to search through multiple sources.',
+    title: 'cards.fast.title',
+    description: 'cards.fast.description',
     icon: '/svg/service-icon-03.svg'
   }
 ];
 
 const tabs2 = [
   {
-    label: 'Connect with AI',
-    title: 'Connect with Al chatbot',
-    description: 'Dentify the platform or interface through which you can access the chatbot. This could be a website, a messaging app, or a dedicated application.',
-    headline: 'How it work',
+    label: 'tabs2.connect.label',
+    title: 'tabs2.connect.title',
+    description: 'tabs2.connect.description',
+    headline: 'tabs2.connect.headline',
     image: '/images/split-1.png'
   },
   {
-    label: 'Streamline Workflow',
-    title: 'Streamline Your Workflow',
-    description: 'Discover tools and techniques to optimize your workflow, making your tasks more efficient and manageable.',
-    headline: 'Exploring Efficiency',
+    label: 'tabs2.workflow.label',
+    title: 'tabs2.workflow.title',
+    description: 'tabs2.workflow.description',
+    headline: 'tabs2.workflow.headline',
     image: '/images/split-2.png'
   },
   {
-    label: 'Cybersecurity',
-    title: 'Protecting Your Digital Presence',
-    description: 'Gain insights into cybersecurity measures and strategies to safeguard your online identity and sensitive information.',
-    headline: 'Navigating Cybersecurity',
+    label: 'tabs2.cyber.label',
+    title: 'tabs2.cyber.title',
+    description: 'tabs2.cyber.description',
+    headline: 'tabs2.cyber.headline',
     image: '/images/split-3.png'
   },
   {
-    label: 'Data Analysis',
-    title: 'Demystifying Data Analytics',
-    description: 'Learn the fundamentals of data analysis, including tools and methodologies, to extract meaningful insights from raw data.',
-    headline: 'Mastering Data Analysis',
+    label: 'tabs2.data.label',
+    title: 'tabs2.data.title',
+    description: 'tabs2.data.description',
+    headline: 'tabs2.data.headline',
     image: '/images/split-4.png'
   }
 ];
@@ -114,191 +93,150 @@ const tabs2 = [
 const testimonials = [
   {
     name: 'Guy Hawkins',
-    role: 'Nursing Assistant',
-    quote: 'Pixcels-Themes has become such an integral part of our work! By putting our',
-    avatar: '/images/brand-t.png',
-    logo: '/logos/modx.svg',
-    rating: 5
-  }, {
-    name: 'Guy Hawkins',
-    role: 'Nursing Assistant',
-    quote: 'Pixcels-Themes has become such an integral part of our work! By putting our',
-    avatar: '/images/brand-t.png',
-    logo: '/logos/modx.svg',
-    rating: 5
-  }, {
-    name: 'Guy Hawkins',
-    role: 'Nursing Assistant',
-    quote: 'Pixcels-Themes has become such an integral part of our work! By putting our',
-    avatar: '/images/brand-t.png',
-    logo: '/logos/modx.svg',
-    rating: 5
-  }, {
-    name: 'Guy Hawkins',
-    role: 'Nursing Assistant',
-    quote: 'Pixcels-Themes has become such an integral part of our work! By putting our',
-    avatar: '/images/brand-t.png',
-    logo: '/logos/modx.svg',
-    rating: 5
-  }, {
-    name: 'Guy Hawkins',
-    role: 'Nursing Assistant',
-    quote: 'Pixcels-Themes has become such an integral part of our work! By putting our',
+    role: 'testimonials.item.role',
+    quote: 'testimonials.item.quote',
     avatar: '/images/brand-t.png',
     logo: '/logos/modx.svg',
     rating: 5
   },
+  {
+    name: 'Guy Hawkins',
+    role: 'testimonials.item.role',
+    quote: 'testimonials.item.quote',
+    avatar: '/images/brand-t.png',
+    logo: '/logos/modx.svg',
+    rating: 5
+  },
+  {
+    name: 'Guy Hawkins',
+    role: 'testimonials.item.role',
+    quote: 'testimonials.item.quote',
+    avatar: '/images/brand-t.png',
+    logo: '/logos/modx.svg',
+    rating: 5
+  },
+  {
+    name: 'Guy Hawkins',
+    role: 'testimonials.item.role',
+    quote: 'testimonials.item.quote',
+    avatar: '/images/brand-t.png',
+    logo: '/logos/modx.svg',
+    rating: 5
+  },
+  {
+    name: 'Guy Hawkins',
+    role: 'testimonials.item.role',
+    quote: 'testimonials.item.quote',
+    avatar: '/images/brand-t.png',
+    logo: '/logos/modx.svg',
+    rating: 5
+  }
 ];
 </script>
 
 <template>
   <u-page>
-    <h1 class="font-bold text-7xl text-center max-w-[60%] mx-auto">
-      {{ t('hero.title') }}
-      <animated-rotated-x-text :texts-list="[t('hero.rotated1'), t('hero.rotated2'), t('hero.rotated1'), t('hero.rotated2')]" />
+    <h1 class="font-bold text-7xl text-center max-w-[60%] mx-auto">{{ t('hero.title') }}
+      <animated-rotated-x-text :texts-list="['AI Chating', 'AI Writing' ,'AI Chating', 'AI Writing']"/>
+      {{ t('hero.title2') }}
     </h1>
-
-    <page-header
-        :description="t('hero.subtitle')"
-        descriptionSize="24"
-    />
-
+    <page-header description="hero.subtitle"
+                 descriptionSize="24"/>
     <u-page-body class="gap-16 grid">
-
       <textarea-request-form
-          :placeholder="t('form.placeholder')"
-          :button-text="t('form.button')"
+          placeholder="form.placeholder"
+          button-text="form.button"
       />
-
       <u-container class="max-w-6xl mx-auto admin-panel">
         <div class="admin-panel__image">
           <img src="/images/slider-main-image.png" class="w-full rounded-lg" alt="admin panel"/>
         </div>
       </u-container>
-
       <u-container class="flex items-center flex-col justify-center">
-        <h3 class="text-2xl font-semibold text-center text-muted uppercase mb-8">
-          {{ t('trust.title') }}
-        </h3>
-
+        <h3 class="text-2xl font-semibold text-center text-muted uppercase mb-8">{{ t('trust.title') }}</h3>
         <images-carousel :images="[
-          '/images/spotify.png',
-          '/images/woocommerce.png',
-          '/images/slack.png',
-          '/images/strapi.png',
-          '/images/mapbox.png'
-        ]"/>
+  '/images/spotify.png',
+  '/images/woocommerce.png',
+  '/images/slack.png',
+  '/images/strapi.png',
+  '/images/mapbox.png'
+]"/>
       </u-container>
-
-      <tabs-with-background
-          :tabs="tabs"
-          :title="t('tabs.title')"
-          :headline="t('tabs.headline')"
-          :ui="{ headline: 'gradient-text gradient-text_up' }"
-      />
-
-      <features-carousel
-          :cards="cards"
-          :button-text="t('features.button')"
-      />
-
-      <tabs-with-under-buttons
-          class="bg-full"
-          :tabs="tabs2"
-          :button-text="t('howItWorks.cta')"
-      />
-
+      <tabs-with-background :tabs="tabs" title="page.tabsWithBackground.title"
+                            headline="page.tabsWithBackground.headline"
+                            :ui="{headline: 'gradient-text gradient-text_up'}"/>
+      <features-carousel :cards="cards" button-text="page.featuresCarousel.button"/>
+      <tabs-with-under-buttons class="bg-full" :tabs="tabs2" button-text="page.tabsWithUnderButtons.button"/>
       <u-container class="flex flex-col justify-center">
         <page-header
-            :title="t('collaboration.title')"
-            :headline="t('collaboration.headline')"
+            title="page.collaboration.title"
+            headline="page.collaboration.headline"
             titleClasses="max-w-[530px]"
         />
-
-        <custom-button class="m-auto justify-center h-16 w-48 text-lg mt-5">
-          {{ t('collaboration.cta') }}
-        </custom-button>
-
+        <custom-button class="m-auto justify-center h-16 w-48 text-lg mt-5">{{ t('page.collaboration.cta') }}</custom-button>
         <div class="relative logo-shadow">
-          <div class="logo-shadow__logo absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-12 py-8 rounded-xl ring-2 ring-neutral-900">
-            <img alt="AI Collaboration" src="/images/split-2-logo.png"/>
+          <div
+              class="logo-shadow__logo absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-12 py-8 rounded-xl ring-2 ring-neutral-900">
+            <img alt="AI Collaboration" src="/images/split-2-logo.png"
+                 class=""/>
           </div>
           <img alt="AI Collaboration" src="/images/split-2-background.png"/>
         </div>
       </u-container>
-
       <u-container class="violet-block rounded-xl flex justify-between py-16 max-h-[265px]">
-        <u-page-header
-            class="border-none max-w-[590px] py-0"
-            :title="t('community.title')"
-            :description="t('community.description')"
-            :ui="{ description: 'text-white' }"
-        />
-
+        <page-header  class="border-none max-w-[590px] py-0"
+                      title="page.community.title"
+                      description="page.community.description"
+                      :ui="{
+              description: 'text-white'
+            }" />
         <div class="flex items-center">
-          <img src="/images/bg-shape-01.png" alt="Join our AI Experts community">
+          <img src="/images/bg-shape-01.png" :alt="t('page.community.title')">
         </div>
-
         <u-container class="w-1/4 gap-6 flex flex-col">
           <img src="/images/team-01.png" alt="team on GitHub" class="flex-none mx-auto w-fit">
-          <custom-button class="justify-center h-12 text-base" button-type="white">
-            {{ t('community.cta') }}
-          </custom-button>
+          <custom-button class="justify-center h-12 text-base" button-type="white">{{ t('page.community.cta') }}</custom-button>
         </u-container>
       </u-container>
-
       <u-container>
         <price-cards/>
       </u-container>
-
       <u-container class="flex gap-20">
         <feature-card
             image="service-icon-01.png"
-            :title="t('guarantee.title1')"
-            :description="t('guarantee.desc1')"
+            title="page.featureCards.noRisk.title"
+            description="page.featureCards.noRisk.description"
         />
         <feature-card
             image="service-icon-02.png"
-            :title="t('guarantee.title2')"
-            :description="t('guarantee.desc2')"
+            title="page.featureCards.upgrade.title"
+            description="page.featureCards.upgrade.description"
         />
         <feature-card
             image="service-icon-03.png"
-            :title="t('guarantee.title3')"
-            :description="t('guarantee.desc3')"
+            title="page.featureCards.free.title"
+            description="page.featureCards.free.description"
         />
       </u-container>
-
-      <testimonial-carousel
-          :headline="t('testimonials.headline')"
-          :title="t('testimonials.title')"
-          :testimonials="testimonials"
-      />
-
+      <testimonial-carousel headline="testimonials.headline" title="testimonials.title"
+                            :testimonials="testimonials"/>
       <review-logos
-          :title="t('reviews.title')"
+          title="page.reviewLogos.title"
           :logos="[
-          { src: '/images/brand-01.png', alt: 'G2 Crowd' },
-          { src: '/images/brand-02.png', alt: 'Capterra' },
-          { src: '/images/brand-03.png', alt: 'GetApp' },
-          { src: '/images/brand-04.png', alt: 'TrustRadius' }
-        ]"
-      />
-
-      <app-download-promo
-          :headline="t('download.headline')"
-          :title="t('download.title')"
-          :description="t('download.description')"
-      />
-
+    { src: '/images/brand-01.png', alt: 'G2 Crowd' },
+    { src: '/images/brand-02.png', alt: 'Capterra' },
+    { src: '/images/brand-03.png', alt: 'GetApp' },
+    { src: '/images/brand-04.png', alt: 'TrustRadius' }
+  ]"/>
+      <app-download-promo headline="download.headline" title="download.title
+" description="download.description"/>
     </u-page-body>
   </u-page>
 </template>
 
-
 <style scoped lang="scss">
 .violet-block {
-  padding: 68px 80px 60px;
+  padding: 50px 80px 60px;
   background-color: var(--color-primary);
 }
 
@@ -344,15 +282,15 @@ const testimonials = [
   border-radius: 12px;
 
   &:before {
-      content: "";
-      position: absolute;
-      height: 100%;
-      width: 100%;
-      top: -40%;
-      left: 50%;
-      transform: translateX(-50%);
-      background: url('/images/main-banner-bg-shape.png');
-      z-index: -5;
+    content: "";
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    top: -40%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: url('/images/main-banner-bg-shape.png');
+    z-index: -5;
   }
 }
 </style>

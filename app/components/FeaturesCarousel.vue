@@ -2,6 +2,7 @@
 import {computed} from "vue";
 import sliceSlides from "~/assets/sliceSlides";
 
+const {t} = useI18n();
 const props = defineProps({
   cards: {
     type: Array<{}>,
@@ -28,7 +29,7 @@ const slides = computed(() => {
         dots: 'gap-4',
         dot: 'tab-circle-button'
       }"
-            title="Chat Smarter, Not Harder with" headline="Assisting individuals"
+            title="carousel.title" headline="carousel.headline"
             headLineClasses="gradient-text_cap"
   >
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -40,12 +41,12 @@ const slides = computed(() => {
             }">
         <div
             class="w-12 h-12 flex items-center justify-center rounded-full bg-primary/10 text-primary mb-4 z-10 relative">
-          <img :alt="item.title" :src="item.icon" class="text-xl"/>
+          <img :alt="t(item.title)" :src="item.icon" class="text-xl"/>
         </div>
         <div class="z-10 relative space-y-2">
-          <h3 class="text-xl font-bold text-white">{{ item.title }}</h3>
-          <p class="text-muted">{{ item.description }}</p>
-          <custom-button buttonType="link">{{ buttonText }}</custom-button>
+          <h3 class="text-xl font-bold text-white">{{ t(item.title) }}</h3>
+          <p class="text-muted">{{ t(item.description) }}</p>
+          <custom-button buttonType="link">{{ t(buttonText) }}</custom-button>
         </div>
       </u-card>
     </div>

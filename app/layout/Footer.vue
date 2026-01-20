@@ -1,20 +1,21 @@
 <script setup lang="ts">
 const quickLinks = [
-  {name: 'Pages', to: '/pages'},
-  {name: 'Blog', to: '/blog'},
-  {name: 'Contact', to: '/contact'},
-  {name: 'How to use', to: '/how-to-use'},
-  {name: 'Roadmap', to: '/roadmap'}
+  { name: 'footer.quickLinks.pages', to: '/pages' },
+  { name: 'footer.quickLinks.blog', to: '/blog' },
+  { name: 'footer.quickLinks.contact', to: '/contact' },
+  { name: 'footer.quickLinks.howToUse', to: '/how-to-use' },
+  { name: 'footer.quickLinks.roadmap', to: '/roadmap' }
 ];
 
 const services = [
-  {name: 'Image Generator', to: '/tools/image'},
-  {name: 'Video Generator', to: '/tools/video'},
-  {name: 'Text Generator', to: '/tools/text'},
-  {name: 'Code Generator', to: '/tools/code'},
-  {name: 'Education Feedback', to: '/tools/education'}
+  { name: 'footer.services.imageGenerator', to: '/tools/image' },
+  { name: 'footer.services.videoGenerator', to: '/tools/video' },
+  { name: 'footer.services.textGenerator', to: '/tools/text' },
+  { name: 'footer.services.codeGenerator', to: '/tools/code' },
+  { name: 'footer.services.educationFeedback', to: '/tools/education' }
 ];
 
+const {t} = useI18n();
 </script>
 
 <template>
@@ -23,46 +24,58 @@ const services = [
       <div class="footer__column">
         <div class="footer__col-item">
           <a class="header__logo max-h-[35px]" href="/">
-            <img alt="Logo" src="/images/logo.png">
+            <img alt="Logo" src="/images/logo.png" />
           </a>
         </div>
+
         <div class="footer__col-item mt-6 mb-8">
-          <p>It has long been known that a reader's
-            attention will be diverted from</p>
+          <p>{{ t('footer.about') }}</p>
         </div>
+
         <div class="footer__col-item">
-          <newsletter/>
-        </div>
-      </div>
-      <div class="footer__column">
-        <div class="footer__col-item">
-          <h4 class="footer__title">Quick Links</h4>
-          <u-page-list class="footer__list">
-            <li v-for="item in quickLinks"><a class="footer__link" :href="item.to">{{ item.name }}</a></li>
-          </u-page-list>
+          <newsletter />
         </div>
       </div>
+
       <div class="footer__column">
         <div class="footer__col-item">
-          <h4 class="footer__title">Services</h4>
-          <u-page-list class="footer__list">
-            <li v-for="item in services"><a class="footer__link" :href="item.to">{{ item.name }}</a></li>
-          </u-page-list>
-        </div>
-      </div>
-      <div class="footer__column">
-        <div class="footer__col-item">
-          <h4 class="footer__title">Contact</h4>
+          <h4 class="footer__title">{{ t('footer.quickLinksTitle') }}</h4>
 
           <u-page-list class="footer__list">
+            <li v-for="item in quickLinks" :key="item.to">
+              <a class="footer__link" :href="item.to">{{ t(item.name) }}</a>
+            </li>
+          </u-page-list>
+        </div>
+      </div>
+
+      <div class="footer__column">
+        <div class="footer__col-item">
+          <h4 class="footer__title">{{ t('footer.servicesTitle') }}</h4>
+
+          <u-page-list class="footer__list">
+            <li v-for="item in services" :key="item.to">
+              <a class="footer__link" :href="item.to">{{ t(item.name) }}</a>
+            </li>
+          </u-page-list>
+        </div>
+      </div>
+
+      <div class="footer__column">
+        <div class="footer__col-item">
+          <h4 class="footer__title">{{ t('footer.contactTitle') }}</h4>
+
+          <u-page-list class="footer__list footer__contact">
             <a href="#" class="footer__contact-link">
-              📍 8819 Ohio St. South Gate, North America, USA
+              {{ t('footer.contact.address') }}
             </a>
+
             <a href="mailto:example@domain.com" class="footer__contact-link">
-              ✉️ example@domain.com
+              example@domain.com
             </a>
+
             <a href="tel:+13866883295" class="footer__contact-link">
-              📞 +1 386-688-3295
+              {{ t('footer.contact.phone') }}
             </a>
           </u-page-list>
         </div>

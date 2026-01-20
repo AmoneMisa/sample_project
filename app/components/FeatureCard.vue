@@ -3,7 +3,9 @@ defineProps<{
   image: string
   title: string
   description: string
-}>()
+}>();
+
+const {t} = useI18n();
 </script>
 
 <template>
@@ -16,7 +18,7 @@ defineProps<{
       <img class="mx-auto" alt="service image" :src="`/images/${image}`"/>
     </div>
 
-    <h3 class="text-2xl font-semibold mb-3">{{ title }}</h3>
-    <p class="text-base text-muted">{{ description }}</p>
+    <h3 class="text-2xl font-semibold mb-3">{{ t(title) }}</h3>
+    <p class="text-base text-muted">{{ t(description) }}</p>
   </u-card>
 </template>

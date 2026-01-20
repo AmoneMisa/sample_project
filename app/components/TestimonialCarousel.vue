@@ -10,7 +10,9 @@ const props = defineProps({
   title: String,
   description: String,
   headline: String
-})
+});
+
+const {t} = useI18n();
 
 const selected = ref(0);
 
@@ -38,7 +40,7 @@ const slides = computed(() => {
     >
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
         <u-card
-            v-for="(t, index) in group"
+            v-for="(testimonial, index) in group"
             :key="index"
             :ui="{
               root: 'folder-icon ring-0 bg-transparent',
@@ -47,7 +49,7 @@ const slides = computed(() => {
         >
           <div class="flex gap-1 mb-3">
             <u-icon
-                v-for="i in t.rating"
+                v-for="i in testimonial.rating"
                 :key="i"
                 name="i-lucide-star"
                 class="text-yellow-400 size-4"
@@ -55,22 +57,21 @@ const slides = computed(() => {
           </div>
 
           <blockquote class="text-sm text-muted italic mb-4">
-            “{{ t.quote }}”
+            “{{ t(testimonial.quote) }}”
           </blockquote>
 
           <div class="flex items-center gap-3">
             <div class="flex flex-col gap-3">
               <div class="flex flex-col gap-3">
-                <p class="font-semibold text-sm">{{ t.name }}</p>
-                <p class="text-xs text-muted">{{ t.role }}</p>
+                <p class="font-semibold text-sm">{{ t(testimonial.name) }}</p>
+                <p class="text-xs text-muted">{{ t(testimonial.role) }}</p>
               </div>
-              <img :alt="t.name" :src="t.avatar" class="object-cover"/>
+              <img :alt="t(testimonial.name)" :src="testimonial.avatar" class="object-cover"/>
             </div>
-            <img :alt="t.role" :src="t.logo" class="ml-auto h-5"/>
+            <img :alt="t(testimonial.role)" :src="testimonial.logo" class="ml-auto h-5"/>
           </div>
         </u-card>
       </div>
-
     </carousel>
   </div>
 </template>

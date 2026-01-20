@@ -9,11 +9,11 @@ defineProps<{
 <template>
   <div class="flex items-center card min-h-[550px] gap-10">
     <div class="flex flex-col justify-between max-w-1/2 card__left-side">
-      <u-page-header :title="title" :description="description" :headline="headline"
-                     class="border-0 flex flex-col gap-5"
-                     :ui="{
+      <page-header :title="title" :description="description" :headline="headline"
+                   class="flex flex-col gap-5 items-start text-left"
+                   :ui="{
           title: 'sm:text-5xl',
-          headline: 'my-0 gradient-text text-md'
+          headline: 'my-0'
         }"/>
 
       <div class="flex gap-4">

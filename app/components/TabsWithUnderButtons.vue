@@ -1,5 +1,7 @@
 <script setup lang="ts">
-const props = defineProps({
+const {t} = useI18n();
+
+defineProps({
   tabs: {
     type: Array,
     default: () => [],
@@ -20,21 +22,21 @@ const props = defineProps({
       list: 'tabs__list bg-transparent',
       trigger: 'tabs__button',
       indicator: 'bg-transparent brightness-125',
-      label: 'w-fill-available flex flex-col text-left '
+      label: 'w-fill-available flex flex-col text-left'
     }"
   >
     <template #default="{ item, index }">
       <span class="tabs__count">
         <span>0{{ index + 1 }}</span>
       </span>
-      <span class="tabs__title">{{ item.title }}</span>
+      <span class="tabs__title">{{ t(item.title) }}</span>
     </template>
 
 
     <template #content="{ item }">
       <div class="tabs__content fade-on-switch">
         <div class="tabs__image">
-          <img :src="item.image" :alt="item.title" />
+          <img :src="item.image" :alt="t(item.title)"/>
         </div>
 
         <div class="tabs__info">
@@ -47,7 +49,7 @@ const props = defineProps({
               headLineClasses="gradient-text_cap"
           />
           <custom-button class="tabs__button-cta mt-8">
-            {{ buttonText }}
+            {{ t(buttonText) }}
           </custom-button>
         </div>
       </div>
@@ -56,19 +58,19 @@ const props = defineProps({
 </template>
 
 <style lang="scss">
-.tabs.tabs-with-under-buttons {
+.tabs-with-under-buttons {
   display: flex;
   flex-direction: column-reverse;
   gap: 40px;
 
-  &__list {
+  .tabs__list {
     display: flex;
     justify-content: center;
     gap: 15px;
     flex-wrap: wrap;
   }
 
-  &__button {
+  .tabs__button {
     cursor: pointer;
     padding-top: 24px;
     margin: 0 15px;
@@ -93,7 +95,7 @@ const props = defineProps({
     }
   }
 
-  &__count {
+  .tabs__count {
     width: 36px;
     height: 36px;
     background: url("/images/tab-bg-shape.png") center/cover no-repeat;
@@ -115,7 +117,7 @@ const props = defineProps({
     }
   }
 
-  &__title {
+  .tabs__title {
     margin-top: 8px;
     font-size: 1.125rem;
     font-weight: 600;
@@ -124,13 +126,13 @@ const props = defineProps({
     text-align: left;
   }
 
-  &__content {
+  .tabs__content {
     display: flex;
     gap: 40px;
     align-items: center;
   }
 
-  &__image {
+  .tabs__image {
     max-width: 40%;
     min-height: 450px;
 
@@ -140,12 +142,12 @@ const props = defineProps({
     }
   }
 
-  &__info {
+  .tabs__info {
     max-width: 55%;
     padding: 20px 40px;
   }
 
-  &__button-cta {
+  .tabs__button-cta {
     margin-top: 24px;
     width: fit-content;
   }

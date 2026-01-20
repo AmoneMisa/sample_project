@@ -1,16 +1,16 @@
 <script setup lang="ts">
-
+const {t} = useI18n();
 </script>
 
 <template>
   <div class="newsletter flex flex-col justify-center">
-    <h3 class="newsletter__title">Join a Newsletter</h3>
+    <h3 class="newsletter__title">{{ t('footer.newsletter.title') }}</h3>
 
     <div class="newsletter__form">
       <u-input
           type="email"
           name="newsletter-email"
-          placeholder="Enter Your Email Here"
+          :placeholder="t('footer.newsletter.placeholder')"
           :ui="{base: 'newsletter__input'}"
       />
 
