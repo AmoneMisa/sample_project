@@ -20,7 +20,7 @@ const {t} = useI18n();
 
 <template>
   <footer class="footer py-20 lg:py-14 md:py-8">
-    <u-container class="grid grid-cols-4 gap-10  md:grid-cols-2 sm:grid-cols-1">
+    <u-container class="grid grid-cols-4 gap-10 md:grid-cols-3 sm:grid-cols-4">
       <div class="footer__column">
         <div class="footer__col-item">
           <a class="header__logo max-h-[35px]" href="/">

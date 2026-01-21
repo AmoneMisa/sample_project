@@ -43,10 +43,19 @@ const slides = computed(() => {
             v-for="(testimonial, index) in group"
             :key="index"
             :ui="{
-              root: 'folder-icon ring-0 bg-transparent',
+              root: 'folder-icon ring-0 bg-transparent relative testimonial',
               body: 'h-fill-available sm:p-8 p-8'
             }"
         >
+          <div class="testimonial__border">
+            <picture>
+              <img alt="border" src="/svg/folder.svg" class="testimonial__border-image">
+            </picture>
+            <picture>
+              <img alt="border" src="/svg/folder-border.svg"
+                   class="testimonial__border-image testimonial__border-image_border"></picture>
+
+          </div>
           <div class="flex gap-1 mb-3">
             <u-icon
                 v-for="i in testimonial.rating"
@@ -66,7 +75,7 @@ const slides = computed(() => {
                 <p class="font-semibold text-sm">{{ t(testimonial.name) }}</p>
                 <p class="text-xs text-muted">{{ t(testimonial.role) }}</p>
               </div>
-              <img :alt="t(testimonial.name)" :src="testimonial.avatar" class="object-cover"/>
+              <img :alt="t(testimonial.name)" :src="testimonial.avatar" class="object-cover max-w-[86px]"/>
             </div>
             <img :alt="t(testimonial.role)" :src="testimonial.logo" class="ml-auto h-5"/>
           </div>
@@ -77,55 +86,42 @@ const slides = computed(() => {
 </template>
 
 <style scoped lang="scss">
-.folder-icon {
-  position: relative;
+.testimonial__border {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+}
+
+.testimonial__border-image {
+  transition: opacity 0.2s ease;
+  width: -webkit-fill-available;
+  height: -webkit-fill-available;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.testimonial__border-image_border {
+  opacity: 0;
+}
+
+.testimonial {
   cursor: pointer;
-  background: transparent;
-  overflow: hidden;
-  clip-path: polygon(
-          2% 0%,
-          33.65% 0%,
-          45.5% 20.16%,
-          100% 20.55%,
-          100% 98%,
-          98.58% 99.6%,
-          1.18% 99.6%,
-          0% 97.63%,
-          0% 1.98%,
-          1.18% 0.79%
-  );
 
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to right, var(--color-primary-gradient-start), var(--color-primary-gradient-end));
-    transition: background-color 0.3s ease;
-    z-index: -1;
-  }
+  &:hover {
+    .testimonial__border-image {
+      opacity: 0;
+    }
 
-  &::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background-color: var(--background-color);
-    clip-path: polygon(
-            2% 0%,
-            33.65% 0%,
-            45.5% 20.16%,
-            100% 20.55%,
-            100% 98%,
-            98.58% 99.6%,
-            1.18% 99.6%,
-            0% 97.63%,
-            0% 1.98%,
-            1.18% 0.79%
-    );
-    z-index: -1;
-  }
-
-  &:hover::after {
-    background: linear-gradient(to left, var(--color-primary-gradient-start), var(--color-primary-gradient-end));
+    .testimonial__border-image_border {
+      opacity: 1;
+    }
   }
 }
+
 </style>
