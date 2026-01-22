@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import normalizeList from "~/assets/normalizeList";
+
 const isYearly = ref(true);
 const {t, tm, rt} = useI18n();
 
@@ -96,15 +98,13 @@ const plans = ref([
           <p class="font-semibold text-muted mb-2">
             {{ t('pricing.featuresTitle') }}
           </p>
-
           <u-page-list
               class="space-y-1 text-sm text-muted spoiler-list"
               :class="{ spoiler_open: plan.expanded }"
-              :items="tm(plan.features)"
-              :data-plan-index="index"
+              :items="normalizeList(tm(plan.features))"
           >
             <li
-                v-for="(feature, i) in tm(plan.features)"
+                v-for="(feature, i) in normalizeList(tm(plan.features))"
                 :key="i"
                 class="flex items-center gap-2"
             >
