@@ -5,6 +5,18 @@ import FeaturesCarousel from "~/components/FeaturesCarousel.vue";
 import TabsWithUnderButtons from "~/components/TabsWithUnderButtons.vue";
 import ImagesCarousel from "~/components/ImagesCarousel.vue";
 
+interface Testimonial {
+  id: number;
+  name: string;
+  role: string;
+  quote: string;
+  avatar?: string;
+  logo?: string;
+  rating: number;
+  order?: number;
+  isVisible: boolean;
+}
+
 const {t} = useI18n();
 const tabs: TabsItem[] = [
   {
@@ -90,48 +102,12 @@ const tabs2 = [
   }
 ];
 
-const testimonials = [
-  {
-    name: 'Guy Hawkins',
-    role: 'testimonials.item.role',
-    quote: 'testimonials.item.quote',
-    avatar: '/images/brand-t.png',
-    logo: '/logos/modx.svg',
-    rating: 5
-  },
-  {
-    name: 'Guy Hawkins',
-    role: 'testimonials.item.role',
-    quote: 'testimonials.item.quote',
-    avatar: '/images/brand-t.png',
-    logo: '/logos/modx.svg',
-    rating: 5
-  },
-  {
-    name: 'Guy Hawkins',
-    role: 'testimonials.item.role',
-    quote: 'testimonials.item.quote',
-    avatar: '/images/brand-t.png',
-    logo: '/logos/modx.svg',
-    rating: 5
-  },
-  {
-    name: 'Guy Hawkins',
-    role: 'testimonials.item.role',
-    quote: 'testimonials.item.quote',
-    avatar: '/images/brand-t.png',
-    logo: '/logos/modx.svg',
-    rating: 5
-  },
-  {
-    name: 'Guy Hawkins',
-    role: 'testimonials.item.role',
-    quote: 'testimonials.item.quote',
-    avatar: '/images/brand-t.png',
-    logo: '/logos/modx.svg',
-    rating: 5
-  }
-];
+const config = useRuntimeConfig();
+
+const { data: testimonials, pending, error } = await useAsyncData<Testimonial[]>(
+    "testimonials",
+    () => $fetch(`${config.public.apiBase}/testimonials`)
+);
 </script>
 
 <template>
@@ -218,8 +194,9 @@ const testimonials = [
             description="page.featureCards.free.description"
         />
       </u-container>
-      <testimonial-carousel headline="testimonials.headline" title="testimonials.title"
-                            :testimonials="testimonials"/>
+      <testimonial-carousel v-if="!pending" headline="testimonials.headline" title="testimonials.title"
+                            :testimonials="(testimonials || []).filter((testimonial) => testimonial.isVisible)"
+      />
       <review-logos
           title="page.reviewLogos.title"
           :logos="[

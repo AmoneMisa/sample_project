@@ -23,7 +23,7 @@ export default defineNuxtConfig({
     experimental: {appManifest: false},
     runtimeConfig: {
         public: {
-            apiBase: 'http://localhost:8003',
+            apiBase: 'http://127.0.0.1:8002',
         }
     }
 });

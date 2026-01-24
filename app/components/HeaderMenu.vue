@@ -1,46 +1,10 @@
 <script setup lang="ts">
 const {t} = useI18n();
+const config = useRuntimeConfig();
 
-const menu = [
-  {
-    type: "simple",
-    label: "menu.home",
-    href: "/"
-  },
-  {
-    type: "dropdown-simple",
-    label: "menu.tools",
-    items: [
-      {label: "menu.textGenerator", badge: "badge.cool", href: "/text"},
-      {label: "menu.imageGenerator", href: "/image"},
-      {label: "menu.codeGenerator", badge: "badge.discount", href: "/code"}
-    ]
-  },
-  {
-    type: "dropdown-mega",
-    label: "menu.pages",
-    columns: [
-      {
-        title: "menu.innerPages",
-        items: [
-          {label: "menu.blog", href: "/blog"},
-          {label: "menu.pricing", href: "/pricing"}
-        ]
-      },
-      {
-        title: "menu.dashboard",
-        items: [
-          {label: "menu.profile", href: "/profile"},
-          {label: "menu.sessions", badge: "badge.easyToBuy", href: "/sessions"}
-        ]
-      }
-    ],
-    image: {
-      src: "/images/menu-img-2.png",
-      position: "right"
-    }
-  }
-];
+const { data: menu } = await useAsyncData("menu", () =>
+    $fetch(`${config.public.apiBase}/header-menu`)
+);
 </script>
 
 <template>

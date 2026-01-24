@@ -2,6 +2,8 @@
 import {computed, ref} from 'vue'
 import sliceSlides from "~/assets/sliceSlides";
 
+
+
 const props = defineProps({
   testimonials: {
     type: Array<{}>,
@@ -66,18 +68,18 @@ const slides = computed(() => {
           </div>
 
           <blockquote class="text-sm text-muted italic mb-4">
-            “{{ t(testimonial.quote) }}”
+            “{{ testimonial.quote }}”
           </blockquote>
 
           <div class="flex items-center gap-3">
             <div class="flex flex-col gap-3">
               <div class="flex flex-col gap-3">
-                <p class="font-semibold text-sm">{{ t(testimonial.name) }}</p>
+                <p class="font-semibold text-sm">{{ testimonial.name }}</p>
                 <p class="text-xs text-muted">{{ t(testimonial.role) }}</p>
               </div>
-              <img :alt="t(testimonial.name)" :src="testimonial.avatar" class="object-cover max-w-[86px]"/>
+              <img :alt="testimonial.name" :src="testimonial.avatar" class="testimonial__image testimonial__image_avatar object-cover rounded-lg"/>
             </div>
-            <img :alt="t(testimonial.role)" :src="testimonial.logo" class="ml-auto h-5"/>
+            <img :alt="t(testimonial.role)" :src="testimonial.logo" class="testimonial__image testimonial__image_logo ml-auto rounded-full"/>
           </div>
         </u-card>
       </div>
@@ -86,6 +88,15 @@ const slides = computed(() => {
 </template>
 
 <style scoped lang="scss">
+.testimonial__image {
+  max-width: 60px;
+}
+
+.testimonial__image_logo {
+  height: 64px;
+  max-width: initial;
+}
+
 .testimonial__border {
   position: absolute;
   top: 0;
