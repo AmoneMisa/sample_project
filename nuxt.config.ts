@@ -7,9 +7,9 @@ export default defineNuxtConfig({
         defaultLocale: 'ru',
         langDir: null,
         locales: [
-            { code: 'en', name: 'English' },
-            { code: 'ru', name: 'Русский' },
-            { code: 'kk', name: 'Қазақша' }
+            {code: 'en', name: 'English'},
+            {code: 'ru', name: 'Русский'},
+            {code: 'kk', name: 'Қазақша'}
         ],
         strategy: 'no_prefix',
         detectBrowserLanguage: {
@@ -23,7 +23,12 @@ export default defineNuxtConfig({
     experimental: {appManifest: false},
     runtimeConfig: {
         public: {
-            apiBase: 'http://127.0.0.1:8002',
+            apiBase: '/api'
+        }
+    },
+    nitro: {
+        routeRules: {
+            '/api/**': {proxy: 'http://backend:8000/**'}
         }
     }
 });
