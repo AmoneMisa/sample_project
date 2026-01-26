@@ -2,8 +2,6 @@
 import {computed, ref} from 'vue'
 import sliceSlides from "~/assets/sliceSlides";
 
-
-
 const props = defineProps({
   testimonials: {
     type: Array<{}>,
@@ -13,8 +11,6 @@ const props = defineProps({
   description: String,
   headline: String
 });
-
-const {t} = useI18n();
 
 const selected = ref(0);
 
@@ -67,24 +63,24 @@ const slides = computed(() => {
             />
           </div>
 
-          <blockquote class="text-sm text-muted italic mb-4">
+          <blockquote class="text-sm text-muted italic mb-4 line-clamp-5" :title=testimonial.quote>
             “{{ testimonial.quote }}”
           </blockquote>
 
           <div class="flex flex-col sm:flex-row sm:items-center gap-4">
             <div class="flex items-center gap-4">
               <img
-                  :alt="t(testimonial.name)"
+                  :alt="testimonial.name"
                   :src="testimonial.avatar"
                   class="h-12 w-12 rounded-full object-cover"
               />
               <div class="flex flex-col gap-1">
-                <p class="font-semibold text-sm">{{ testimonial.name }}</p>
-                <p class="text-xs text-muted">{{ t(testimonial.role) }}</p>
+                <p class="font-semibold text-sm line-clamp-1" :title=testimonial.name>{{ testimonial.name }}</p>
+                <p class="text-xs text-muted line-clamp-1" :title=testimonial.role>{{ testimonial.role }}</p>
               </div>
-              <img :alt="testimonial.name" :src="testimonial.avatar" class="testimonial__image testimonial__image_avatar object-cover rounded-lg"/>
             </div>
-            <img :alt="t(testimonial.role)" :src="testimonial.logo" class="testimonial__image testimonial__image_logo sm:ml-auto h-5 sm:h-6 rounded-full"/>
+            <img :alt="testimonial.role" :src="testimonial.logo"
+                 class="testimonial__image testimonial__image_logo sm:ml-auto h-5 sm:h-6 rounded-full"/>
           </div>
         </u-card>
       </div>
