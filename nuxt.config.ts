@@ -28,7 +28,7 @@ export default defineNuxtConfig({
     },
     nitro: {
         routeRules: {
-            '/api/**': {proxy: 'http://localhost:8000/**'} //http://backend:8000/** - prod
+            '/api/**': {proxy: 'http://backend:8000/**'} //http://backend:8000/** - prod
         }
     }
 });
