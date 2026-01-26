@@ -177,7 +177,7 @@ const { data: testimonials, pending, error } = await useAsyncData<Testimonial[]>
       <u-container>
         <price-cards/>
       </u-container>
-      <u-container class="flex gap-20 lg:gap-16 md:gap-12 sm:gap-8 flex-wrap justify-center">
+      <u-container class="flex xl:gap-20 lg:gap-16 md:gap-12 sm:gap-8 flex-wrap justify-center">
         <feature-card
             image="service-icon-01.png"
             title="page.featureCards.noRisk.title"

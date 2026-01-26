@@ -1,7 +1,7 @@
 export default defineNuxtConfig({
     compatibilityDate: '2025-07-15',
     devtools: {enabled: true},
-    modules: ['@nuxt/ui', '@nuxtjs/i18n'],
+    modules: ['@nuxt/ui', '@nuxtjs/i18n', '@nuxt/icon'],
     css: ['~/assets/css/main.css'],
     i18n: {
         defaultLocale: 'ru',
@@ -28,7 +28,7 @@ export default defineNuxtConfig({
     },
     nitro: {
         routeRules: {
-            '/api/**': {proxy: 'http://backend:8000/**'}
+            '/api/**': {proxy: 'http://localhost:8000/**'} //http://backend:8000/** - prod
         }
     }
 });

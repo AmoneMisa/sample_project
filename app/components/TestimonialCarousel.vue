@@ -40,7 +40,7 @@ const slides = computed(() => {
       }"
               :title="title" :description="description" :headline="headline" :isCentered="false" class="mb-14"
     >
-      <div class="grid grid-cols-1 md:grid-cols-3 sm:grid-cols-1 gap-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <u-card
             v-for="(testimonial, index) in group"
             :key="index"

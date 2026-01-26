@@ -61,10 +61,16 @@ export async function ensureRemoteMessages(nuxtApp: any, lang: string) {
             const config = useRuntimeConfig();
             const api = config.public.apiBase;
 
-            const data = await $fetch(`/translations/structured`, {
-                baseURL: api,
-                query: { lang },
-            });
+            let data: any;
+            try {
+                data = await $fetch(`/translations/structured`, {
+                    baseURL: api,
+                    query: { lang },
+                });
+            } catch (err: any) {
+                console.error("Ошибка загрузки переводов:", err);
+                data = {};
+            }
 
             setMessages(i18n, lang, data);
             loaded.add(lang);
