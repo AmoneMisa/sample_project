@@ -19,9 +19,9 @@ const {t} = useI18n();
 </script>
 
 <template>
-  <footer class="footer flex gap-5 p-12 px-4 sm:px-6 lg:px-8">
+  <footer class="footer flex p-12 px-4 sm:px-6 lg:px-8">
     <u-container class="w-full max-w-[var(--ui-container)] mx-auto px-4 sm:px-6 lg:px-8
-            flex flex-wrap gap-10 justify-center">
+            flex flex-wrap gap-5 justify-center">
       <div class="footer__column">
         <div class="footer__col-item">
           <a class="header__logo max-h-[35px]" href="/">
@@ -91,18 +91,18 @@ const {t} = useI18n();
 }
 
 .footer__column {
-  flex: 0 0 calc(100% - 20px);
+  flex: 100%;
 
   @media (min-width: 768px) {
-    flex: 0 0 calc(50% - 20px);
+    flex: calc(50% - 20px);
   }
 
   @media (min-width: 1024px) {
-    flex: 0 0 calc(33.3333% - 20px);
+    flex: calc(33.3333% - 20px);
   }
 
   @media (min-width: 1280px) {
-    flex: 0 0 calc(25% - 20px);
+    flex: calc(25% - 20px);
   }
 }
 
