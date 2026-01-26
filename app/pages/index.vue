@@ -120,8 +120,8 @@ const { data: testimonials, pending, error } = await useAsyncData<Testimonial[]>
                  descriptionSize="24"/>
     <u-page-body class="gap-16 flex flex-col justify-center">
       <textarea-request-form
-          placeholder="form.placeholder"
-          button-text="form.button"
+          :placeholder="t('form.placeholder')"
+          :button-text="t('form.button')"
       />
       <u-container class="max-w-6xl mx-auto admin-panel">
         <div class="admin-panel__image">

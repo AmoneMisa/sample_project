@@ -3,8 +3,8 @@ const isLoading = useI18nLoading();
 
 if (import.meta.client) {
   watch(isLoading, (v) => {
-    document.documentElement.style.overflow = v ? 'hidden' : ''
-    document.body.style.overflow = v ? 'hidden' : ''
+    document.documentElement.style.overflow = v ? 'hidden' : '';
+    document.body.style.overflow = v ? 'hidden' : '';
   }, { immediate: true });
 }
 </script>
