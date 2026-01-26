@@ -62,7 +62,7 @@ const plans = ref([
             @click="isYearly = true"
         >
           {{ t('pricing.switcher.yearly') }}
-          <span class="price-cards__switcher-button-badge">
+          <span class="price-cards__switcher-button-badge line-clamp-1 max-w-[80px]">
             {{ t('pricing.switcher.discountBadge') }}
           </span>
         </button>
@@ -179,6 +179,7 @@ const plans = ref([
   align-items: center;
   max-width: 306px;
   margin: 0 auto;
+  flex-wrap: wrap;
 }
 
 .price-cards__switcher-button {

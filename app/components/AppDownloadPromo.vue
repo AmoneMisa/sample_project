@@ -7,7 +7,7 @@ defineProps<{
 </script>
 
 <template>
-  <div class="flex items-center card min-h-[550px] lg:min-h-[450px] md:min-h-[350px] sm:min-h-[250px] gap-10">
+  <div class="flex items-center card min-h-[550px] lg:min-h-[450px] md:min-h-[350px] sm:min-h-[300px] gap-10 bg-cover">
     <div class="flex flex-col justify-between max-w-1/2 card__left-side md:max-w-full">
       <page-header :title="title" :description="description" :headline="headline"
                    class="flex flex-col gap-5 items-start text-left"
@@ -57,7 +57,7 @@ defineProps<{
   height: -webkit-fill-available;
 
   @media (max-width: 1024px) {
-    padding: 95px 0 35px 30px;
+    padding: 40px 0 35px 30px;
   }
 }
 

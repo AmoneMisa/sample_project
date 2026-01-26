@@ -68,7 +68,7 @@ onMounted(() => {
           <div class="relative custom-border p-0.5">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 bg-zinc-900 rounded-3xl fade-on-switch">
               <div class="space-y-4">
-                <h2 class="text-white text-5xl">{{t(item.title) }}</h2>
+                <h2 class="text-white text-3xl sm:text-4xl lg:text-5xl">{{t(item.title) }}</h2>
                 <u-page-list v-if="item.list" class="list-disc list-inside text-muted space-y-1">
                   <li v-for="(li, idx) in resolveList(item.list)" :key="idx">
                     {{ li }}
@@ -143,6 +143,38 @@ onMounted(() => {
   img {
     min-height: 400px;
     min-width: 400px;
+  }
+}
+
+
+@media (max-width: 1024px) {
+  .tabs__control-line {
+    top: 52px;
+  }
+
+  .tabs__trigger {
+    padding: 12px 24px;
+  }
+
+  .tabs-background__image {
+    img {
+      min-height: 320px;
+      min-width: 320px;
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .tabs__trigger {
+    padding: 10px 18px;
+  }
+
+  .tabs-background__image {
+    img {
+      min-height: 240px;
+      min-width: 240px;
+      width: 100%;
+    }
   }
 }
 </style>

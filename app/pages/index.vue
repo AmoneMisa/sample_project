@@ -112,13 +112,13 @@ const { data: testimonials, pending, error } = await useAsyncData<Testimonial[]>
 
 <template>
   <u-page>
-    <h1 class="font-bold text-7xl text-center max-w-[60%] mx-auto xl:text-6xl lg:text-5xl sm:text-4xl">{{ t('hero.title') }}
+    <h1 class="page-main-header font-bold text-7xl text-center max-w-[60%] mx-auto">{{ t('hero.title') }}
       <animated-rotated-x-text :texts-list="['AI Chating', 'AI Writing' ,'AI Chating', 'AI Writing']"/>
       {{ t('hero.title2') }}
     </h1>
     <page-header description="hero.subtitle"
                  descriptionSize="24"/>
-    <u-page-body class="gap-16 grid justify-center">
+    <u-page-body class="gap-16 flex flex-col justify-center">
       <textarea-request-form
           placeholder="form.placeholder"
           button-text="form.button"
@@ -128,7 +128,7 @@ const { data: testimonials, pending, error } = await useAsyncData<Testimonial[]>
           <img src="/images/slider-main-image.png" class="w-full rounded-lg" alt="admin panel"/>
         </div>
       </u-container>
-      <u-container class="flex items-center flex-col justify-center">
+      <u-container class="flex items-center flex-col justify-center min-w-0">
         <h3 class="text-2xl font-semibold text-center text-muted uppercase mb-8">{{ t('trust.title') }}</h3>
         <images-carousel :images="[
   '/images/spotify.png',
@@ -159,25 +159,25 @@ const { data: testimonials, pending, error } = await useAsyncData<Testimonial[]>
           <img alt="AI Collaboration" src="/images/split-2-background.png"/>
         </div>
       </u-container>
-      <u-container class="violet-block rounded-xl flex justify-between py-16 max-h-[265px]">
-        <page-header  class="border-none max-w-[590px] py-0"
+      <u-container class="violet-block rounded-xl flex flex-col lg:flex-row justify-between py-10 lg:py-16 gap-8 lg:gap-0 max-h-none lg:max-h-[265px]">
+        <page-header  class="border-none max-w-full lg:max-w-[590px] py-0"
                       title="page.community.title"
                       description="page.community.description"
                       :ui="{
               description: 'text-white'
             }" />
-        <div class="flex items-center">
+        <div class="items-center justify-center lg:justify-start hidden lg:flex">
           <img src="/images/bg-shape-01.png" :alt="t('page.community.title')">
         </div>
-        <u-container class="w-1/4 gap-6 flex flex-col">
+        <u-container class="w-full lg:w-1/4 gap-6 flex flex-col items-center lg:items-start">
           <img src="/images/team-01.png" alt="team on GitHub" class="flex-none mx-auto w-fit">
-          <custom-button class="justify-center h-12 text-base" button-type="white">{{ t('page.community.cta') }}</custom-button>
+          <custom-button class="justify-center h-12 text-base w-full sm:w-auto" button-type="white">{{ t('page.community.cta') }}</custom-button>
         </u-container>
       </u-container>
       <u-container>
         <price-cards/>
       </u-container>
-      <u-container class="flex xl:gap-20 lg:gap-16 md:gap-12 sm:gap-8 flex-wrap justify-center">
+      <u-container class="flex flex-col lg:flex-row gap-8 lg:gap-20">
         <feature-card
             image="service-icon-01.png"
             title="page.featureCards.noRisk.title"
@@ -242,7 +242,6 @@ const { data: testimonials, pending, error } = await useAsyncData<Testimonial[]>
 }
 
 .admin-panel {
-  max-width: 1210px;
   padding-right: calc(1.5rem * .5);
   padding-left: calc(1.5rem * .5);
   margin-top: 0;

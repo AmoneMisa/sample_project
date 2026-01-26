@@ -1,30 +1,31 @@
 <script setup lang="ts">
 const quickLinks = [
-  { name: 'footer.quickLinks.pages', to: '/pages' },
-  { name: 'footer.quickLinks.blog', to: '/blog' },
-  { name: 'footer.quickLinks.contact', to: '/contact' },
-  { name: 'footer.quickLinks.howToUse', to: '/how-to-use' },
-  { name: 'footer.quickLinks.roadmap', to: '/roadmap' }
+  {name: 'footer.quickLinks.pages', to: '/pages'},
+  {name: 'footer.quickLinks.blog', to: '/blog'},
+  {name: 'footer.quickLinks.contact', to: '/contact'},
+  {name: 'footer.quickLinks.howToUse', to: '/how-to-use'},
+  {name: 'footer.quickLinks.roadmap', to: '/roadmap'}
 ];
 
 const services = [
-  { name: 'footer.services.imageGenerator', to: '/tools/image' },
-  { name: 'footer.services.videoGenerator', to: '/tools/video' },
-  { name: 'footer.services.textGenerator', to: '/tools/text' },
-  { name: 'footer.services.codeGenerator', to: '/tools/code' },
-  { name: 'footer.services.educationFeedback', to: '/tools/education' }
+  {name: 'footer.services.imageGenerator', to: '/tools/image'},
+  {name: 'footer.services.videoGenerator', to: '/tools/video'},
+  {name: 'footer.services.textGenerator', to: '/tools/text'},
+  {name: 'footer.services.codeGenerator', to: '/tools/code'},
+  {name: 'footer.services.educationFeedback', to: '/tools/education'}
 ];
 
 const {t} = useI18n();
 </script>
 
 <template>
-  <footer class="footer py-20 lg:py-14 md:py-8">
-    <u-container class="grid grid-cols-4 gap-10 md:grid-cols-3 sm:grid-cols-4">
+  <footer class="footer flex gap-5 p-12 px-4 sm:px-6 lg:px-8">
+    <u-container class="w-full max-w-[var(--ui-container)] mx-auto px-4 sm:px-6 lg:px-8
+            flex flex-wrap gap-10 justify-center">
       <div class="footer__column">
         <div class="footer__col-item">
           <a class="header__logo max-h-[35px]" href="/">
-            <img alt="Logo" src="/images/logo.png" />
+            <img alt="Logo" src="/images/logo.png"/>
           </a>
         </div>
 
@@ -33,7 +34,7 @@ const {t} = useI18n();
         </div>
 
         <div class="footer__col-item">
-          <newsletter />
+          <newsletter/>
         </div>
       </div>
 
@@ -87,6 +88,22 @@ const {t} = useI18n();
 <style scoped lang="scss">
 .footer {
   background-color: var(--color-blackest);
+}
+
+.footer__column {
+  flex: 0 0 calc(100% - 20px);
+
+  @media (min-width: 768px) {
+    flex: 0 0 calc(50% - 20px);
+  }
+
+  @media (min-width: 1024px) {
+    flex: 0 0 calc(33.3333% - 20px);
+  }
+
+  @media (min-width: 1280px) {
+    flex: 0 0 calc(25% - 20px);
+  }
 }
 
 .footer__title {

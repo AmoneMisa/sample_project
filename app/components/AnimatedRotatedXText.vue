@@ -97,13 +97,13 @@ onUnmounted(clearAll);
   display: inline-block;
   perspective: 400px;
   line-height: initial;
-  width: 390px;
+  width: 435px;
 
-  @media (max-width: 1240px) {
+  @media (max-width: 1024px) {
     width: 265px;
   }
-  @media (max-width: 1024px) {
-    width: 195px;
+  @media (max-width: 768px) {
+    width: 220px;
   }
 }
 

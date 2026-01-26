@@ -62,6 +62,7 @@ defineProps({
   display: flex;
   flex-direction: column-reverse;
   gap: 40px;
+  padding: 12px;
 
   .tabs__list {
     display: flex;
@@ -150,6 +151,38 @@ defineProps({
   .tabs__button-cta {
     margin-top: 24px;
     width: fit-content;
+  }
+
+  @media (max-width: 1024px) {
+    .tabs__content {
+      flex-direction: column;
+      gap: 24px;
+      align-items: flex-start;
+    }
+
+    .tabs__image {
+      max-width: 100%;
+      min-height: auto;
+    }
+
+    .tabs__info {
+      max-width: 100%;
+      padding: 0;
+    }
+
+    .tabs__button {
+      margin: 0 8px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .tabs__title {
+      font-size: 1rem;
+    }
+
+    .tabs__image {
+      width: 100%;
+    }
   }
 }
 

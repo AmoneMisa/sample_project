@@ -71,15 +71,20 @@ const slides = computed(() => {
             “{{ testimonial.quote }}”
           </blockquote>
 
-          <div class="flex items-center gap-3">
-            <div class="flex flex-col gap-3">
-              <div class="flex flex-col gap-3">
+          <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+            <div class="flex items-center gap-4">
+              <img
+                  :alt="t(testimonial.name)"
+                  :src="testimonial.avatar"
+                  class="h-12 w-12 rounded-full object-cover"
+              />
+              <div class="flex flex-col gap-1">
                 <p class="font-semibold text-sm">{{ testimonial.name }}</p>
                 <p class="text-xs text-muted">{{ t(testimonial.role) }}</p>
               </div>
               <img :alt="testimonial.name" :src="testimonial.avatar" class="testimonial__image testimonial__image_avatar object-cover rounded-lg"/>
             </div>
-            <img :alt="t(testimonial.role)" :src="testimonial.logo" class="testimonial__image testimonial__image_logo ml-auto rounded-full"/>
+            <img :alt="t(testimonial.role)" :src="testimonial.logo" class="testimonial__image testimonial__image_logo sm:ml-auto h-5 sm:h-6 rounded-full"/>
           </div>
         </u-card>
       </div>
