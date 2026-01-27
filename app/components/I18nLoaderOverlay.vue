@@ -1,13 +1,26 @@
 <script setup lang="ts">
+import { loadInitialData } from "~/composables/useInitialLoad";
+
+const nuxtApp = useNuxtApp();
 const isLoading = useI18nLoading();
 
+onMounted(async () => {
+  const lang = nuxtApp.$i18n.locale || "ru";
+  await loadInitialData(nuxtApp, lang);
+});
+
 if (import.meta.client) {
-  watch(isLoading, (v) => {
-    document.documentElement.style.overflow = v ? 'hidden' : '';
-    document.body.style.overflow = v ? 'hidden' : '';
-  }, { immediate: true });
+  watch(
+      isLoading,
+      (v) => {
+        document.documentElement.style.overflow = v ? "hidden" : "";
+        document.body.style.overflow = v ? "hidden" : "";
+      },
+      { immediate: true }
+  );
 }
 </script>
+
 
 <template>
   <transition name="fade">

@@ -1,5 +1,5 @@
-import { useRuntimeConfig } from "#imports"; // Nuxt 3/4 auto-import
-import { $fetch } from "ofetch"; // глобальный fetch
+import { useRuntimeConfig } from "#imports";
+import { $fetch } from "ofetch";
 
 const loaded = new Set<string>();
 const pending = new Map<string, Promise<void>>();
