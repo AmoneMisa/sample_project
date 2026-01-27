@@ -22,9 +22,10 @@ export default defineNuxtConfig({
     },
     experimental: {appManifest: false},
     runtimeConfig: {
-        public: {
-            apiBase: '/api'
-        }
+        runtimeConfig: {
+            apiBase: 'http://backend:8000',
+            public: {apiBase: '/api'}
+        },
     },
     nitro: {
         routeRules: {

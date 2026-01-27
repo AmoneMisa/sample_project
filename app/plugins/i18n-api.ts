@@ -14,14 +14,13 @@ export default defineNuxtPlugin(async (nuxtApp) => {
         finishI18nLoading();
     }
 
-    nuxtApp.hook("i18n:localeSwitched", async ({ newLocale }: any) => {
+    nuxtApp.hook("i18n:localeSwitched", async ({ newLocale }) => {
         if (import.meta.server) {
-            await loadInitialData(nuxtApp, current);
+            await loadInitialData(nuxtApp, newLocale);
         } else {
             startI18nLoading();
-            await loadInitialData(nuxtApp, current);
+            await loadInitialData(nuxtApp, newLocale);
             finishI18nLoading();
         }
-
     });
 });

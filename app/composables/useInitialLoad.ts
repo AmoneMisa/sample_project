@@ -25,7 +25,9 @@ export async function loadInitialData(nuxtApp: any, lang: string) {
     if (!lang) return;
 
     const config = useRuntimeConfig();
-    const api = config.public.apiBase;
+    const api = import.meta.server
+        ? config.apiBase
+        : config.public.apiBase;
 
     const translationsLoaded = useTranslationsLoaded();
     const headerMenu = useHeaderMenu();
