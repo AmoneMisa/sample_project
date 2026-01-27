@@ -33,7 +33,7 @@ export async function loadInitialData(nuxtApp: any, lang: string) {
     const headerMenu = useHeaderMenu();
     const testimonials = useTestimonials();
 
-    const needTranslations = !translationsLoaded.value.has(lang);
+    const needTranslations = import.meta.server || !translationsLoaded.value.has(lang);
 
     startI18nLoading();
 
