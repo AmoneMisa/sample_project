@@ -9,10 +9,11 @@ export default defineEventHandler(async (event) => {
     if (cached) {
         return JSON.parse(cached);
     }
-    const data = await $fetch("/api/translations", {
+    const config = useRuntimeConfig();
+    const data = await $fetch(`${config.public.apiBase}/translations`, {
         query: { lang },
     });
-    console.info("translations route data:", data);
+
     await redis.set(key, JSON.stringify(data), "EX", 3600);
 
     return data;

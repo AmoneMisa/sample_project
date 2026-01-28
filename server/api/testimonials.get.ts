@@ -9,8 +9,8 @@ export default defineEventHandler(async (event) => {
         return JSON.parse(cached);
     }
 
-    const data = await $fetch("/api/testimonials");
-    console.info("testimonials route data:", data);
+    const config = useRuntimeConfig();
+    const data = await $fetch(`${config.public.apiBase}/testimonials`);
 
     await redis.set(key, JSON.stringify(data), "EX", 3600);
 

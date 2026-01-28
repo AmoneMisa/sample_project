@@ -7,8 +7,9 @@ export default defineEventHandler(async (event) => {
     const cached = await redis.get(key);
     if (cached) return JSON.parse(cached);
 
-    const data = await $fetch("/api/header-menu");
-    console.info("header-menu route data:", cached);
+    const config = useRuntimeConfig();
+
+    const data = await $fetch(`${config.public.apiBase}/header-menu`);
 
     await redis.set(key, JSON.stringify(data), "EX", 3600);
 
