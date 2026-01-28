@@ -2,7 +2,7 @@
 import { loadInitialData } from "~/composables/useInitialLoad";
 
 const nuxtApp = useNuxtApp();
-const isLoading = useI18nLoading();
+const isLoading = useI18nLoadingCount();
 
 onMounted(async () => {
   const lang = nuxtApp.$i18n.locale || "ru";
