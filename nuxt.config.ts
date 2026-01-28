@@ -3,6 +3,7 @@ export default defineNuxtConfig({
     devtools: {enabled: true},
     modules: ['@nuxt/ui', '@nuxtjs/i18n', '@nuxt/icon'],
     css: ['~/assets/css/main.css'],
+    debug: true,
     i18n: {
         defaultLocale: 'ru',
         langDir: null,
