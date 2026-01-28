@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import { loadInitialData } from "~/composables/useInitialLoad";
+
+import {loadInitialDataClient} from "~/composables/useInitialLoad";
 
 const nuxtApp = useNuxtApp();
 const isLoading = useI18nLoadingCount();
 
 onMounted(async () => {
   const lang = nuxtApp.$i18n.locale || "ru";
-  await loadInitialData(nuxtApp, lang);
+  await loadInitialDataClient(nuxtApp, lang);
 });
+
 
 if (import.meta.client) {
   watch(

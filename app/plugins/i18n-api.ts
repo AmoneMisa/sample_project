@@ -1,26 +1,18 @@
-import { loadInitialData } from "~/composables/useInitialLoad";
-import { startI18nLoading, finishI18nLoading } from "~/composables/useI18nLoading";
+import {loadInitialDataSSR} from "~/composables/useInitialLoad";
 
 export default defineNuxtPlugin(async (nuxtApp) => {
-    const i18n = nuxtApp.$i18n as any;
-    const current =
-        (typeof i18n.locale === "string" ? i18n.locale : i18n.locale?.value) || "ru";
-    console.log("i18n.locale", i18n.locale?.value);
-    if (import.meta.server) {
-        await loadInitialData(nuxtApp, current);
-    } else {
-        startI18nLoading();
-        await loadInitialData(nuxtApp, current);
-        finishI18nLoading();
-    }
+    const i18n = nuxtApp.$i18n;
+    const lang = i18n.locale || "ru";
 
-    nuxtApp.hook("i18n:localeSwitched", async ({ newLocale }) => {
-        if (import.meta.server) {
-            await loadInitialData(nuxtApp, newLocale);
-        } else {
-            startI18nLoading();
-            await loadInitialData(nuxtApp, newLocale);
-            finishI18nLoading();
-        }
-    });
+    const config = useRuntimeConfig();
+    const api = config.apiBase;
+
+    if (import.meta.server) {
+        const { translations, menu, testi } = await loadInitialDataSSR(api, lang);
+
+        i18n.setLocaleMessage(lang, translations);
+
+        nuxtApp.payload.data.headerMenu = menu;
+        nuxtApp.payload.data.testimonials = testi;
+    }
 });
