@@ -1,3 +1,12 @@
+export const useHeaderMenu = () =>
+    useState<any>('header-menu', () => null);
+
+export const useTestimonials = () =>
+    useState<any>('testimonials', () => null);
+
+export const useTranslationsLoaded = () =>
+    useState<Set<string>>('translations-loaded', () => new Set<string>());
+
 export async function loadInitialDataSSR(api: string, lang: string) {
     const [translations, menu, testi] = await Promise.all([
         $fetch(`${api}/translations/structured`, { query: { lang } }),

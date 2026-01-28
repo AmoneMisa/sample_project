@@ -1,32 +1,32 @@
 <script setup lang="ts">
-
 import {loadInitialDataClient} from "~/composables/useInitialLoad";
 
 const nuxtApp = useNuxtApp();
-const isLoading = useI18nLoadingCount();
+const isLoadingCount = useI18nLoadingCount();
 
 onMounted(async () => {
-  const lang = nuxtApp.$i18n.locale || "ru";
+  const rawLocale = nuxtApp.$i18n.locale;
+  const lang = typeof rawLocale === "string" ? rawLocale : rawLocale?.value || "ru";
   await loadInitialDataClient(nuxtApp, lang);
 });
 
-
 if (import.meta.client) {
   watch(
-      isLoading,
+      isLoadingCount,
       (v) => {
-        document.documentElement.style.overflow = v ? "hidden" : "";
-        document.body.style.overflow = v ? "hidden" : "";
+        const locked = v > 0;
+        document.documentElement.style.overflow = locked ? "hidden" : "";
+        document.body.style.overflow = locked ? "hidden" : "";
       },
       { immediate: true }
   );
 }
-</script>
 
+</script>
 
 <template>
   <transition name="fade">
-    <div v-if="isLoading" class="i18n-overlay" aria-busy="true" aria-live="polite">
+    <div v-if="isLoadingCount > 0" class="i18n-overlay" aria-busy="true" aria-live="polite">
       <div class="i18n-overlay__card">
         <u-progress
             class="i18n-overlay__progress"
