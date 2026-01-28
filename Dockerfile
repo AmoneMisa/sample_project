@@ -17,7 +17,7 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-COPY --from=build /app/.output ./.output
+COPY --from=build /app .
 
 EXPOSE 3000
 

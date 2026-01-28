@@ -9,7 +9,6 @@ export default defineEventHandler(async (event) => {
     if (cached) {
         return JSON.parse(cached);
     }
-    console.info("translations route cached:", cached);
     const data = await $fetch("/api/translations", {
         query: { lang },
     });
