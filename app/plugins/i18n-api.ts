@@ -3,7 +3,8 @@ import { toRaw, unref } from 'vue';
 
 export default defineNuxtPlugin(async (nuxtApp) => {
     const i18n = nuxtApp.$i18n;
-    const lang = i18n.locale || "ru";
+    const rawLocale = i18n.locale;
+    const lang = typeof rawLocale === "string" ? rawLocale : rawLocale?.value || "ru";
 
     const config = useRuntimeConfig();
     const api = config.apiBase;
