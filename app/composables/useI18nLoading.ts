@@ -1,9 +1,6 @@
 export const useI18nLoadingCount = () =>
     useState('i18n-loading-count', () => 0);
 
-export const useI18nLoading = () =>
-    computed(() => useI18nLoadingCount().value > 0);
-
 export const startI18nLoading = () => {
     useI18nLoadingCount().value++;
 }

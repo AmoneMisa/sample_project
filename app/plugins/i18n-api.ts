@@ -5,7 +5,7 @@ export default defineNuxtPlugin(async (nuxtApp) => {
     const i18n = nuxtApp.$i18n as any;
     const current =
         (typeof i18n.locale === "string" ? i18n.locale : i18n.locale?.value) || "ru";
-
+    console.log("i18n.locale", i18n.locale);
     if (import.meta.server) {
         await loadInitialData(nuxtApp, current);
     } else {
