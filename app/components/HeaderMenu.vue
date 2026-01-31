@@ -1,10 +1,17 @@
 <script setup lang="ts">
+import {safeFetch} from "~/utils/safeFetch";
+
 const {t} = useI18n();
 const config = useRuntimeConfig();
 
-const { data: menu } = await useAsyncData("menu", () =>
-    $fetch(`${config.public.apiBase}/header-menu`)
+const { data: menu, error } = await safeFetch(
+    `${config.public.apiBase}/header-menu`
 );
+
+if (error) {
+  console.warn("Ошибка загрузки меню:", error);
+}
+
 </script>
 
 <template>
