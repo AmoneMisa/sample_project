@@ -29,8 +29,10 @@ export default defineNuxtConfig({
     },
     nitro: {
         routeRules: {
-            '/api/_nuxt_icon/**': { cache: false },
             '/api/**': {proxy: 'http://backend:8000/**'} //http://backend:8000/** - prod
         }
+    },
+    icon: {
+        localApiEndpoint: "/_nuxt_icon"
     }
 });
