@@ -23,11 +23,11 @@ const { data: menu } = await useAsyncData("menu", () =>
             class="header-menu__link"
             :href="item.href"
         >
-          {{ t(item.label) }}
+          {{ t(item.labelKey) }}
         </a>
         <div v-else-if="item.type === 'dropdown-simple'" class="header-menu__trigger">
         <span class="header-menu__link">
-            {{ t(item.label) }}
+            {{ t(item.labelKey) }}
         </span>
 
           <ul class="header-menu__dropdown">
@@ -37,14 +37,14 @@ const { data: menu } = await useAsyncData("menu", () =>
                 class="header-menu__dropdown-item"
             >
               <a class="header-menu__dropdown-link" :href="sub.href">
-                {{ t(sub.label) }} <span v-if="sub.badge" class="header-menu__badge line-clamp-1">{{ t(sub.badge) }}</span>
+                {{ t(sub.labelKey) }} <span v-if="sub.badge" class="header-menu__badge line-clamp-1">{{ t(sub.labelKey) }}</span>
               </a>
             </li>
           </ul>
         </div>
         <div v-else-if="item.type === 'dropdown-mega'" class="header-menu__trigger">
         <span class="header-menu__link">
-            {{ t(item.label) }}
+            {{ t(item.labelKey) }}
         </span>
           <div class="header-menu__mega">
             <div
@@ -52,7 +52,7 @@ const { data: menu } = await useAsyncData("menu", () =>
                 :key="c"
                 class="header-menu__mega-column"
             >
-              <h3 class="header-menu__mega-title">{{ t(col.title) }}</h3>
+              <h3 class="header-menu__mega-title">{{ t(col.labelKey) }}</h3>
 
               <ul class="header-menu__mega-list">
                 <li
@@ -61,7 +61,7 @@ const { data: menu } = await useAsyncData("menu", () =>
                     class="header-menu__mega-item"
                 >
                   <a class="header-menu__mega-link" :href="sub.href">
-                    {{ t(sub.label) }} <span v-if="sub.badge" class="header-menu__badge line-clamp-1">{{ t(sub.badge) }}</span>
+                    {{ t(sub.labelKey) }} <span v-if="sub.badge" class="header-menu__badge line-clamp-1">{{ t(sub.labelKey) }}</span>
                   </a>
                 </li>
               </ul>
