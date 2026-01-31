@@ -13,7 +13,6 @@
     "@nuxt/ui": "^4.3.0",
     "@nuxtjs/i18n": "^10.2.1",
     "ioredis": "^5.9.2",
-    "lucide-vue-next": "^0.563.0",
     "mariadb": "^3.4.5",
     "nuxt": "^4.2.2",
     "tailwindcss": "^4.1.18",
