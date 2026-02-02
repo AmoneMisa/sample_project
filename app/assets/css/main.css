@@ -25,69 +25,74 @@
     --color-secondary: #CD99FF;
     --color-primary-gradient-start: #805AF5;
     --color-primary-gradient-end: #CD99FF;
-    --color-primary-gradient: var(linear-gradient(to right, var(--color-primary-gradient-start), var(--color-primary-gradient-end)));
-    --half-border: linear-gradient(180deg, var(--color-primary-gradient-start) 0%, var(--color-primary-gradient-start), transparent 77%);
-    --ui-bg: #0E0C15;
+    --color-primary-gradient: linear-gradient(to right, var(--color-primary-gradient-start), var(--color-primary-gradient-end));
     --shadow-light: 1px 1px 6px rgba(0, 0, 0, 0.25);
     --shadow-primary: 0 0 20px 5px rgba(20, 126, 243, 0.1);
-    --color-dark: #21242D;
     --ui-border: rgba(255, 255, 255, 0.05);
-    --color-lessdark: #2E313D;
-    --secondary-bg-gradient: linear-gradient(107deg, #171A21 0.52%, rgba(23, 26, 33, 0) 99.49%);
     --color-gray: #3E414B;
-    --color-blackest: #16181E;
     --color-darker: rgba(6, 6, 6, 0.7);
-    --color-border: rgba(255, 255, 255, 0.05);
-}
-
-:root {
-    --color-primary-gradient: var(linear-gradient(to right, var(--color-primary-gradient-start), var(--color-primary-gradient-end)));
-    --half-border: var(--half-border);
-    --ui-text-inverted: var(--color-white);
+    --ui-text-inverted: #FFFFFF;
     --ui-text-muted: #BCC3D7;
+    --color-link: #BCC3D7;
+}
+:root {
     --background-color: #0E0C15;
     --ui-bg: #0E0C15;
-    --shadow-light: 1px 1px 6px rgba(0, 0, 0, 0.25);
-    --shadow-primary: 0 0 20px 5px rgba(20, 126, 243, 0.1);
     --color-dark: #21242D;
     --color-blackest: #16181E;
-    --color-link: #BCC3D7;
-    --ui-border: rgba(255, 255, 255, 0.05);
     --color-lessdark: #2E313D;
     --secondary-bg-gradient: linear-gradient(107deg, #171A21 0.52%, rgba(23, 26, 33, 0) 99.49%);
-    --color-gray: #3E414B;
+    --ui-border: rgba(255, 255, 255, 0.05);
     --color-border: rgba(255, 255, 255, 0.05);
+    --shadow-light: 1px 1px 6px rgba(0, 0, 0, 0.25);
+    --shadow-primary: 0 0 20px 5px rgba(20, 126, 243, 0.1);
+    --color-gray: #3E414B;
     --color-darker: rgba(6, 6, 6, 0.7);
     font-family: "Fira Code", "Sora", sans-serif;
+    --half-border: linear-gradient(180deg, var(--color-primary-gradient-start) 0%, var(--color-primary-gradient-start), transparent 77%);
+}
+
+.light {
+    --color-primary: #805AF5;
+    --color-primary-alt: #6B4BEA;
+    --color-secondary: #CD99FF;
+    --color-primary-gradient-start: #805AF5;
+    --color-primary-gradient-end: #CD99FF;
+    --color-primary-gradient: linear-gradient(
+            to right,
+            var(--color-primary-gradient-start),
+            var(--color-primary-gradient-end)
+    );
+    --background-color: #F6F7FB;
+    --ui-bg: #F6F7FB;
+    --surface-1: #FFFFFF;
+    --surface-2: #EEF0F8;
+    --surface-3: #E7EAF6;
+    --ui-text: #15162A;
+    --ui-text-muted: rgba(21, 22, 42, 0.62);
+    --color-link: rgba(21, 22, 42, 0.72);
+    --ui-border: rgba(128, 90, 245, 0.22);
+    --color-border: rgba(21, 22, 42, 0.10);
+    --color-blackest: #FFFFFF;
+    --color-dark: var(--surface-2);
+    --color-lessdark: var(--surface-3);
+    --color-gray: rgba(21, 22, 42, 0.40);
+    --color-darker: rgba(21, 22, 42, 0.06);
+    --shadow-light: 0 6px 24px rgba(18, 20, 35, 0.08);
+    --shadow-primary: 0 10px 30px rgba(128, 90, 245, 0.22);
 }
 
 body {
     background-color: var(--background-color);
     font-size: 16px;
 
-    h1:not(.text-7xl) {
-        font-size: 48px;
-    }
-
     @media (max-width: 1024px) {
         font-size: 15px;
-
-        h1:not(.text-7xl) {
-            font-size: 36px;
-        }
     }
 
     @media (max-width: 768px) {
         font-size: 14px;
-
-        h1:not(.text-7xl) {
-            font-size: 28px;
-        }
     }
-}
-
-h1 {
-    font-weight: initial;
 }
 
 .page-main-header {
@@ -99,6 +104,32 @@ h1 {
         max-width: initial;
         font-size: 36px;
     }
+}
+
+.light body {
+    background: var(--ui-bg);
+    color: #1E213A;
+}
+
+.light .gradient-button {
+    box-shadow: 0 4px 16px rgba(128, 90, 245, 0.25);
+}
+
+.light textarea {
+    background: #FFFFFF;
+    border-color: rgba(128, 90, 245, 0.15);
+    color: #1E213A;
+}
+
+.light textarea:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(128, 90, 245, 0.15);
+}
+
+.light .glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(128, 90, 245, 0.15);
 }
 
 img {
@@ -381,4 +412,96 @@ textarea:active {
     to {
         opacity: 1;
     }
+}
+
+@keyframes pillBorderMove {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.ui-pill-btn {
+    position: relative;
+    display: inline-flex;
+    border-radius: 14px;
+    padding: 1.5px;
+    background: linear-gradient(
+            90deg,
+            var(--color-primary-gradient-start),
+            var(--color-primary-gradient-end),
+            var(--color-primary-gradient-start)
+    );
+    background-size: 200% 200%;
+    transition: transform .15s ease, filter .2s ease;
+}
+
+.ui-pill-btn_animated {
+    animation: pillBorderMove 6s ease-in-out infinite;
+}
+
+.ui-pill-btn:hover {
+    filter: brightness(1.07);
+}
+
+.ui-pill-btn:active {
+    transform: translateY(1px);
+}
+
+.ui-pill-btn__inner {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    height: 40px;
+    padding: 0 16px;
+    border-radius: 12px;
+    background: rgba(14, 12, 21, 0.92);
+    backdrop-filter: blur(10px);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 -10px 18px rgba(0, 0, 0, 0.55),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+
+    transition: background-color .2s ease, box-shadow .2s ease;
+}
+
+.ui-pill-btn:hover .ui-pill-btn__inner {
+    background: rgba(14, 12, 21, 0.96);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -12px 22px rgba(0, 0, 0, 0.60),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ui-pill-btn_animated {
+        animation: none;
+    }
+}
+
+.ui-locale [data-slot="content"] {
+    padding: 8px;
+}
+
+.ui-locale [role="option"] {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.88);
+}
+
+.ui-locale [role="option"]:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.ui-locale [role="option"][aria-selected="true"] {
+    background: rgba(128, 90, 245, 0.14);
+    box-shadow: inset 0 0 0 1px rgba(205, 153, 255, 0.22);
 }

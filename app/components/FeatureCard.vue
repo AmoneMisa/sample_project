@@ -15,7 +15,7 @@ const {t} = useI18n();
       }"
   >
     <div class="p-4 rounded-full">
-      <img class="mx-auto" alt="service image" :src="`/images/${image}`"/>
+      <img class="mx-auto" alt="service image" :src="`${image}`"/>
     </div>
 
     <h3 class="text-2xl font-semibold mb-3">{{ t(title) }}</h3>

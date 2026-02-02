@@ -74,6 +74,12 @@ watch(() => i18n.locale.value, async (newLang) => {
   nuxtApp.payload.data.headerMenu = menu;
   nuxtApp.payload.data.testimonials = testi;
 });
+
+const colorMode = useColorMode();
+
+function toggleTheme() {
+  colorMode.preference = colorMode.preference === 'dark' ? 'light' : 'dark';
+}
 </script>
 
 <template>
@@ -90,22 +96,45 @@ watch(() => i18n.locale.value, async (newLang) => {
       <header-menu/>
     </template>
     <template #right>
-      <u-locale-select
-          class="header__lang"
-          :model-value="locale"
-          @update:model-value="onLocaleChange"
-          :locales="safeLocalesForSelect"
-          :disabled="langsPending && !langs"
-          :ui="{
-          base: 'gradient-button-figure gradient-button-figure_reverse',
-          leading: 'self-baseline',
-          trailingIcon: 'text-primary',
-          content: 'bg-default text-white border-2 border-default',
-          value: 'px-2'
-        }"
-      />
-      <u-link href="https://amonemisa.github.io/personal/" no-rel target="_blank" class="capitalize gradient-button-figure">{{ t('button.getStart') }}</u-link>
+      <div class="flex items-center justify-end flex-wrap gap-2 sm:gap-3">
+        <div class="ui-pill-btn ui-pill-btn--animated">
+          <u-locale-select
+              class="ui-pill-btn__inner ui-locale"
+              :model-value="locale"
+              @update:model-value="onLocaleChange"
+              :locales="safeLocalesForSelect"
+              :disabled="langsPending && !langs"
+              :ui="{
+      base: 'h-10 min-w-[150px] px-3 text-sm font-medium text-white/90 flex items-center justify-between gap-2',
+      value: 'truncate text-left max-w-[90px] sm:max-w-[120px]',
+      trailing: 'shrink-0 text-white/70 translate-y-[1px]',
+      content: 'mt-2 w-[220px] rounded-xl bg-[rgba(14,12,21,0.96)] backdrop-blur-xl border border-white/10 shadow-2xl p-2'
+    }"
+          />
+        </div>
+
+        <div class="ui-pill-btn ui-pill-btn_animated">
+          <button
+              type="button"
+              class="ui-pill-btn__inner text-sm font-semibold text-white/90 hover:text-white"
+              @click="toggleTheme"
+          >
+            Сменить тему
+          </button>
+        </div>
+        <div class="ui-pill-btn ui-pill-btn_animated">
+          <u-link
+              href="https://amonemisa.github.io/personal/"
+              no-rel
+              target="_blank"
+              class="ui-pill-btn__inner text-sm font-semibold text-white/90 hover:text-white"
+          >
+            {{ t('button.getStart') }}
+          </u-link>
+        </div>
+      </div>
     </template>
+
   </u-header>
 </template>
 

@@ -1,41 +1,15 @@
 <script setup lang="ts">
 import normalizeList from "~/assets/normalizeList";
+import {safeFetch} from "~/utils/safeFetch";
+import type OfferCard from "~/interfaces/OfferCard";
 
+const config = useRuntimeConfig();
+
+const { data: offerCards } = await safeFetch<OfferCard[]>(
+    `${config.public.apiBase}/offer-cards`
+);
 const isYearly = ref(true);
 const {t, tm, rt} = useI18n();
-
-const plans = ref([
-  {
-    key: 'basic',
-    name: 'pricing.plans.basic.name',
-    description: 'pricing.plans.basic.description',
-    monthly: 'pricing.plans.basic.monthly',
-    yearly: 'pricing.plans.basic.yearly',
-    features: 'pricing.plans.basic.features',
-    highlight: false,
-    expanded: false
-  },
-  {
-    key: 'premium',
-    name: 'pricing.plans.premium.name',
-    description: 'pricing.plans.premium.description',
-    monthly: 'pricing.plans.premium.monthly',
-    yearly: 'pricing.plans.premium.yearly',
-    features: 'pricing.plans.premium.features',
-    highlight: true,
-    expanded: true
-  },
-  {
-    key: 'enterprise',
-    name: 'pricing.plans.enterprise.name',
-    description: 'pricing.plans.enterprise.description',
-    monthly: 'pricing.plans.enterprise.monthly',
-    yearly: 'pricing.plans.enterprise.yearly',
-    features: 'pricing.plans.enterprise.features',
-    highlight: false,
-    expanded: false
-  }
-]);
 </script>
 
 <template>
@@ -69,9 +43,9 @@ const plans = ref([
       </div>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" v-if="offerCards">
       <u-card
-          v-for="(plan, index) in plans"
+          v-for="(plan, index) in offerCards.filter((oc) => oc.isVisible)"
           :key="plan.key"
           :ui="{
           root: 'flex flex-col p-6 folder-figure-holder ring-0 rounded-md bg-transparent',
@@ -100,7 +74,7 @@ const plans = ref([
           </p>
           <u-page-list
               class="space-y-1 text-sm text-muted spoiler-list"
-              :class="{ spoiler_open: plan.expanded }"
+              :class="{ spoiler_open: (index === Math.floor(offerCards.length / 2)) }"
               :items="normalizeList(tm(plan.features))"
           >
             <li
