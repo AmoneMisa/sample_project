@@ -4,18 +4,9 @@ import TextareaRequestForm from "~/components/TextareaRequestForm.vue";
 import FeaturesCarousel from "~/components/FeaturesCarousel.vue";
 import TabsWithUnderButtons from "~/components/TabsWithUnderButtons.vue";
 import ImagesCarousel from "~/components/ImagesCarousel.vue";
-
-interface Testimonial {
-  id: number;
-  name: string;
-  role: string;
-  quote: string;
-  avatar?: string;
-  logo?: string;
-  rating: number;
-  order?: number;
-  isVisible: boolean;
-}
+import {safeFetch} from "~/utils/safeFetch";
+import type Testimonial from "~/interfaces/Testimonial";
+import type FeatureCard from "~/interfaces/FeatureCard";
 
 const {t} = useI18n();
 const tabs: TabsItem[] = [
@@ -104,6 +95,10 @@ const tabs2 = [
 
 const config = useRuntimeConfig();
 
+const { data: featureCards } = await safeFetch<FeatureCard[]>(
+    `${config.public.apiBase}/feature-cards`
+);
+
 const { data: testimonials, pending, error } = await useAsyncData<Testimonial[]>(
     "testimonials",
     () => $fetch(`${config.public.apiBase}/testimonials`)
@@ -179,19 +174,10 @@ const { data: testimonials, pending, error } = await useAsyncData<Testimonial[]>
       </u-container>
       <u-container class="flex flex-col lg:flex-row gap-8 lg:gap-20">
         <feature-card
-            image="service-icon-01.png"
-            title="page.featureCards.noRisk.title"
-            description="page.featureCards.noRisk.description"
-        />
-        <feature-card
-            image="service-icon-02.png"
-            title="page.featureCards.upgrade.title"
-            description="page.featureCards.upgrade.description"
-        />
-        <feature-card
-            image="service-icon-03.png"
-            title="page.featureCards.free.title"
-            description="page.featureCards.free.description"
+            v-for="featureCard in (featureCards || []).filter((fc) => fc.isVisible)"
+            :image="featureCard.image"
+            :title="featureCard.titleKey"
+            :description="featureCard.descriptionKey"
         />
       </u-container>
       <testimonial-carousel v-if="!pending" headline="testimonials.headline" title="testimonials.title"

@@ -104,7 +104,7 @@ watch(() => i18n.locale.value, async (newLang) => {
           value: 'px-2'
         }"
       />
-      <u-button class="capitalize gradient-button-figure">{{ t('button.getStart') }}</u-button>
+      <u-link href="https://amonemisa.github.io/personal/" no-rel target="_blank" class="capitalize gradient-button-figure">{{ t('button.getStart') }}</u-link>
     </template>
   </u-header>
 </template>
