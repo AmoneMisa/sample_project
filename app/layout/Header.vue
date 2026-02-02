@@ -8,16 +8,16 @@ const isVisible = ref(false);
 
 type Lang = { code: string; name?: string };
 
-const { locale, setLocaleCookie, setLocale, t } = useI18n();
+const {locale, setLocaleCookie, setLocale, t} = useI18n();
 
 const config = useRuntimeConfig();
 const api = config.public.apiBase;
 
-const { data: langs, pending: langsPending, error: langsError } = await useFetch<Lang[]>(
+const {data: langs, pending: langsPending, error: langsError} = await useFetch<Lang[]>(
     '/languages/enabled',
-    { baseURL: api }
+    {baseURL: api}
 );
-const uiLocaleMap: Record<string, any> = { en, ru, kk };
+const uiLocaleMap: Record<string, any> = {en, ru, kk};
 const localesForSelect = computed(() =>
     (langs.value ?? [])
         .map((l) => uiLocaleMap[l.code])
@@ -63,6 +63,17 @@ onMounted(() => {
   observer.observe(sentinel);
 });
 
+const nuxtApp = useNuxtApp();
+const i18n = nuxtApp.$i18n;
+
+watch(() => i18n.locale.value, async (newLang) => {
+  const {translations, menu, testi} = await loadInitialDataSSR(api, newLang);
+
+  i18n.setLocaleMessage(newLang, translations);
+
+  nuxtApp.payload.data.headerMenu = menu;
+  nuxtApp.payload.data.testimonials = testi;
+});
 </script>
 
 <template>
@@ -71,12 +82,12 @@ onMounted(() => {
                       'header_visible': isVisible }"
   >
     <template #left>
-      <a class="header__logo max-h-[35px]" href="/">
-        <img alt="Logo" src="/images/logo.png">
+      <a class="header__logo max-h-[35px] min-w-[160px]" href="/">
+        <img alt="Logo" class="header__logo-image" src="/images/logo.png">
       </a>
     </template>
     <template #default>
-      <header-menu />
+      <header-menu/>
     </template>
     <template #right>
       <u-locale-select
@@ -120,5 +131,9 @@ onMounted(() => {
   100% {
     transform: translateY(0);
   }
+}
+
+.header__logo-image {
+  filter: drop-shadow(0px 0px 12px var(--color-primary));
 }
 </style>

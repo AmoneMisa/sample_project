@@ -24,8 +24,8 @@ const {t} = useI18n();
             flex flex-wrap gap-5 justify-center">
       <div class="footer__column">
         <div class="footer__col-item">
-          <a class="header__logo max-h-[35px]" href="/">
-            <img alt="Logo" src="/images/logo.png"/>
+          <a class="footer__logo max-h-[35px] min-w-[160px]" href="/">
+            <img class="footer__logo-image" alt="Logo" src="/images/logo.png"/>
           </a>
         </div>
 
@@ -169,4 +169,7 @@ const {t} = useI18n();
   }
 }
 
+.footer__logo-image {
+  filter: drop-shadow(0px 0px 12px var(--color-primary));
+}
 </style>
