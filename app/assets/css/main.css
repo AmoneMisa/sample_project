@@ -352,6 +352,7 @@ textarea:active {
     -webkit-text-fill-color: transparent;
     backface-visibility: hidden;
     color: transparent;
+    text-shadow: 0 0 24px rgba(128, 90, 245, 0.18);
 }
 
 .gradient-text_up {

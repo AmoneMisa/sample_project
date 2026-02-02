@@ -84,7 +84,7 @@ onUnmounted(clearAll);
 <template>
   <span class="animated-rotated-text">
     <span
-        class="animated-rotated-text__inner gradient-text"
+        class="animated-rotated-text__inner hero-rotator gradient-text"
         :class="{ 'flip-anim': isFlipping }"
     >
       {{ displayedText }}
@@ -96,15 +96,9 @@ onUnmounted(clearAll);
 .animated-rotated-text {
   display: inline-block;
   perspective: 400px;
-  line-height: initial;
-  width: 435px;
-
-  @media (max-width: 1024px) {
-    width: 265px;
-  }
-  @media (max-width: 768px) {
-    width: 220px;
-  }
+  line-height: 1;
+  min-width: 9ch;
+  max-width: 100%;
 }
 
 .animated-rotated-text__inner {
@@ -112,6 +106,12 @@ onUnmounted(clearAll);
   transform-origin: center;
   backface-visibility: hidden;
   will-change: transform, opacity;
+  white-space: nowrap;
+}
+
+.hero-rotator {
+  font-size: 1.15em;
+  letter-spacing: -0.02em;
 }
 
 .flip-anim {
