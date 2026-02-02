@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import CustomButton from "~/components/common/CustomButton.vue";
+
 defineProps({
   placeholder: {
     type: String,

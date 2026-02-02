@@ -1,4 +1,4 @@
-export default interface OfferCard {
+export default interface OfferCardInterface {
     key: string;
     name: string;
     description: string;

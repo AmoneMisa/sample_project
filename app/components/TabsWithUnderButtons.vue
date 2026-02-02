@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import PageHeader from "~/components/common/PageHeader.vue";
+
 const {t} = useI18n();
 
 defineProps({

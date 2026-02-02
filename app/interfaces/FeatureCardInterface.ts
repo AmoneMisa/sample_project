@@ -1,4 +1,4 @@
-export default interface FeatureCard {
+export default interface FeatureCardInterface {
     image: string;
     titleKey: string;
     descriptionKey: string;

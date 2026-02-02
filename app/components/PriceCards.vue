@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import normalizeList from "~/assets/normalizeList";
 import {safeFetch} from "~/utils/safeFetch";
-import type OfferCard from "~/interfaces/OfferCard";
+import type OfferCardInterface from "~/interfaces/OfferCardInterface";
 
 const config = useRuntimeConfig();
 
-const { data: offerCards } = await safeFetch<OfferCard[]>(
+const { data: offerCards } = await safeFetch<OfferCardInterface[]>(
     `${config.public.apiBase}/offer-cards`
 );
 const isYearly = ref(true);

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {UCarousel} from '#components';
+import PageHeader from "~/components/common/PageHeader.vue";
 
 const props = defineProps({
   items: {

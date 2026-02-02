@@ -15,7 +15,7 @@
 import CustomHeader from "~/layout/Header.vue";
 import CustomFooter from "~/layout/Footer.vue";
 import UnderFooter from "~/layout/UnderFooter.vue";
-
+import I18nLoaderOverlay from "~/components/common/I18nLoaderOverlay.vue";
 </script>
 <style lang="scss">
 

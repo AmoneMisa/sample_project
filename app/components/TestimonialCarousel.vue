@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {computed, ref} from 'vue'
 import sliceSlides from "~/assets/sliceSlides";
+import Carousel from "~/components/common/Carousel.vue";
 
 const props = defineProps({
   testimonials: {

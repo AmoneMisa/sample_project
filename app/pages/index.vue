@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import type {TabsItem} from "#ui/components/Tabs.vue";
-import TextareaRequestForm from "~/components/TextareaRequestForm.vue";
+import TextareaRequestForm from "~/components/common/TextareaRequestForm.vue";
 import FeaturesCarousel from "~/components/FeaturesCarousel.vue";
 import TabsWithUnderButtons from "~/components/TabsWithUnderButtons.vue";
 import ImagesCarousel from "~/components/ImagesCarousel.vue";
 import {safeFetch} from "~/utils/safeFetch";
-import type Testimonial from "~/interfaces/Testimonial";
-import type FeatureCard from "~/interfaces/FeatureCard";
+import type TestimonialInterface from "~/interfaces/TestimonialInterface";
+import type FeatureCardInterface from "~/interfaces/FeatureCardInterface";
+import PageHeader from "~/components/common/PageHeader.vue";
+import CustomButton from "~/components/common/CustomButton.vue";
+import type {FeatureCardType} from "~/types/FeatureCardType";
 
 const {t} = useI18n();
 const tabs: TabsItem[] = [
@@ -95,11 +98,11 @@ const tabs2 = [
 
 const config = useRuntimeConfig();
 
-const {data: featureCards} = await safeFetch<FeatureCard[]>(
+const {data: featureCards} = await safeFetch<FeatureCardInterface[]>(
     `${config.public.apiBase}/feature-cards`
 );
 
-const {data: testimonials, pending, error} = await useAsyncData<Testimonial[]>(
+const {data: testimonials, pending, error} = await useAsyncData<TestimonialInterface[]>(
     "testimonials",
     () => $fetch(`${config.public.apiBase}/testimonials`)
 );
@@ -124,7 +127,6 @@ const {data: testimonials, pending, error} = await useAsyncData<Testimonial[]>(
         :texts-list="['AI Chating', 'AI Writing', 'AI Chating', 'AI Writing']"
     />
   </span>
-
       <span class="mt-2 block text-white/90">{{ t('hero.title2') }}</span>
     </h1>
     <page-header description="hero.subtitle"
@@ -195,12 +197,7 @@ const {data: testimonials, pending, error} = await useAsyncData<Testimonial[]>(
         <price-cards/>
       </u-container>
       <u-container class="flex flex-col lg:flex-row gap-8 lg:gap-20">
-        <feature-card
-            v-for="featureCard in (featureCards || []).filter((fc) => fc.isVisible)"
-            :image="featureCard.image"
-            :title="featureCard.titleKey"
-            :description="featureCard.descriptionKey"
-        />
+        <service-cards-grid :cards="(featureCards || []).filter((featureCard) => featureCard.isVisible)" />
       </u-container>
       <testimonial-carousel v-if="!pending" headline="testimonials.headline" title="testimonials.title"
                             :testimonials="(testimonials || []).filter((testimonial) => testimonial.isVisible)"

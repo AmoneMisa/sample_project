@@ -1,4 +1,4 @@
-export default interface Testimonial {
+export default interface TestimonialInterface {
     id: number;
     name: string;
     role: string;

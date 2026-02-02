@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type {TabsItem} from '#ui/components/Tabs.vue';
-import {ref, nextTick, onMounted, onBeforeUnmount} from 'vue';
+import {nextTick, onBeforeUnmount, onMounted, ref} from 'vue';
+import PageHeader from "~/components/common/PageHeader.vue";
+import CustomButton from "~/components/common/CustomButton.vue";
 
 const props = defineProps<{
   tabs: TabsItem[]
