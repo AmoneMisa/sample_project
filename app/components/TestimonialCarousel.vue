@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {computed, ref} from "vue";
-import sliceSlides from "~/assets/sliceSlides";
 import Carousel from "~/components/common/Carousel.vue";
 
 const props = defineProps({
@@ -21,11 +20,10 @@ const props = defineProps({
 });
 
 const selected = ref(0);
-const slides = computed(() => sliceSlides(props.testimonials));
-const canPaginate = computed(() => (slides.value?.length ?? 0) > 1);
+const canPaginate = computed(() => (props.testimonials?.length ?? 0) > 1);
 
 watch(
-    () => slides.value?.length,
+    () => props.testimonials?.length,
     (len) => {
       if (!len) return;
       if (selected.value > len - 1) selected.value = 0;
@@ -37,12 +35,12 @@ watch(
   <div class="space-y-6">
     <carousel
         v-model="selected"
-        :items="slides"
+        :items="testimonials"
         :loop="canPaginate"
         :indicators="canPaginate"
         :dots="canPaginate"
         :arrows="canPaginate"
-        v-slot="{ item: group }"
+        v-slot="{ item }"
         :ui="{
         item: 'px-3 sm:px-4',
         indicators: 'mt-4 flex justify-center gap-2',
@@ -59,16 +57,14 @@ watch(
     >
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <u-card
-            v-for="(testimonial, index) in group"
-            :key="index"
             :ui="{
             root: 'folder-icon ring-0 bg-transparent relative testimonial',
-            body: 'h-fill-available p-6 sm:p-8'
+            body: 'h-fill-available sm:p-8 py-[38px] px-[20px]'
           }"
         >
           <div class="testimonial__border">
             <picture>
-              <img alt="border" src="/svg/folder.svg" class="testimonial__border-image"/>
+              <img alt="border" src="/svg/folder.svg" class="testimonial__border-image "/>
             </picture>
             <picture>
               <img
@@ -81,7 +77,7 @@ watch(
 
           <div class="flex gap-1 mb-3">
             <u-icon
-                v-for="i in testimonial.rating"
+                v-for="i in item.rating"
                 :key="i"
                 name="i-lucide-star"
                 class="text-yellow-400 size-4"
@@ -90,35 +86,35 @@ watch(
 
           <blockquote
               class="text-sm text-muted italic mb-4 line-clamp-5 break-words"
-              :title="testimonial.quote"
+              :title="item.quote"
           >
-            “{{ testimonial.quote }}”
+            “{{ item.quote }}”
           </blockquote>
 
-          <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+          <div class="flex md:flex-col sm:flex-row sm:items-center gap-4 justify-between md:justify-baseline">
             <div class="flex items-center gap-4 min-w-0">
               <img
-                  :alt="testimonial.name"
-                  :src="testimonial.avatar"
+                  :alt="item.name"
+                  :src="item.avatar"
                   class="h-12 w-12 rounded-full object-cover shrink-0"
                   loading="lazy"
                   decoding="async"
               />
 
               <div class="flex flex-col gap-1 min-w-0">
-                <p class="font-semibold text-sm line-clamp-1" :title="testimonial.name">
-                  {{ testimonial.name }}
+                <p class="font-semibold text-sm line-clamp-1" :title="item.name">
+                  {{ item.name }}
                 </p>
-                <p class="text-xs text-muted line-clamp-1" :title="testimonial.role">
-                  {{ testimonial.role }}
+                <p class="text-xs text-muted line-clamp-1" :title="item.role">
+                  {{ item.role }}
                 </p>
               </div>
             </div>
 
             <img
-                :alt="testimonial.role"
-                :src="testimonial.logo"
-                class="testimonial__image testimonial__image_logo sm:ml-auto h-5 sm:h-6 rounded-full"
+                :alt="item.role"
+                :src="item.logo"
+                class="testimonial__image testimonial__image_logo sm:ml-auto sm:h-5 md:h-6 h-12 w-12 rounded-full"
                 loading="lazy"
                 decoding="async"
             />

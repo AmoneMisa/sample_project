@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {computed} from "vue";
-import sliceSlides from "~/assets/sliceSlides";
 import Carousel from "~/components/common/Carousel.vue";
 import CustomButton from "~/components/common/CustomButton.vue";
 

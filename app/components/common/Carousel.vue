@@ -87,6 +87,7 @@ const scrollNext = () => { carousel.value?.emblaApi?.scrollNext(); };
     </div>
     <u-carousel
         v-bind="props"
+        :arrows="false"
         v-slot="{ item }"
         ref="carousel"
     >
