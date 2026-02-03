@@ -48,6 +48,19 @@ defineProps({
   }
 }
 
+.light {
+  .carousel {
+    background-color: var(--color-primary);
+    &:before {
+      background: linear-gradient( 90deg, #ffffff 0%, rgba(255, 255, 255, 0) 100% );
+    }
+
+    &:after {
+      background: linear-gradient( 270deg, #ffffff 0%, rgba(255, 255, 255, 0) 100% );
+    }
+  }
+}
+
 .carousel__track {
   display: flex;
   gap: 48px;

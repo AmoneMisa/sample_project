@@ -386,4 +386,22 @@ watch(
     height: 34px;
   }
 }
+
+.light {
+  .tabs__count {
+    filter: drop-shadow(0 10px 16px rgba(150, 110, 255, 0.18));
+  }
+  .tabs-with-under-buttons :deep(.tabs__button[data-state="active"]::before) {
+    background: linear-gradient(90deg, var(--color-primary-gradient-start), var(--color-primary-gradient-end));
+  }
+
+  .tabs-with-under-buttons :deep(.tabs__button[data-state="active"] .tabs__title) {
+    color: rgba(0, 0, 0, 0.85);
+  }
+
+  .tabs-with-under-buttons :deep(.tabs__button:hover .tabs__count) {
+    transform: translateY(-1px);
+    filter: drop-shadow(0 6px 10px rgba(128, 90, 245, 0.18));
+  }
+}
 </style>

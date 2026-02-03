@@ -29,10 +29,10 @@ const { t } = useI18n()
             decoding="async"
         />
       </div>
-      <h3 class="text-white/95 font-semibold leading-snug text-base sm:text-lg max-w-full line-clamp-2 break-words">
+      <h3 class="dark:text-white/95 text-[var(--ui-color)]/95 font-semibold leading-snug text-base sm:text-lg max-w-full line-clamp-2 break-words">
         {{ t(title) }}
       </h3>
-      <p class="text-white/65 text-sm sm:text-[15px] leading-relaxed max-w-full line-clamp-3 break-words">
+      <p class="dark:text-white/65 text-[var(--ui-color)]/65 text-sm sm:text-[15px] leading-relaxed max-w-full line-clamp-3 break-words">
         {{ t(description) }}
       </p>
     </div>
@@ -66,5 +66,17 @@ const { t } = useI18n()
 
 @media (prefers-reduced-motion: reduce) {
   .ui-anim-border { animation: none; }
+}
+
+.light {
+  .ui-anim-border__inner {
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(12px) saturate(180%);
+    box-shadow:
+        0 12px 35px rgba(0, 0, 0, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.65),
+        inset 0 -4px 12px rgba(0, 0, 0, 0.06),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+  }
 }
 </style>

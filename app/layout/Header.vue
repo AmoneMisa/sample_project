@@ -225,4 +225,10 @@ const isMenuOpen = ref(false);
 .header__logo-image {
   filter: drop-shadow(0px 0px 12px var(--color-primary));
 }
+
+.light {
+  .header__logo-image {
+    filter: drop-shadow(1px 1px 2px #5121f5);
+  }
+}
 </style>

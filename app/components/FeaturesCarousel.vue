@@ -49,13 +49,13 @@ const canPaginate = computed(() => (props.cards?.length ?? 0) > 1);
     <div class="flex">
       <u-card
           :ui="{
-      root: 'folder-figure-holder group relative p-0 bg-transparent ring-0 h-full w-full lg:w-auto',
+      root: 'folder-figure-holder w-fill-available group relative p-0 bg-transparent ring-0 h-full lg:w-auto',
       body: 'folder-figure-inner relative h-full p-6 sm:p-7'
   }">
         <div class="relative z-10 flex flex-col gap-4 h-full">
-          <div class="flex gap-4 items-center">
+          <div class="flex gap-4 items-center ">
             <div
-                class="w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-primary/10 ring-1 ring-white/5"
+                class="w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center rounded-full dark:bg-primary/10 ring-1 dark:ring-white/5 bg-white/70 backdrop-blur-md ring-black/10 shadow-inner"
             >
               <img :alt="t(item.title)" :src="item.icon" class="w-full"/>
             </div>

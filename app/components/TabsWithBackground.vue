@@ -103,7 +103,7 @@ onBeforeUnmount(() => {
           <u-tabs
               :items="tabs"
               @update:modelValue="onTabChange"
-              :ui="{ trigger: 'tabs__trigger', list: 'tabs__list', indicator: 'hidden' }"
+              :ui="{ trigger: 'tabs__trigger', list: 'tabs__list mt-4', indicator: 'hidden' }"
           >
             <template #default="{ item }">
               {{ t(item.label) }}
@@ -155,7 +155,10 @@ onBeforeUnmount(() => {
   padding-bottom: 8px;
   scrollbar-width: none;
   overflow-x: visible;
-  &::-webkit-scrollbar { display: none; }
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .tabs__list {
@@ -294,6 +297,7 @@ onBeforeUnmount(() => {
   margin-top: 12px;
   color: rgba(188, 195, 215, .92);
   line-height: 1.6;
+  padding-left: 15px;
 
   li {
     margin: 6px 0;
@@ -350,4 +354,48 @@ onBeforeUnmount(() => {
   }
 }
 
+.light {
+  .tabs__trigger {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(10px);
+    color: rgba(0, 0, 0, 0.75);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 -10px 18px rgba(0, 0, 0, 0.08), inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+  }
+
+  .tabs__trigger::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 2px; /* Светлый бордер по умолчанию */
+    background: rgba(0, 0, 0, 0.06);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: .85;
+    transition: opacity .2s ease, background .25s ease;
+    pointer-events: none;
+  }
+
+  /* Hover — стекло плотнее + фиолетовый градиент рамки */
+  .tabs__trigger:hover {
+    background: rgba(255, 255, 255, 0.9);
+
+    &::before {
+      background: linear-gradient(90deg, var(--color-primary-gradient-start), var(--color-primary-gradient-end));
+      opacity: 1;
+    }
+  }
+
+  /* Active — чуть плотнее фон + яркая рамка */
+  .tabs__trigger[data-state="active"] {
+    background: rgba(255, 255, 255, 0.95);
+    color: rgba(0, 0, 0, 0.9);
+
+    &::before {
+      background: linear-gradient(90deg, var(--color-primary-gradient-start), var(--color-primary-gradient-end));
+      opacity: 1;
+    }
+  }
+}
 </style>

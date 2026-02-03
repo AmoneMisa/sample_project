@@ -19,7 +19,7 @@ defineProps<{
               :headline="headline"
               class="flex flex-col gap-5 items-start text-left"
               :ui="{
-              title: 'text-4xl sm:text-5xl lg:text-6xl',
+              title: 'text-4xl sm:text-5xl lg:text-6xl dark:text-highlighted text-white/90',
               headline: 'my-0',
               description: 'text-base sm:text-lg dark:text-white/70 text-[var(--ui-text)]/70'
             }"
