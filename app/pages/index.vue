@@ -120,14 +120,14 @@ const {data: testimonials, pending, error} = await useAsyncData<TestimonialInter
     leading-[0.95]
     text-[clamp(2.25rem,5vw,3.5rem)]"
     >
-      <span class="block text-white/90">{{ t('hero.title') }}</span>
+      <span class="block dark:text-white/90 text-[var(--ui-text)]/90">{{ t('hero.title') }}</span>
       <span class="mt-2 block">
     <animated-rotated-x-text
         class="align-baseline"
         :texts-list="['AI Chating', 'AI Writing', 'AI Chating', 'AI Writing']"
     />
   </span>
-      <span class="mt-2 block text-white/90">{{ t('hero.title2') }}</span>
+      <span class="mt-2 block dark:text-white/90 text-[var(--ui-text)]/90">{{ t('hero.title2') }}</span>
     </h1>
     <page-header description="hero.subtitle"
                  descriptionSize="24"/>

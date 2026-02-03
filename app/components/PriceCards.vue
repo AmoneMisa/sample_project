@@ -162,7 +162,7 @@ const {t, tm, rt} = useI18n();
   font-size: 16px;
   line-height: 1.67;
   font-weight: 500;
-  color: var(--color-white);
+  color: var(--text-white);
   align-items: center;
   justify-content: center;
   display: flex;

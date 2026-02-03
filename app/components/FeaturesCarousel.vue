@@ -60,10 +60,10 @@ const canPaginate = computed(() => (props.cards?.length ?? 0) > 1);
           </div>
 
           <div class="space-y-2">
-            <h3 class="text-white text-lg sm:text-xl font-semibold leading-snug">
+            <h3 class="dark:text-white text-[var(--ui-text)] text-lg sm:text-xl font-semibold leading-snug">
               {{ t(item.title) }}
             </h3>
-            <p class="text-white/70 text-sm sm:text-base leading-relaxed">
+            <p class="dark:text-white/70 text-[var(--ui-text)]/70 text-sm sm:text-base leading-relaxed">
               {{ t(item.description) }}
             </p>
           </div>

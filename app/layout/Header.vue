@@ -107,7 +107,7 @@ const isMenuOpen = ref(false);
     </template>
     <template #default>
       <div class="hidden xl:block">
-        <header-menu variant="desktop" />
+        <header-menu variant="desktop"/>
       </div>
     </template>
     <template #right>
@@ -120,7 +120,8 @@ const isMenuOpen = ref(false);
               :locales="safeLocalesForSelect"
               :disabled="langsPending && !langs"
               :ui="{
-              base: 'h-10 min-w-[120px] xl:min-w-[150px] px-3 text-sm font-medium text-white/90 flex items-center justify-between gap-2',
+                item: 'text-white/70',
+              base: 'h-10 min-w-[120px] xl:min-w-[150px] px-3 text-sm font-medium dark:text-white/90 text-[var(--ui-text)]/90 flex items-center justify-between gap-2',
               value: 'truncate text-left max-w-[80px] sm:max-w-[100px] xl:max-w-[120px]',
               trailing: 'shrink-0 text-white/70 translate-y-[1px]',
               content: 'mt-2 w-[220px] rounded-xl bg-[rgba(14,12,21,0.96)] backdrop-blur-xl border border-white/10 shadow-2xl p-2'
@@ -130,7 +131,7 @@ const isMenuOpen = ref(false);
         <div class="ui-pill-btn ui-pill-btn_animated">
           <button
               type="button"
-              class="ui-pill-btn__inner text-sm font-semibold text-white/90 hover:text-white whitespace-nowrap"
+              class="ui-pill-btn__inner text-sm font-semibold dark:text-white/90 text-[var(--ui-text)]/90 dark:hover:text-white hover:text-[var(--ui-text)] whitespace-nowrap"
               @click="toggleTheme"
           >
             Сменить тему
@@ -141,7 +142,7 @@ const isMenuOpen = ref(false);
               href="https://amonemisa.github.io/personal/"
               no-rel
               target="_blank"
-              class="ui-pill-btn__inner text-sm font-semibold text-white/90 hover:text-white"
+              class="ui-pill-btn__inner text-sm font-semibold dark:text-white/90 text-[var(--ui-text)]/90 dark:hover:text-white hover:text-[var(--ui-text)]"
           >
             {{ t('button.getStart') }}
           </u-link>
@@ -150,8 +151,8 @@ const isMenuOpen = ref(false);
     </template>
     <template #content="{ close }">
       <div class="h-[100dvh] overflow-y-auto p-4 flex flex-col gap-4">
-        <header-menu variant="mobile" @navigate="close?.()" />
-        <div class="h-px bg-white/10 my-1" />
+        <header-menu variant="mobile" @navigate="close?.()"/>
+        <div class="h-px bg-white/10 my-1"/>
         <div class="flex flex-col gap-3">
           <u-locale-select
               class="ui-locale-mobile"
@@ -160,16 +161,16 @@ const isMenuOpen = ref(false);
               :locales="safeLocalesForSelect"
               :disabled="langsPending && !langs"
               :ui="{
-          base: 'h-11 w-full px-3 text-sm font-medium text-white/90 flex items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/5',
+          base: 'h-11 w-full px-3 text-sm font-medium dark:text-white/90 text-[var(--ui-text)]/90 flex items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/5',
           value: 'truncate text-left',
-          trailing: 'shrink-0 text-white/70 translate-y-[1px]',
+          trailing: 'shrink-0 dark:text-white/70 text-[var(--ui-text)]/70 translate-y-[1px]',
           content: 'mt-2 w-[240px] rounded-xl bg-[rgba(14,12,21,0.96)] backdrop-blur-xl border border-white/10 shadow-2xl p-2'
         }"
           />
 
           <button
               type="button"
-              class="h-11 w-full rounded-xl border border-white/10 bg-white/5 text-sm font-semibold text-white/90 hover:text-white"
+              class="h-11 w-full rounded-xl border border-white/10 bg-white/5 text-sm font-semibold dark:text-white/90 text-[var(--ui-text)]/90 dark:hover:text-white hover:text-[var(--ui-text)]"
               @click="toggleTheme(); close?.()"
           >
             Сменить тему
@@ -179,7 +180,7 @@ const isMenuOpen = ref(false);
               href="https://amonemisa.github.io/personal/"
               no-rel
               target="_blank"
-              class="h-11 w-full rounded-xl border border-white/10 bg-white/5 text-sm font-semibold text-white/90 hover:text-white flex items-center justify-center"
+              class="h-11 w-full rounded-xl border border-white/10 bg-white/5 text-sm font-semibold dark:text-white/90 text-[var(--ui-text)]/90 dark:hover:text-white hover:text-[var(--ui-text)] flex items-center justify-center"
               @click="close?.()"
           >
             {{ t('button.getStart') }}

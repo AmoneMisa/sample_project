@@ -24,14 +24,14 @@ const resolved = computed<Variant>(() => {
       v-if="resolved === 'primary'"
       class="btn btn_primary"
   >
-    <slot />
+    <slot/>
   </u-button>
 
   <u-button
       v-else-if="resolved === 'secondary'"
       class="btn btn_secondary"
   >
-    <slot />
+    <slot/>
   </u-button>
 
   <u-button
@@ -39,7 +39,7 @@ const resolved = computed<Variant>(() => {
       variant="ghost"
       class="btn btn_ghost"
   >
-    <slot />
+    <slot/>
   </u-button>
 </template>
 
@@ -55,35 +55,50 @@ const resolved = computed<Variant>(() => {
 
 .btn_primary {
   color: white;
-  border: 1px solid rgba(255,255,255,0.10);
-  background:
-      radial-gradient(120% 120% at 20% 0%, rgba(128,90,245,0.20) 0%, rgba(128,90,245,0) 60%),
-      var(--secondary-bg-gradient);
-  box-shadow: 0 18px 55px rgba(0,0,0,0.35);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: radial-gradient(120% 120% at 20% 0%, rgba(128, 90, 245, 0.20) 0%, rgba(128, 90, 245, 0) 60%),
+  var(--secondary-bg-gradient);
+  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.35);
   backdrop-filter: blur(10px);
 }
-.btn_primary:hover { filter: brightness(1.12); box-shadow: 0 20px 70px rgba(0,0,0,0.45); }
+
+.btn_primary:hover {
+  filter: brightness(1.12);
+  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.45);
+}
 
 .btn_secondary {
-  color: rgba(255,255,255,0.92);
-  background: rgba(255,255,255,0.02);
+  color: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--ui-border);
-  box-shadow: 0 16px 40px rgba(0,0,0,0.28);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
   backdrop-filter: blur(10px);
 }
-.btn_secondary:hover { background: rgba(255,255,255,0.04); }
+
+.btn_secondary:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
 
 .btn_ghost {
-  color: rgba(255,255,255,0.90);
+  color: rgba(255, 255, 255, 0.90);
   padding: 0;
   height: auto;
   border-radius: 10px;
 }
+
 .btn_ghost:hover {
   background-image: linear-gradient(to right, var(--color-primary-gradient-start), var(--color-primary-gradient-end));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
+}
+
+
+.light {
+  .btn_secondary,
+  .btn_ghost {
+    color: var(--ui-text);
+  }
 }
 </style>
