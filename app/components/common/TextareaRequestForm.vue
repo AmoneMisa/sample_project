@@ -32,8 +32,8 @@ defineProps({
     <u-separator class="py-2.5" :ui="{
       border: ''
     }"/>
-    <u-form-field class="w-full">
-      <custom-button class="w-full justify-center" button-type="white">{{ buttonText }}</custom-button>
+    <u-form-field class="w-fill-available">
+      <custom-button class="w-fill-available justify-center" variant="full">{{ buttonText }}</custom-button>
     </u-form-field>
   </u-form>
 </template>

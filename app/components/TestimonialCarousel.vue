@@ -59,7 +59,7 @@ watch(
         <u-card
             :ui="{
             root: 'folder-icon ring-0 bg-transparent relative testimonial',
-            body: 'h-fill-available sm:p-8 py-[38px] px-[20px]'
+            body: 'h-fill-available sm:p-8 py-[38px] px-[28px]'
           }"
         >
           <div class="testimonial__border">
