@@ -54,8 +54,8 @@ const canPaginate = computed(() => (slides.value?.length ?? 0) > 1);
           v-for="(item, index) in group"
           :key="index"
           :ui="{
-    root: 'fx-card group relative p-0 bg-transparent ring-0',
-    body: 'fx-card__inner relative h-full p-6 sm:p-7'
+    root: 'folder-figure-holder group relative p-0 bg-transparent ring-0',
+    body: 'folder-figure-inner relative h-full p-6 sm:p-7'
   }"
       >
       <div class="relative z-10 flex flex-col gap-4 h-full">

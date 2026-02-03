@@ -24,16 +24,22 @@ defineProps({
 </script>
 
 <template>
-  <u-form class="flex justify-center flex-col items-center gap-3 m-auto p-6 max-w-[540px] w-full rounded-xl bg-dark">
+  <u-form class="flex justify-center flex-col items-center gap-3 m-auto p-6 max-w-[540px] w-full rounded-xl textarea-form">
     <u-form-field class="w-full">
       <u-textarea :rows="rows" :placeholder="placeholder" :required="true"
-                  :autoresize="false" class="w-full"/>
+                  :autoresize="false" class="w-full border-[1px] rounded-md border-primary"/>
     </u-form-field>
     <u-separator class="py-2.5" :ui="{
       border: ''
     }"/>
     <u-form-field class="w-full">
-      <custom-button class="w-full justify-center" button-type="gradient-white">{{ buttonText }}</custom-button>
+      <custom-button class="w-full justify-center" button-type="white">{{ buttonText }}</custom-button>
     </u-form-field>
   </u-form>
 </template>
+
+<style scoped>
+.textarea-form {
+  background-color: var(--color-blackest);
+}
+</style>

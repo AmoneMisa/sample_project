@@ -110,14 +110,14 @@ const {t} = useI18n();
   font-size: 18px;
   font-weight: 500;
   letter-spacing: 1px;
-  margin-bottom: 30px;
+  margin-bottom: 16px;
 }
 
 .footer__list {
   list-style: none;
   padding: 0;
   display: flex;
-  gap: 16px;
+  gap: 8px;
 }
 
 .footer__link {

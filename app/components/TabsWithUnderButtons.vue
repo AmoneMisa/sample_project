@@ -1,205 +1,360 @@
 <script setup lang="ts">
+import {computed, ref, watch} from "vue";
 import PageHeader from "~/components/common/PageHeader.vue";
+import CustomButton from "~/components/common/CustomButton.vue";
 
 const {t} = useI18n();
 
-defineProps({
+const props = defineProps({
   tabs: {
-    type: Array,
+    type: Array as () => Array<{
+      title: string;
+      description?: string;
+      headline?: string;
+      image?: string;
+    }>,
     default: () => [],
-    required: true
+    required: true,
   },
   buttonText: {
     type: String,
-    default: "Try It Now →"
-  }
+    default: "Try It Now →",
+  },
 });
+
+const activeIndex = ref(0);
+
+const activeTab = computed(() => props.tabs?.[activeIndex.value] ?? null);
+const currentImg = ref(activeTab.value?.image ?? "");
+const nextImg = ref("");
+const imgSwapping = ref(false);
+
+function preload(src?: string) {
+  if (!src || !import.meta.client) return;
+  const i = new Image();
+  i.decoding = "async";
+  i.src = src;
+}
+
+watch(
+    () => props.tabs,
+    (tabs) => {
+      (tabs ?? []).forEach((x) => preload(x.image));
+      activeIndex.value = 0;
+      currentImg.value = tabs?.[0]?.image ?? "";
+    },
+    {immediate: true, deep: true}
+);
+
+watch(
+    () => activeTab.value?.image,
+    (src) => {
+      if (!src || src === currentImg.value) return;
+      preload(src);
+      nextImg.value = src;
+      imgSwapping.value = true;
+
+      setTimeout(() => {
+        currentImg.value = src;
+        nextImg.value = "";
+        imgSwapping.value = false;
+      }, 220);
+    }
+);
 </script>
 
 <template>
-  <u-tabs
-      :items="tabs"
-      class="tabs tabs-with-under-buttons"
-      :ui="{
-      list: 'tabs__list bg-transparent',
-      trigger: 'tabs__button',
-      indicator: 'bg-transparent brightness-125',
-      label: 'w-fill-available flex flex-col text-left'
-    }"
-  >
-    <template #default="{ item, index }">
-      <span class="tabs__count">
-        <span>0{{ index + 1 }}</span>
-      </span>
-      <span class="tabs__title">{{ t(item.title) }}</span>
-    </template>
+  <section class="tabs-bg">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
+      <div class="tabs-card">
+        <div class="tabs-content">
+          <div class="tabs-image">
+            <div class="tabs-image__frame">
+              <img
+                  v-if="currentImg"
+                  :src="currentImg"
+                  :alt="activeTab ? t(activeTab.title) : 'tab image'"
+                  class="tabs-image__img"
+                  :class="{ 'is-dim': imgSwapping }"
+                  loading="eager"
+                  decoding="async"
+                  fetchpriority="high"
+                  draggable="false"
+              />
+              <img
+                  v-if="nextImg"
+                  :src="nextImg"
+                  :alt="activeTab ? t(activeTab.title) : 'tab image'"
+                  class="tabs-image__img is-next"
+                  loading="eager"
+                  decoding="async"
+                  fetchpriority="high"
+                  draggable="false"
+              />
+            </div>
+          </div>
 
+          <div class="tabs-info">
+            <page-header
+                v-if="activeTab"
+                :title="activeTab.title"
+                :headline="activeTab.headline"
+                :isCentered="false"
+                headLineClasses="gradient-text_cap"
+                :ui="{
+                title: 'text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white',
+                headline: 'text-sm sm:text-base',
+                description: 'text-white/70 text-sm sm:text-base leading-relaxed'
+              }"
+            />
+            <div class="tabs-desc-scroll">
+              <p v-if="activeTab?.description" class="tabs-desc">
+                {{ t(activeTab.description) }}
+              </p>
+            </div>
 
-    <template #content="{ item }">
-      <div class="tabs__content fade-on-switch">
-        <div class="tabs__image">
-          <img :src="item.image" :alt="t(item.title)"/>
-        </div>
-
-        <div class="tabs__info">
-          <page-header
-              :title="item.title"
-              :description="item.description"
-              :headline="item.headline"
-              :isCentered="false"
-              descriptionClasses="mt-8"
-              headLineClasses="gradient-text_cap"
-          />
-          <custom-button class="tabs__button-cta mt-8">
-            {{ t(buttonText) }}
-          </custom-button>
+            <custom-button class="mt-6 w-fit">
+              {{ t(buttonText) }}
+            </custom-button>
+          </div>
         </div>
       </div>
-    </template>
-  </u-tabs>
+
+      <!-- НИЖНИЕ ТАБЫ -->
+      <u-tabs
+          :items="tabs"
+          class="tabs tabs-with-under-buttons"
+          :model-value="activeIndex"
+          @update:modelValue="(v:number) => (activeIndex = v)"
+          :ui="{
+          list: 'tabs__list bg-transparent',
+          trigger: 'tabs__button',
+          indicator: 'hidden',
+          label: 'w-full flex flex-col text-left'
+        }"
+      >
+        <template #default="{ item, index }">
+          <span class="tabs__count">
+            <span>0{{ index + 1 }}</span>
+          </span>
+          <span class="tabs__title">{{ t(item.title) }}</span>
+        </template>
+        <template #content>
+          <div/>
+        </template>
+      </u-tabs>
+    </div>
+  </section>
 </template>
 
-<style lang="scss">
+<style scoped lang="scss">
+.tabs-bg {
+  position: relative;
+  width: 100%;
+  background: radial-gradient(900px 520px at 18% 0%, rgba(128, 90, 245, 0.10), transparent 60%),
+  radial-gradient(900px 520px at 85% 10%, rgba(205, 153, 255, 0.08), transparent 60%),
+  rgba(14, 12, 21, 0.92);
+}
+
+.tabs-card {
+  border-radius: 26px;
+  padding: 2px;
+  background: linear-gradient(135deg, rgba(128, 90, 245, 0.55), rgba(255, 255, 255, 0.06), rgba(205, 153, 255, 0.35));
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.55);
+}
+
+.tabs-content {
+  border-radius: 24px;
+  background: rgba(14, 12, 21, 0.92);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), inset 0 -22px 45px rgba(0, 0, 0, 0.55);
+  padding: 18px;
+  display: grid;
+  gap: 18px;
+}
+
+@media (min-width: 1024px) {
+  .tabs-content {
+    grid-template-columns: 0.95fr 1.05fr;
+    align-items: center;
+    gap: 26px;
+    padding: 22px;
+  }
+}
+
+.tabs-image__frame {
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+  aspect-ratio: 1 / 1;
+}
+
+.tabs-image__img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  transform: translateZ(0);
+  opacity: 1;
+  transition: opacity 220ms ease;
+}
+
+.tabs-image__img.is-dim {
+  opacity: 0.55;
+}
+
+.tabs-image__img.is-next {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  animation: imgFadeIn 220ms ease forwards;
+}
+
+@keyframes imgFadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+.tabs-info {
+  padding: 6px 4px;
+}
+
+.tabs-desc-scroll {
+  margin-top: 12px;
+  max-height: 120px;
+  overflow: auto;
+  padding-right: 6px;
+}
+
+.tabs-desc {
+  color: rgba(188, 195, 215, 0.9);
+  line-height: 1.6;
+  word-break: break-word;
+}
+
+.tabs-desc-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tabs-desc-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+}
+
 .tabs-with-under-buttons {
   display: flex;
-  flex-direction: column-reverse;
-  gap: 40px;
-  padding: 12px;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 18px;
+}
 
-  .tabs__list {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    flex-wrap: wrap;
-  }
+.tabs-with-under-buttons :deep(.tabs__list) {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  padding: 6px 2px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
 
-  .tabs__button {
-    cursor: pointer;
-    padding-top: 24px;
-    margin: 0 15px;
-    border: none;
-    background: transparent;
-    transition: 0.3s;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
+.tabs-with-under-buttons :deep(.tabs__list::-webkit-scrollbar) {
+  display: none;
+}
 
-    &::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 2px;
-      width: 100%;
-      background: rgb(52, 54, 103);
-      border-radius: 7px;
-      transition: 0.3s;
-    }
-  }
-
-  .tabs__count {
-    width: 36px;
-    height: 36px;
-    background: url("/images/tab-bg-shape.png") center/cover no-repeat;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    span {
-      background: linear-gradient(
-              90deg,
-              var(--color-primary-gradient-start),
-              var(--color-primary-gradient-end)
-      );
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-      font-weight: 600;
-    }
-  }
-
-  .tabs__title {
-    margin-top: 8px;
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: var(--color-link);
-    transition: 0.3s;
-    text-align: left;
-  }
-
-  .tabs__content {
-    display: flex;
-    gap: 40px;
-    align-items: center;
-  }
-
-  .tabs__image {
-    max-width: 40%;
-    min-height: 450px;
-
-    img {
-      width: 100%;
-      display: block;
-    }
-  }
-
-  .tabs__info {
-    max-width: 55%;
-    padding: 20px 40px;
-  }
-
-  .tabs__button-cta {
-    margin-top: 24px;
-    width: fit-content;
-  }
-
-  @media (max-width: 1024px) {
-    .tabs__content {
-      flex-direction: column;
-      gap: 24px;
-      align-items: flex-start;
-    }
-
-    .tabs__image {
-      max-width: 100%;
-      min-height: auto;
-    }
-
-    .tabs__info {
-      max-width: 100%;
-      padding: 0;
-    }
-
-    .tabs__button {
-      margin: 0 8px;
-    }
-  }
-
-  @media (max-width: 640px) {
-    .tabs__title {
-      font-size: 1rem;
-    }
-
-    .tabs__image {
-      width: 100%;
-    }
+@media (min-width: 1024px) {
+  .tabs-with-under-buttons :deep(.tabs__list) {
+    justify-content: space-between;
+    overflow: visible;
   }
 }
 
-.tabs__button[data-state="active"]::before {
+.tabs-with-under-buttons :deep(.tabs__button) {
+  cursor: pointer;
+  padding-top: 22px;
+  min-width: 220px;
+  border: none;
+  background: transparent;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 10px;
+  flex: 0 0 auto;
+  transition: color 0.25s ease;
+}
+
+.tabs-with-under-buttons :deep(.tabs__button::before) {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 2px;
+  width: 100%;
+  border-radius: 7px;
+  background: rgb(52, 54, 103);
+  transition: background 0.25s ease, height 0.25s ease;
+}
+
+.tabs__count {
+  width: 36px;
+  height: 36px;
+  background: url("/images/tab-bg-shape.png") center/cover no-repeat;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .35));
+  transition: transform 0.25s ease, filter 0.25s ease;
+}
+
+.tabs__count span {
   background: linear-gradient(90deg, var(--color-primary-gradient-start), var(--color-primary-gradient-end));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
 }
 
-.tabs__button[data-state="active"] .tabs__title {
-  color: var(--color-white);
+.tabs__title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: rgba(188, 195, 215, 0.95);
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color 0.25s ease;
 }
 
-.tabs__image {
-  img {
-    min-width: 320px;
-    min-height: 320px;
+.tabs-with-under-buttons :deep(.tabs__button[data-state="active"]::before) {
+  background: linear-gradient(90deg, var(--color-primary-gradient-start), var(--color-primary-gradient-end));
+  height: 2px;
+}
+
+.tabs-with-under-buttons :deep(.tabs__button[data-state="active"] .tabs__title) {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.tabs-with-under-buttons :deep(.tabs__button:hover .tabs__count) {
+  transform: translateY(-1px);
+  filter: drop-shadow(0 16px 22px rgba(128, 90, 245, 0.25));
+}
+
+@media (max-width: 640px) {
+  .tabs-with-under-buttons :deep(.tabs__button) {
+    min-width: 180px;
+    padding-top: 18px;
+  }
+  .tabs__title {
+    font-size: 0.98rem;
+    max-width: 180px;
+  }
+  .tabs__count {
+    width: 34px;
+    height: 34px;
   }
 }
 </style>

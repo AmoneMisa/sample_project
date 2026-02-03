@@ -69,7 +69,7 @@ const scrollNext = () => { carousel.value?.emblaApi?.scrollNext(); };
       <page-header :title="title" :headline="headline" :isCentered="false"
                    :isFullWidth="false" :headLineClasses="headLineClasses"
                    :titleClasses="titleClasses" :descriptionClasses="descriptionClasses"/>
-      <div class="carousel__arrows">
+      <div class="carousel__arrows" v-if="arrows">
         <button
             class="absolute left-0 top-1/2 -translate-y-1/2 z-10 gradient-button-figure gradient-button-figure_reverse carousel__arrow"
             @click="scrollPrev()"

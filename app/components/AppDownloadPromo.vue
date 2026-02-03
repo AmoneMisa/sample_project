@@ -5,89 +5,161 @@ defineProps<{
   title?: string
   description?: string
   headline?: string
-}>()
+}>();
 </script>
 
 <template>
-  <div class="flex items-center card min-h-[550px] lg:min-h-[450px] md:min-h-[350px] sm:min-h-[300px] gap-10 bg-cover">
-    <div class="flex flex-col justify-between max-w-1/2 card__left-side md:max-w-full">
-      <page-header :title="title" :description="description" :headline="headline"
-                   class="flex flex-col gap-5 items-start text-left"
-                   :ui="{
-          title: 'sm:text-5xl',
-          headline: 'my-0'
-        }"/>
-
-      <div class="flex gap-4">
-        <a href="https://googleplaymarket.com" class="card__download-button transition-transform">
-          <img src="/images/play-app.png" alt="play market link"/>
-        </a>
-        <a href="https://appstore.com" class="card__download-button transition-transform scale-105">
-          <img src="/images/apple-app.png" alt="appstore link"/>
-        </a>
+  <section class="download-wrap relative overflow-hidden">
+    <div class="download-inner relative z-[1]">
+      <div class="grid gap-10 lg:grid-cols-[1.05fr_1fr] items-center">
+        <div class="px-6 py-10 sm:px-10 sm:py-12 lg:px-12 lg:py-14">
+          <page-header
+              :title="title"
+              :description="description"
+              :headline="headline"
+              class="flex flex-col gap-5 items-start text-left"
+              :ui="{
+              title: 'text-4xl sm:text-5xl lg:text-6xl',
+              headline: 'my-0',
+              description: 'text-base sm:text-lg text-white/70'
+            }"
+          />
+          <div class="mt-7 flex flex-wrap gap-4">
+            <a
+                href="https://googleplaymarket.com"
+                class="store-btn"
+            >
+              <img src="/images/play-app.png" alt="Google Play"/>
+            </a>
+            <a
+                href="https://appstore.com"
+                class="store-btn store-btn--apple"
+            >
+              <img src="/images/apple-app.png" alt="App Store"/>
+            </a>
+          </div>
+        </div>
+        <div class="relative hidden md:flex justify-center lg:justify-end px-6 pb-10 lg:pb-0">
+          <img
+              alt="mobile view"
+              src="/images/view-img.png"
+              class="max-h-[520px] w-auto drop-shadow-[0_30px_60px_rgba(0,0,0,0.55)]"
+          />
+        </div>
       </div>
     </div>
-    <div class="flex justify-center gap-6 -z-1 left-0 right-0 absolute card__center pointer-events-none">
-      <img
-          alt="background shape"
-          src="/images/bg-shape.png"
-          class="max-h-[500px] min-h-[450px] lg:min-h-[350px] md:min-h-[250px] sm:min-h-[150px] rounded-xl"
-      />
-    </div>
-    <div class="flex justify-center gap-6 card__right-side">
-      <img
-          alt="mobile view"
-          src="/images/view-img.png"
-          class="max-h-[500px] min-h-[450px] rounded-xl"
-      />
-    </div>
-  </div>
+  </section>
 </template>
 
 <style scoped lang="scss">
-.card {
-  max-height: 550px;
-  background-image: url("/images/bg-img-01.png");
-  background-repeat: no-repeat;
-  display: flex;
-  justify-content: space-between;
+.download-wrap {
+  border-radius: 28px;
+  padding: 2px;
+  background: linear-gradient(
+          135deg,
+          rgba(128, 90, 245, 0.85),
+          rgba(255, 255, 255, 0.06),
+          rgba(205, 153, 255, 0.55)
+  );
+  box-shadow: 0 26px 80px rgba(0, 0, 0, 0.55);
+  clip-path: polygon(
+          0 0,
+          calc(100% - 210px) 0,
+          calc(100% - 120px) 110px,
+          100% 110px,
+          100% 100%,
+          0 100%
+  );
+}
+
+.download-inner {
+  border-radius: 26px;
+  overflow: hidden;
+  background: rgba(14, 12, 21, 0.94);
   position: relative;
+  clip-path: polygon(
+          0 0,
+          calc(100% - 210px) 0,
+          calc(100% - 120px) 110px,
+          100% 110px,
+          100% 100%,
+          0 100%
+  );
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06),
+  inset 0 -26px 50px rgba(0, 0, 0, 0.55);
 }
 
-.card__left-side {
-  padding: 95px 0 95px 50px;
-  height: -webkit-fill-available;
-
-  @media (max-width: 1024px) {
-    padding: 40px 0 35px 30px;
-  }
+.download-inner::before {
+  content: "";
+  position: absolute;
+  inset: -40% -10%;
+  pointer-events: none;
+  opacity: 0.55;
+  z-index: 0;
+  background: repeating-linear-gradient(
+          115deg,
+          rgba(128, 90, 245, 0.0) 0px,
+          rgba(128, 90, 245, 0.0) 22px,
+          rgba(128, 90, 245, 0.18) 23px,
+          rgba(128, 90, 245, 0.18) 24px
+  );
+  filter: blur(0.2px);
 }
 
-.card__right-side {
-  margin-top: -58px;
-
-  @media (max-width: 768px) {
-    display: none;
-  }
+.download-inner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(800px 380px at 18% 35%, rgba(128, 90, 245, 0.18), transparent 60%),
+  radial-gradient(800px 380px at 85% 15%, rgba(205, 153, 255, 0.10), transparent 60%);
+  opacity: 0.8;
 }
 
-.card__download-button {
-  transition: transform .3s;
-  cursor: pointer;
+.store-btn {
+  display: inline-flex;
   width: 157px;
   height: 55px;
+  transition: transform .25s ease, filter .25s ease;
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .35));
+}
 
-  &:hover {
-    transform: scale(1.05);
+.store-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.store-btn:hover {
+  transform: translateY(-1px) scale(1.03);
+  filter: drop-shadow(0 16px 22px rgba(0, 0, 0, .45));
+}
+
+.store-btn--apple {
+  transform: scale(1.05);
+}
+
+@media (max-width: 1024px) {
+  .download-wrap,
+  .download-inner {
+    clip-path: polygon(
+            0 0,
+            calc(100% - 160px) 0,
+            calc(100% - 90px) 82px,
+            100% 82px,
+            100% 100%,
+            0 100%
+    );
   }
 }
 
-.card__center {
-  z-index: auto;
-  top: 15%;
-
-  @media (max-width: 768px) {
-    display: none;
+@media (max-width: 640px) {
+  .download-wrap {
+    border-radius: 22px;
+  }
+  .download-inner {
+    border-radius: 20px;
   }
 }
 </style>
