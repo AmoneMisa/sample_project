@@ -53,23 +53,25 @@ const canPaginate = computed(() => (props.cards?.length ?? 0) > 1);
       body: 'folder-figure-inner relative h-full p-6 sm:p-7'
   }">
         <div class="relative z-10 flex flex-col gap-4 h-full">
-          <div
-              class="w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-primary/10 ring-1 ring-white/5"
-          >
-            <img :alt="t(item.title)" :src="item.icon" class="w-5 h-5 sm:w-6 sm:h-6"/>
-          </div>
-
-          <div class="space-y-2">
+          <div class="flex gap-4 items-center">
+            <div
+                class="w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-primary/10 ring-1 ring-white/5"
+            >
+              <img :alt="t(item.title)" :src="item.icon" class="w-full"/>
+            </div>
             <h3 class="dark:text-white text-[var(--ui-text)] text-lg sm:text-xl font-semibold leading-snug">
               {{ t(item.title) }}
             </h3>
+          </div>
+          <div class="space-y-2">
+
             <p class="dark:text-white/70 text-[var(--ui-text)]/70 text-sm sm:text-base leading-relaxed">
               {{ t(item.description) }}
             </p>
           </div>
 
           <div class="pt-2 mt-auto">
-            <custom-button buttonType="link">
+            <custom-button buttonType="link" _class="btn_link">
               {{ t(buttonText) }}
             </custom-button>
           </div>

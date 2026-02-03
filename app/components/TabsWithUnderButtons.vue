@@ -113,7 +113,7 @@ watch(
               </p>
             </div>
 
-            <custom-button class="mt-6 w-fit">
+            <custom-button class="mt-6 w-fit" variant="full">
               {{ t(buttonText) }}
             </custom-button>
           </div>
@@ -127,7 +127,7 @@ watch(
           list: 'tabs__list bg-transparent',
           trigger: 'tabs__button',
           indicator: 'hidden',
-          label: 'w-full flex flex-col text-left'
+          label: 'w-full flex md:flex-col items-center gap-[6px] md:gap-0 md:items-baseline text-left'
         }"
       >
         <template #default="{ item, index }">
@@ -151,6 +151,7 @@ watch(
   background: radial-gradient(900px 520px at 18% 0%, rgba(128, 90, 245, 0.10), transparent 60%),
   radial-gradient(900px 520px at 85% 10%, rgba(205, 153, 255, 0.08), transparent 60%),
   rgba(14, 12, 21, 0.92);
+  margin-bottom: 0;
 }
 
 .tabs-card {
@@ -165,13 +166,13 @@ watch(
   background: rgba(14, 12, 21, 0.92);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), inset 0 -22px 45px rgba(0, 0, 0, 0.55);
   padding: 18px;
-  display: grid;
+  display: flex;
   gap: 18px;
 }
 
-@media (min-width: 1024px) {
+@media (max-width: 768px) {
   .tabs-content {
-    grid-template-columns: 0.95fr 1.05fr;
+    flex-direction: column;
     align-items: center;
     gap: 26px;
     padding: 22px;

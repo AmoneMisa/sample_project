@@ -109,29 +109,18 @@ const {data: testimonials, pending, error} = await useAsyncData<TestimonialInter
 </script>
 
 <template>
-  <u-page>
-    <h1 class="
-    page-main-header
-    mx-auto
-    max-w-[22ch]
-    text-center
-    font-bold
-    tracking-tight
-    leading-[0.95]
-    text-[clamp(2.25rem,5vw,3.5rem)]"
-    >
-      <span class="block dark:text-white/90 text-[var(--ui-text)]/90">{{ t('hero.title') }}</span>
-      <span class="mt-2 block">
-    <animated-rotated-x-text
-        class="align-baseline"
-        :texts-list="['AI Chating', 'AI Writing', 'AI Chating', 'AI Writing']"
-    />
-  </span>
-      <span class="mt-2 block dark:text-white/90 text-[var(--ui-text)]/90">{{ t('hero.title2') }}</span>
-    </h1>
-    <page-header description="hero.subtitle"
-                 descriptionSize="24"/>
-    <u-page-body class="gap-16 flex flex-col justify-center">
+  <u-page :ui="{center: 'flex flex-col gap-[28px] lg:gap-[32px] xl:gap-[40px] py-12'}">
+    <div>
+      <h1 class="page-main-header mx-auto max-w-[22ch] text-center font-bold tracking-tight leading-[0.95] text-[clamp(2.25rem,5vw,3.5rem)]">
+        <span class="block dark:text-white/90 text-[var(--ui-text)]/90">{{ t('hero.title') }}</span>
+        <span class="mt-2 block">
+            <animated-rotated-x-text class="align-baseline" :texts-list="['AI Chating', 'AI Writing', 'AI Chating', 'AI Writing']"/>
+        </span>
+        <span class="mt-2 block dark:text-white/90 text-[var(--ui-text)]/90">{{ t('hero.title2') }}</span>
+      </h1>
+      <page-header description="hero.subtitle" descriptionSize="24" class="mt-2"/>
+    </div>
+    <u-page-body class="mt-4 pb-0 gap-16 flex flex-col justify-center">
       <textarea-request-form
           :placeholder="t('form.placeholder')"
           :button-text="t('form.button')"
@@ -141,19 +130,17 @@ const {data: testimonials, pending, error} = await useAsyncData<TestimonialInter
           <img src="/images/slider-main-image.png" class="w-full rounded-lg" alt="admin panel"/>
         </div>
       </u-container>
-      <u-container class="flex items-center flex-col justify-center min-w-0">
+      <u-container class="flex items-center flex-col justify-center min-w-0 mb-0">
         <h3 class="text-2xl font-semibold text-center text-muted uppercase mb-8">{{ t('trust.title') }}</h3>
         <images-carousel :images="[
-  '/images/spotify.png',
-  '/images/woocommerce.png',
-  '/images/slack.png',
-  '/images/strapi.png',
-  '/images/mapbox.png'
-]"/>
+            '/images/spotify.png',
+            '/images/woocommerce.png',
+            '/images/slack.png',
+            '/images/strapi.png',
+            '/images/mapbox.png'
+        ]"/>
       </u-container>
-      <tabs-with-background :tabs="tabs" title="page.tabsWithBackground.title"
-                            headline="page.tabsWithBackground.headline"
-                            :ui="{headline: 'gradient-text gradient-text_up'}"/>
+      <tabs-with-background :tabs="tabs" title="page.tabsWithBackground.title" headline="page.tabsWithBackground.headline"/>
       <features-carousel :cards="cards" button-text="page.featuresCarousel.button"/>
       <tabs-with-under-buttons class="bg-full" :tabs="tabs2" button-text="page.tabsWithUnderButtons.button"/>
       <u-container class="flex flex-col justify-center">
@@ -162,7 +149,7 @@ const {data: testimonials, pending, error} = await useAsyncData<TestimonialInter
             headline="page.collaboration.headline"
             titleClasses="max-w-[530px]"
         />
-        <custom-button class="m-auto justify-center h-16 w-48 text-lg mt-5">{{
+        <custom-button class="m-auto justify-center h-16 w-48 text-lg mt-5" variant="full">{{
             t('page.collaboration.cta')
           }}
         </custom-button>
@@ -177,7 +164,7 @@ const {data: testimonials, pending, error} = await useAsyncData<TestimonialInter
       </u-container>
 
       <u-container
-          class="violet-block rounded-xl flex flex-col lg:flex-row justify-between py-10 lg:py-16 gap-8 lg:gap-0 max-h-none lg:max-h-[265px]">
+          class="violet-block rounded-xl flex flex-col lg:flex-row justify-between py-10 lg:py-16 gap-8 lg:gap-0 max-h-none lg:max-h-[265px] mb-0">
         <page-header class="border-none max-w-full lg:max-w-[590px] py-0"
                      title="page.community.title"
                      description="page.community.description"
@@ -195,11 +182,11 @@ const {data: testimonials, pending, error} = await useAsyncData<TestimonialInter
         </u-container>
       </u-container>
 
-      <u-container>
+      <u-container class="mb-0">
         <price-cards/>
       </u-container>
-      <u-container class="flex flex-col lg:flex-row gap-8 lg:gap-20">
-        <service-cards-grid :cards="(featureCards || []).filter((featureCard) => featureCard.isVisible)" />
+      <u-container class="mb-0 flex flex-col lg:flex-row gap-8 lg:gap-20">
+        <service-cards-grid :cards="(featureCards || []).filter((featureCard) => featureCard.isVisible)"/>
       </u-container>
       <testimonial-carousel v-if="!pending" headline="testimonials.headline" title="testimonials.title"
                             :testimonials="(testimonials || []).filter((testimonial) => testimonial.isVisible)"
@@ -252,6 +239,7 @@ const {data: testimonials, pending, error} = await useAsyncData<TestimonialInter
   padding-right: calc(1.5rem * .5);
   padding-left: calc(1.5rem * .5);
   margin-top: 0;
+  margin-bottom: 0;
 }
 
 .admin-panel__image {
@@ -260,7 +248,6 @@ const {data: testimonials, pending, error} = await useAsyncData<TestimonialInter
   padding: 70px 70px 42px;
   position: relative;
   z-index: 3;
-  margin-top: 60px;
   overflow: hidden;
   border-radius: 12px;
   max-width: 100%;

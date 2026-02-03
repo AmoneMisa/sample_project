@@ -32,7 +32,7 @@ watch(
 </script>
 
 <template>
-  <div class="space-y-6">
+  <u-container class="mb-0">
     <carousel
         v-model="selected"
         :items="testimonials"
@@ -53,7 +53,6 @@ watch(
         :description="description"
         :headline="headline"
         :isCentered="false"
-        class="mb-10 sm:mb-14"
     >
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <u-card
@@ -122,7 +121,7 @@ watch(
         </u-card>
       </div>
     </carousel>
-  </div>
+  </u-container>
 </template>
 
 <style scoped lang="scss">

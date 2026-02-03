@@ -14,12 +14,12 @@ const {t, tm, rt} = useI18n();
 </script>
 
 <template>
-  <u-container class="py-20 space-y-12 price-cards">
+  <u-container class="price-cards">
     <div class="text-center space-y-3 price-cards__header">
       <page-header
           title="pricing.title"
           headline="pricing.headline"
-          class="mb-8"
+          class="mb-6"
       />
 
       <div class="price-cards__switcher">

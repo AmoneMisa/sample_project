@@ -154,6 +154,13 @@ defineProps<{
   }
 }
 
+@media (max-width: 768px) {
+  .download-wrap,
+  .download-inner {
+    clip-path: none;
+  }
+}
+
 @media (max-width: 640px) {
   .download-wrap {
     border-radius: 22px;

@@ -65,7 +65,7 @@ const resolved = computed<Variant>(() => {
   transition: 0.25s ease;
 }
 
-.btn_primary {
+:global(.btn_primary){
   color: white !important;
   border: 1px solid rgba(255, 255, 255, 0.10);
   background: var(--color-primary);
@@ -119,6 +119,10 @@ const resolved = computed<Variant>(() => {
   color: transparent;
 }
 
+.btn_link {
+  color: var(--color-primary);
+  padding: 0 !important;
+}
 
 .light {
   .btn_secondary,

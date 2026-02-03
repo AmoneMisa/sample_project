@@ -90,13 +90,12 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <u-container class="tabs-section max-w-6xl mx-auto py-14 sm:py-16">
+  <u-container class="tabs-section max-w-6xl mx-auto mb-0">
     <page-header
         :title="title"
         :headline="headline"
         :description="description"
         :isCentered="true"
-        class="mb-10 sm:mb-12"
     />
     <div class="tabs-row">
       <div ref="tabsScroll" class="tabs-scroll">

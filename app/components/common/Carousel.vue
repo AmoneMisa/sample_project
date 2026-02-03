@@ -100,7 +100,7 @@ const scrollNext = () => { carousel.value?.emblaApi?.scrollNext(); };
 .carousel__row {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 60px;
+  margin-bottom: 24px;
 }
 
 .carousel__arrows {
