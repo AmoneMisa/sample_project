@@ -91,7 +91,7 @@ watch(
             “{{ item.quote }}”
           </blockquote>
 
-          <div class="flex md:flex-col sm:flex-row sm:items-center gap-4 justify-between md:justify-baseline">
+          <div class="flex sm:items-center gap-4 justify-between md:justify-baseline">
             <div class="flex items-center gap-4 min-w-0">
               <img
                   :alt="item.name"
@@ -131,8 +131,8 @@ watch(
 }
 
 .testimonial__image_logo {
-  height: 64px;
-  max-width: initial;
+  height: auto;
+  max-width: 100%;
 }
 
 .testimonial__border {
