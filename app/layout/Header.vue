@@ -80,24 +80,39 @@ const colorMode = useColorMode();
 function toggleTheme() {
   colorMode.preference = colorMode.preference === 'dark' ? 'light' : 'dark';
 }
+
+const isMenuOpen = ref(false);
 </script>
 
 <template>
-  <u-header ref="header" class="header bg-transparent border-0"
-            :class="{ 'header_sticky': isSticky,
-                      'header_visible': isVisible }"
+  <u-header
+      ref="header"
+      v-model:open="isMenuOpen"
+      mode="drawer"
+      :menu="{
+    direction: 'right',
+    inset: true
+  }"
+      class="header bg-transparent border-0"
+      :class="{ header_sticky: isSticky, header_visible: isVisible }"
+      :ui="{
+    overlay: 'bg-black/60 backdrop-blur-sm',
+    content: 'w-[86vw] max-w-[360px] bg-[rgba(14,12,21,0.98)] border-l border-white/10'
+  }"
   >
     <template #left>
-      <a class="header__logo max-h-[35px] min-w-[160px]" href="/">
+      <a class="header__logo" href="/">
         <img alt="Logo" class="header__logo-image" src="/images/logo.png">
       </a>
     </template>
     <template #default>
-      <header-menu/>
+      <div class="hidden xl:block">
+        <header-menu variant="desktop" />
+      </div>
     </template>
     <template #right>
-      <div class="flex items-center justify-end flex-wrap gap-2 sm:gap-3">
-        <div class="ui-pill-btn ui-pill-btn--animated">
+      <div class="hidden xl:flex items-center gap-2 xl:gap-3">
+        <div class="ui-pill-btn ui-pill-btn_animated">
           <u-locale-select
               class="ui-pill-btn__inner ui-locale"
               :model-value="locale"
@@ -105,18 +120,17 @@ function toggleTheme() {
               :locales="safeLocalesForSelect"
               :disabled="langsPending && !langs"
               :ui="{
-      base: 'h-10 min-w-[150px] px-3 text-sm font-medium text-white/90 flex items-center justify-between gap-2',
-      value: 'truncate text-left max-w-[90px] sm:max-w-[120px]',
-      trailing: 'shrink-0 text-white/70 translate-y-[1px]',
-      content: 'mt-2 w-[220px] rounded-xl bg-[rgba(14,12,21,0.96)] backdrop-blur-xl border border-white/10 shadow-2xl p-2'
-    }"
+              base: 'h-10 min-w-[120px] xl:min-w-[150px] px-3 text-sm font-medium text-white/90 flex items-center justify-between gap-2',
+              value: 'truncate text-left max-w-[80px] sm:max-w-[100px] xl:max-w-[120px]',
+              trailing: 'shrink-0 text-white/70 translate-y-[1px]',
+              content: 'mt-2 w-[220px] rounded-xl bg-[rgba(14,12,21,0.96)] backdrop-blur-xl border border-white/10 shadow-2xl p-2'
+            }"
           />
         </div>
-
         <div class="ui-pill-btn ui-pill-btn_animated">
           <button
               type="button"
-              class="ui-pill-btn__inner text-sm font-semibold text-white/90 hover:text-white"
+              class="ui-pill-btn__inner text-sm font-semibold text-white/90 hover:text-white whitespace-nowrap"
               @click="toggleTheme"
           >
             Сменить тему
@@ -134,13 +148,49 @@ function toggleTheme() {
         </div>
       </div>
     </template>
+    <template #content="{ close }">
+      <div class="h-[100dvh] overflow-y-auto p-4 flex flex-col gap-4">
+        <header-menu variant="mobile" @navigate="close?.()" />
+        <div class="h-px bg-white/10 my-1" />
+        <div class="flex flex-col gap-3">
+          <u-locale-select
+              class="ui-locale-mobile"
+              :model-value="locale"
+              @update:model-value="(v) => { onLocaleChange(v); close?.() }"
+              :locales="safeLocalesForSelect"
+              :disabled="langsPending && !langs"
+              :ui="{
+          base: 'h-11 w-full px-3 text-sm font-medium text-white/90 flex items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/5',
+          value: 'truncate text-left',
+          trailing: 'shrink-0 text-white/70 translate-y-[1px]',
+          content: 'mt-2 w-[240px] rounded-xl bg-[rgba(14,12,21,0.96)] backdrop-blur-xl border border-white/10 shadow-2xl p-2'
+        }"
+          />
 
+          <button
+              type="button"
+              class="h-11 w-full rounded-xl border border-white/10 bg-white/5 text-sm font-semibold text-white/90 hover:text-white"
+              @click="toggleTheme(); close?.()"
+          >
+            Сменить тему
+          </button>
+
+          <u-link
+              href="https://amonemisa.github.io/personal/"
+              no-rel
+              target="_blank"
+              class="h-11 w-full rounded-xl border border-white/10 bg-white/5 text-sm font-semibold text-white/90 hover:text-white flex items-center justify-center"
+              @click="close?.()"
+          >
+            {{ t('button.getStart') }}
+          </u-link>
+        </div>
+      </div>
+    </template>
   </u-header>
 </template>
 
 <style lang="scss">
-
-
 .header {
   transition: background-color .3s ease;
 
@@ -159,6 +209,15 @@ function toggleTheme() {
   }
   100% {
     transform: translateY(0);
+  }
+}
+
+.header__logo {
+  max-height: 35px;
+  min-width: 120px;
+
+  @media (min-width: 640px) {
+    min-width: 160px;
   }
 }
 

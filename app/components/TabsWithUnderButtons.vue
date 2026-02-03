@@ -119,13 +119,10 @@ watch(
           </div>
         </div>
       </div>
-
-      <!-- НИЖНИЕ ТАБЫ -->
       <u-tabs
           :items="tabs"
           class="tabs tabs-with-under-buttons"
-          :model-value="activeIndex"
-          @update:modelValue="(v:number) => (activeIndex = v)"
+          v-model="activeIndex"
           :ui="{
           list: 'tabs__list bg-transparent',
           trigger: 'tabs__button',
@@ -252,30 +249,23 @@ watch(
 }
 
 .tabs-with-under-buttons :deep(.tabs__list) {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
+  display: grid;
+  gap: 14px;
   padding: 6px 2px;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  scrollbar-width: none;
+  grid-template-columns: 1fr;
+  overflow: visible;
+  flex-wrap: unset;
+  scrollbar-width: unset;
 }
 
 .tabs-with-under-buttons :deep(.tabs__list::-webkit-scrollbar) {
   display: none;
 }
 
-@media (min-width: 1024px) {
-  .tabs-with-under-buttons :deep(.tabs__list) {
-    justify-content: space-between;
-    overflow: visible;
-  }
-}
-
 .tabs-with-under-buttons :deep(.tabs__button) {
   cursor: pointer;
-  padding-top: 22px;
-  min-width: 220px;
+  padding-top: 18px;
+  width: 100%;
   border: none;
   background: transparent;
   position: relative;
@@ -283,7 +273,6 @@ watch(
   flex-direction: column;
   justify-content: flex-start;
   gap: 10px;
-  flex: 0 0 auto;
   transition: color 0.25s ease;
 }
 
@@ -297,6 +286,57 @@ watch(
   border-radius: 7px;
   background: rgb(52, 54, 103);
   transition: background 0.25s ease, height 0.25s ease;
+}
+
+.tabs__title {
+  font-size: 1.02rem;
+  font-weight: 600;
+  color: rgba(188, 195, 215, 0.95);
+  max-width: 240px;
+  transition: color 0.25s ease;
+  white-space: normal;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+@media (min-width: 1024px) {
+  .tabs-with-under-buttons :deep(.tabs__list) {
+    justify-content: space-between;
+    overflow: visible;
+    padding: 6px 2px;
+    scroll-snap-type: none;
+  }
+
+  .tabs-with-under-buttons :deep(.tabs__button) {
+    width: auto;
+    min-width: 220px;
+    padding-top: 22px;
+  }
+
+  .tabs__title {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    -webkit-line-clamp: unset;
+    display: block;
+    max-width: 240px;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .tabs-with-under-buttons :deep(.tabs__list) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .tabs-with-under-buttons :deep(.tabs__list) {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 6px 2px;
+  }
 }
 
 .tabs__count {
@@ -318,17 +358,6 @@ watch(
   font-weight: 700;
 }
 
-.tabs__title {
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: rgba(188, 195, 215, 0.95);
-  max-width: 240px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  transition: color 0.25s ease;
-}
-
 .tabs-with-under-buttons :deep(.tabs__button[data-state="active"]::before) {
   background: linear-gradient(90deg, var(--color-primary-gradient-start), var(--color-primary-gradient-end));
   height: 2px;
@@ -345,7 +374,6 @@ watch(
 
 @media (max-width: 640px) {
   .tabs-with-under-buttons :deep(.tabs__button) {
-    min-width: 180px;
     padding-top: 18px;
   }
   .tabs__title {

@@ -151,25 +151,22 @@ onBeforeUnmount(() => {
 <style lang="scss">
 .tabs-scroll {
   position: relative;
-  overflow-x: auto;
   overflow-y: visible;
   -webkit-overflow-scrolling: touch;
   padding-bottom: 8px;
-
   scrollbar-width: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
+  overflow-x: visible;
+  &::-webkit-scrollbar { display: none; }
 }
 
 .tabs__list {
-  display: inline-flex;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 10px;
   padding: 4px;
   border-radius: 999px;
   background: transparent;
-  min-width: max-content;
 }
 
 .tabs__trigger {

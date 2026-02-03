@@ -2,6 +2,7 @@
 import normalizeList from "~/assets/normalizeList";
 import {safeFetch} from "~/utils/safeFetch";
 import type OfferCardInterface from "~/interfaces/OfferCardInterface";
+import PageHeader from "~/components/common/PageHeader.vue";
 
 const config = useRuntimeConfig();
 

@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import {safeFetch} from "~/utils/safeFetch";
+const props = withDefaults(defineProps<{ variant?: 'desktop' | 'mobile' }>(), {
+  variant: 'desktop'
+});
 
 const {t} = useI18n();
 const config = useRuntimeConfig();
@@ -12,10 +15,13 @@ if (error) {
   console.warn("Ошибка загрузки меню:", error);
 }
 
+const emit = defineEmits<{
+  (e: 'navigate'): void
+}>();
 </script>
 
 <template>
-  <nav class="header-menu">
+  <nav class="header-menu" :class="`header-menu_${props.variant}`">
     <ul class="header-menu__list">
       <li v-for="(item, i) in menu"
           :key="i"
@@ -29,6 +35,7 @@ if (error) {
             v-if="item.type === 'simple'"
             class="header-menu__link"
             :href="item.href"
+            @click="emit('navigate')"
         >
           {{ t(item.labelKey) }}
         </a>
@@ -43,7 +50,8 @@ if (error) {
                 :key="j"
                 class="header-menu__dropdown-item"
             >
-              <a class="header-menu__dropdown-link" :href="sub.href">
+              <a class="header-menu__dropdown-link" :href="sub.href"
+                 @click="emit('navigate')">
                 {{ t(sub.labelKey) }} <span v-if="sub.badge" class="header-menu__badge line-clamp-1">{{ t(sub.labelKey) }}</span>
               </a>
             </li>
@@ -67,7 +75,8 @@ if (error) {
                     :key="s"
                     class="header-menu__mega-item"
                 >
-                  <a class="header-menu__mega-link" :href="sub.href">
+                  <a class="header-menu__mega-link" :href="sub.href"
+                     @click="emit('navigate')">
                     {{ t(sub.labelKey) }} <span v-if="sub.badge" class="header-menu__badge line-clamp-1">{{ t(sub.labelKey) }}</span>
                   </a>
                 </li>
@@ -370,4 +379,38 @@ if (error) {
   text-transform: uppercase;
   margin-left: 5px;
 }
+
+.header-menu_mobile {
+  .header-menu__list {
+    flex-direction: column;
+    padding: 0;
+    border-radius: 16px;
+    max-height: none;
+  }
+
+  .header-menu__link {
+    width: 100%;
+    padding: 12px 14px;
+  }
+
+  .header-menu__dropdown,
+  .header-menu__mega {
+    position: static;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    width: 100%;
+    margin-top: 6px;
+  }
+
+  .header-menu__mega {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .header-menu__mega-image {
+    display: none;
+  }
+}
+
 </style>
