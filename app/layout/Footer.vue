@@ -173,7 +173,6 @@ const {t} = useI18n();
   filter: drop-shadow(0px 0px 12px var(--color-primary));
 }
 
-
 .light {
   .footer__logo-image {
     filter: drop-shadow(1px 1px 2px #5121f5);
