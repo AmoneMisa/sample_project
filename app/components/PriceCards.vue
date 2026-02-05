@@ -22,7 +22,6 @@ const {t} = useI18n();
           headline="pricing.headline"
           class="mb-8"
       />
-
       <div class="price-cards__switcher mb-4">
         <button
             type="button"
@@ -45,17 +44,12 @@ const {t} = useI18n();
               {{ t('pricing.switcher.yearly') }}
            </span>
           <span class="price-cards__switcher-button-badge line-clamp-1 max-w-[80px]">
-      {{ t('pricing.switcher.discountBadge') }}
-    </span>
+              {{ t('pricing.switcher.discountBadge') }}
+           </span>
         </button>
       </div>
-
     </div>
-
-    <div
-        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-        v-if="offerCards"
-    >
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" v-if="offerCards">
       <u-card
           v-for="(offerCard, index) in offerCards"
           :key="offerCard.nameKey"
@@ -63,51 +57,37 @@ const {t} = useI18n();
               root: 'offer-card flex flex-col p-0 ring-0 bg-transparent relative',
               body: 'offer-card__inner flex flex-col h-full p-6'
           }">
-        <div
-            v-if="offerCard.highlight"
-            class="flex justify-center absolute price-cards__highlight"
-        >
+        <div v-if="offerCard.highlight" class="flex justify-center absolute price-cards__highlight z-10 top-[-3px] left-[-2px]">
           <u-badge color="primary" variant="solid">
             {{ t('pricing.badge.bestOffer') }}
           </u-badge>
         </div>
-
         <div class="text-center space-y-1" v-if="offerCard.nameKey">
           <h3 class="text-xl font-bold">
             {{ t(offerCard.nameKey) }}
           </h3>
-
           <p class="text-muted text-sm" v-if="offerCard.descriptionKey">
             {{ t(offerCard.descriptionKey) }}
           </p>
-
           <p class="text-2xl font-semibold text-primary" v-if="offerCard.yearly && offerCard.monthly">
             {{ isYearly ? offerCard.yearly : offerCard.monthly }}
           </p>
         </div>
-
         <u-separator class="my-4"/>
-
         <div class="flex-1">
           <p class="font-semibold text-muted mb-2">
             {{ t('pricing.featuresTitle') }}
           </p>
-
-          <u-page-list
-              class="space-y-1 text-sm text-muted spoiler-list"
+          <u-page-list class="space-y-1 text-sm text-muted spoiler-list"
               :class="{ spoiler_open: index === Math.floor(offerCards.length / 2) }"
-              :items="offerCard.features"
-          >
-            <li
-                v-for="feature in offerCard.features"
+              :items="offerCard.features">
+            <li v-for="feature in offerCard.features"
                 :key="feature.id"
-                class="flex items-center gap-2"
-            >
+                class="flex items-center gap-2">
               <u-icon name="i-lucide-check" class="text-primary"/>
               <span v-if="feature.labelKey">{{ t(feature.labelKey) }}</span>
             </li>
           </u-page-list>
-
           <u-button
               v-if="offerCard.features.length > 3"
               variant="link"
