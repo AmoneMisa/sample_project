@@ -25,24 +25,31 @@ const {t} = useI18n();
 
       <div class="price-cards__switcher mb-4">
         <button
+            type="button"
             class="price-cards__switcher-button"
             :class="{ 'price-cards__switcher-button_active': !isYearly }"
+            :aria-pressed="!isYearly"
             @click="isYearly = false"
         >
           {{ t('pricing.switcher.monthly') }}
         </button>
 
         <button
+            type="button"
             class="price-cards__switcher-button"
             :class="{ 'price-cards__switcher-button_active': isYearly }"
+            :aria-pressed="isYearly"
             @click="isYearly = true"
         >
-          {{ t('pricing.switcher.yearly') }}
+           <span class="price-cards__switcher-label">
+              {{ t('pricing.switcher.yearly') }}
+           </span>
           <span class="price-cards__switcher-button-badge line-clamp-1 max-w-[80px]">
-            {{ t('pricing.switcher.discountBadge') }}
-          </span>
+      {{ t('pricing.switcher.discountBadge') }}
+    </span>
         </button>
       </div>
+
     </div>
 
     <div
@@ -153,9 +160,8 @@ const {t} = useI18n();
           rgba(128, 90, 245, 0.85)
   );
   background-size: 240% 240%;
-  box-shadow:
-      0 16px 45px rgba(0, 0, 0, 0.45),
-      0 0 0 1px rgba(255, 255, 255, 0.03);
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.45),
+  0 0 0 1px rgba(255, 255, 255, 0.03);
 }
 
 .offer-card__inner {
@@ -171,9 +177,8 @@ const {t} = useI18n();
           100% 100%,
           0 100%
   );
-  box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.05),
-      inset 0 -18px 30px rgba(0, 0, 0, 0.45);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05),
+  inset 0 -18px 30px rgba(0, 0, 0, 0.45);
 }
 
 .offer-card__inner::after {
@@ -197,6 +202,7 @@ const {t} = useI18n();
   inset: 0;
   border-radius: inherit;
   clip-path: inherit;
+  background-size: 220% 220%;
   background: linear-gradient(
           120deg,
           transparent 0%,
@@ -204,9 +210,7 @@ const {t} = useI18n();
           rgba(255, 255, 255, 0.18) 50%,
           rgba(255, 255, 255, 0.00) 65%,
           transparent 100%
-  );
-  background-size: 220% 220%;
-  background-position: 0% 50%;
+  ) 0% 50%;
   opacity: 0;
   pointer-events: none;
 }
@@ -226,19 +230,33 @@ const {t} = useI18n();
 }
 
 @keyframes offerBorderIdle {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 @keyframes offerBorderBurst {
-  from { background-position: 0% 50%; }
-  to   { background-position: 180% 50%; }
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: 180% 50%;
+  }
 }
 
 @keyframes offerSheen {
-  from { transform: translateX(-35%) translateY(35%); }
-  to   { transform: translateX(35%) translateY(-35%); }
+  from {
+    transform: translateX(-35%) translateY(35%);
+  }
+  to {
+    transform: translateX(35%) translateY(-35%);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -266,6 +284,126 @@ const {t} = useI18n();
   }
   .offer-card__inner {
     border-radius: 14px;
+  }
+}
+
+.price-cards__switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--ui-border);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.35),
+  inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  .price-cards__switcher-button {
+    min-width: 160px;
+    color: var(--text-white);
+  }
+
+  @media (max-width: 420px) {
+    width: 100%;
+    .price-cards__switcher-button {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+}
+
+.price-cards__switcher-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 44px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 0;
+  background: transparent;
+  color: var(--ui-text-muted);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  user-select: none;
+  transition: color 180ms ease,
+  transform 140ms ease,
+  filter 180ms ease;
+
+  &:hover {
+    color: var(--text-white);
+    filter: brightness(1.05);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(128, 90, 245, 0.30),
+    0 0 0 6px rgba(128, 90, 245, 0.14);
+  }
+}
+
+.price-cards__switcher-button_active {
+  color: var(--text-white);
+  background: linear-gradient(
+          180deg,
+          rgba(128, 90, 245, 0.90),
+          rgba(128, 90, 245, 0.62)
+  );
+  box-shadow: 0 14px 30px rgba(128, 90, 245, 0.20),
+  inset 0 1px 0 rgba(255, 255, 255, 0.18);
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 1px;
+    border-radius: inherit;
+    background: radial-gradient(
+            120% 120% at 30% 10%,
+            rgba(255, 255, 255, 0.18),
+            transparent 55%
+    );
+    pointer-events: none;
+  }
+}
+
+.price-cards__switcher-label {
+  line-height: 1;
+}
+
+.price-cards__switcher-button-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: var(--color-primary-alt);
+  color: var(--color-white);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10);
+}
+
+.price-cards__switcher-button:not(.price-cards__switcher-button_active) {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-white);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .price-cards__switcher-button {
+    transition: none;
   }
 }
 
