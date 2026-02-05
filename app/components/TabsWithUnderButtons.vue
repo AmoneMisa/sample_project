@@ -391,6 +391,11 @@ watch(
   .tabs__count {
     filter: drop-shadow(0 10px 16px rgba(150, 110, 255, 0.18));
   }
+
+  .tabs__title {
+    color: rgba(0, 0, 0, 0.60);
+  }
+
   .tabs-with-under-buttons :deep(.tabs__button[data-state="active"]::before) {
     background: linear-gradient(90deg, var(--color-primary-gradient-start), var(--color-primary-gradient-end));
   }
