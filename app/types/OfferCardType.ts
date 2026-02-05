@@ -9,4 +9,5 @@ export type OfferCardType = {
     highlight: boolean;
     order: number;
     isVisible: boolean;
+    expanded: boolean;
 }
