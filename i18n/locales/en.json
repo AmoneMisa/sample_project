@@ -1,6 +1,41 @@
 {
   "services": {
     "pdfEditor": {
+      "text": {
+        "title": "Add text",
+        "valueLabel": "Text",
+        "valuePlaceholder": "Enter text",
+        "fontLabel": "Font",
+        "fontSizeLabel": "Size",
+        "colorLabel": "Color",
+        "opacityLabel": "Opacity",
+        "alignLabel": "Alignment",
+        "styleLabel": "Style",
+        "bold": "Bold",
+        "italic": "Italic",
+        "underline": "Underline",
+        "applyLabel": "Apply",
+        "hintDrag": "Drag the text on the page to position it"
+      },
+      "signature": {
+        "strokeWidthLabel": "Stroke width",
+        "opacityLabel": "Opacity",
+        "actionsLabel": "Actions",
+        "applyLabel": "Apply",
+        "hintDraw": "Draw inside the box, then place it on the page",
+        "title": "Draw signature",
+        "clear": "Clear"
+      },
+      "toolbar": {
+        "pageLabel": "Page",
+        "dpiLabel": "DPI",
+        "backgroundLabel": "Background"
+      },
+      "background": {
+        "transparent": "Transparent",
+        "white": "White",
+        "black": "Black"
+      },
       "title": "Online PDF Editor",
       "headline": "Edit PDF files online",
       "subtitle": "Add text, signatures, rotate pages, and download your edited PDF in seconds.",
@@ -20,14 +55,7 @@
         "text": "Text",
         "signature": "Signature"
       },
-      "text": {
-        "title": "Add text"
-      },
       "applyText": "Apply text",
-      "signature": {
-        "title": "Draw signature",
-        "clear": "Clear"
-      },
       "applySignature": "Apply signature",
       "actions": {
         "undo": "Undo",
