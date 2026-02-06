@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type FeatureCardInterface from "~/interfaces/FeatureCardInterface";
+import ServiceCard from "~/components/ServiceCard.vue";
 
 const props = defineProps<{
   cards: FeatureCardInterface[]
@@ -20,7 +21,7 @@ const isChess = computed(() => (props.cards?.length ?? 0) < 5)
       :class="isChess ? 'cards-chess' : ''"
   >
     <div v-for="(c, i) in cards" :key="i" class="min-w-0">
-      <FeatureCard :image="c.image" :title="c.titleKey" :description="c.descriptionKey" />
+      <ServiceCard :image="c.image" :title="c.titleKey" :description="c.descriptionKey" />
     </div>
   </div>
 </template>
