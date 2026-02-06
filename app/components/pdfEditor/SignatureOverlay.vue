@@ -8,6 +8,8 @@ const props = defineProps<{
   hRel: number;
   strokes: Array<Array<[number, number]>>;
   strokeWidth: number;
+  opacity?: number;
+  disabled?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -76,7 +78,9 @@ function redraw() {
   ctx.lineWidth = props.strokeWidth;
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
-  ctx.strokeStyle = "rgba(255,255,255,0.92)";
+
+  const alpha = Math.max(0, Math.min(1, (props.opacity ?? 100) / 100));
+  ctx.strokeStyle = `rgba(255,255,255,${0.92 * alpha})`;
 
   for (const stroke of props.strokes) {
     if (!stroke || stroke.length < 2) continue;
@@ -90,7 +94,9 @@ function redraw() {
 }
 
 function onBoxDown(e: PointerEvent) {
+  if (props.disabled) return;
   if (mode.value !== "move") return;
+
   const stageRect = getStageRect();
   if (!stageRect) return;
 
@@ -105,6 +111,7 @@ function onBoxDown(e: PointerEvent) {
 
 function onBoxMove(e: PointerEvent) {
   if (!drag.active) return;
+
   const stageRect = getStageRect();
   if (!stageRect) return;
 
@@ -133,7 +140,9 @@ function relFromCanvas(e: PointerEvent) {
 }
 
 function onCanvasDown(e: PointerEvent) {
+  if (props.disabled) return;
   if (mode.value !== "draw") return;
+
   const c = canvasRef.value;
   if (!c) return;
 
@@ -143,9 +152,7 @@ function onCanvasDown(e: PointerEvent) {
   const p = relFromCanvas(e);
   emit("update:strokes", [...props.strokes, [[p.x, p.y]]]);
 
-  nextTick(() => {
-    redraw();
-  });
+  nextTick(() => redraw());
 }
 
 function onCanvasMove(e: PointerEvent) {
@@ -159,9 +166,7 @@ function onCanvasMove(e: PointerEvent) {
   last.push([p.x, p.y]);
   emit("update:strokes", strokes);
 
-  nextTick(() => {
-    redraw();
-  });
+  nextTick(() => redraw());
 }
 
 function onCanvasUp(e: PointerEvent) {
@@ -173,14 +178,10 @@ function onCanvasUp(e: PointerEvent) {
 let ro: ResizeObserver | null = null;
 
 onMounted(() => {
-  nextTick(() => {
-    resizeCanvas();
-  });
+  nextTick(() => resizeCanvas());
 
   if (boxRef.value) {
-    ro = new ResizeObserver(() => {
-      resizeCanvas();
-    });
+    ro = new ResizeObserver(() => resizeCanvas());
     ro.observe(boxRef.value);
   }
 });
@@ -192,21 +193,13 @@ onBeforeUnmount(() => {
 
 watch(
     () => props.strokes,
-    () => {
-      nextTick(() => {
-        redraw();
-      });
-    },
+    () => nextTick(() => redraw()),
     { deep: true },
 );
 
 watch(
-    () => props.strokeWidth,
-    () => {
-      nextTick(() => {
-        redraw();
-      });
-    },
+    () => [props.strokeWidth, props.opacity],
+    () => nextTick(() => redraw()),
 );
 </script>
 
@@ -220,12 +213,29 @@ watch(
       @pointerup="onBoxUp"
       @pointercancel="onBoxUp"
   >
-    <div class="pdf__sig-head">
-      <button type="button" class="pdf__sig-chip" :class="{ 'pdf__sig-chip_active': mode === 'draw' }" @click="mode = 'draw'">
-        ✍
+    <div class="pdf__sig-head" @pointerdown.stop.prevent>
+      <button
+          type="button"
+          class="pdf__sig-chip"
+          :class="{ 'pdf__sig-chip_active': mode === 'draw' }"
+          :disabled="disabled"
+          title="Рисовать"
+          aria-label="Рисовать"
+          @click="mode = 'draw';"
+      >
+        <u-icon name="i-lucide-signature" />
       </button>
-      <button type="button" class="pdf__sig-chip" :class="{ 'pdf__sig-chip_active': mode === 'move' }" @click="mode = 'move'">
-        ↕
+
+      <button
+          type="button"
+          class="pdf__sig-chip"
+          :class="{ 'pdf__sig-chip_active': mode === 'move' }"
+          :disabled="disabled"
+          title="Перемещать"
+          aria-label="Перемещать"
+          @click="mode = 'move';"
+      >
+        <u-icon name="i-lucide-move-vertical" />
       </button>
     </div>
 

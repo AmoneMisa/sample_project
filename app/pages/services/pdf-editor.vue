@@ -1,11 +1,62 @@
 <script setup lang="ts">
 import PageHeader from "~/components/common/PageHeader.vue";
 import CustomButton from "~/components/common/CustomButton.vue";
-import { computed, defineComponent, h, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
+import {computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch} from "vue";
 import SignatureOverlay from "~/components/pdfEditor/SignatureOverlay.vue";
 
 const config = useRuntimeConfig();
-const { t } = useI18n();
+const {t} = useI18n();
+const route = useRoute();
+const router = useRouter();
+
+onMounted(async () => {
+  const qJob = route.query.job;
+
+  if (typeof qJob === "string" && qJob.length > 10) {
+    jobId.value = qJob;
+    await refreshInfo();
+  }
+});
+type TextAlign = "left" | "center" | "right" | "justify";
+
+const textBox = reactive({
+  enabled: false,
+  value: "Hello!",
+  opacity: 30,
+  fontSize: 28,
+  color: "#ffffff",
+  font: "inter",
+  bold: false,
+  italic: false,
+  underline: false,
+  align: "left" as TextAlign,
+  xRel: 0.15,
+  yRel: 0.15,
+});
+
+const iconBox = reactive({
+  enabled: false,
+  name: "file",
+  size: 42,
+  opacity: 100,
+  color: "#ffffff",
+  xRel: 0.2,
+  yRel: 0.2,
+});
+
+const availableFonts = [
+  {label: "Inter", value: "inter"},
+  {label: "Arial", value: "arial"},
+  {label: "Times", value: "times"},
+  {label: "Courier", value: "courier"},
+];
+
+const alignOptions = [
+  {label: "Left", value: "left"},
+  {label: "Center", value: "center"},
+  {label: "Right", value: "right"},
+  {label: "Justify", value: "justify"},
+];
 
 const fileInput = ref<HTMLInputElement | null>(null);
 const selectedFiles = ref<File[]>([]);
@@ -69,7 +120,18 @@ function addFiles(files: File[]) {
   selectedFiles.value = [...selectedFiles.value, ...pdfs];
 }
 
-function clearAll() {
+async function clearAll() {
+  selectedFiles.value = [];
+  jobId.value = null;
+  pages.value = 1;
+  page.value = 1;
+  activeVersion.value = 1;
+  errorMsg.value = null;
+
+  await router.replace({
+    query: {...route.query, job: undefined},
+  });
+
   selectedFiles.value = [];
 }
 
@@ -104,6 +166,14 @@ async function createJob() {
     });
 
     jobId.value = res.jobId;
+
+    await router.replace({
+      query: {
+        ...route.query,
+        job: res.jobId,
+      },
+    });
+
     page.value = 1;
     await refreshInfo();
   } catch (e: any) {
@@ -150,7 +220,7 @@ async function applyText() {
     form.append("tool", "watermark_text");
     form.append("options", JSON.stringify(options));
 
-    await $fetch(`${config.public.apiBase}/pdf/apply/${jobId.value}`, { method: "POST", body: form });
+    await $fetch(`${config.public.apiBase}/pdf/apply/${jobId.value}`, {method: "POST", body: form});
     await refreshInfo();
   } catch (e: any) {
     errorMsg.value = e?.data?.detail?.message || e?.message || "Apply text failed";
@@ -181,7 +251,7 @@ async function applySignature() {
     form.append("tool", "draw_signature");
     form.append("options", JSON.stringify(options));
 
-    await $fetch(`${config.public.apiBase}/pdf/apply/${jobId.value}`, { method: "POST", body: form });
+    await $fetch(`${config.public.apiBase}/pdf/apply/${jobId.value}`, {method: "POST", body: form});
     await refreshInfo();
     signature.strokes = [];
   } catch (e: any) {
@@ -196,7 +266,7 @@ async function undo() {
   isBusy.value = true;
   errorMsg.value = null;
   try {
-    await $fetch(`${config.public.apiBase}/pdf/undo/${jobId.value}`, { method: "POST" });
+    await $fetch(`${config.public.apiBase}/pdf/undo/${jobId.value}`, {method: "POST"});
     await refreshInfo();
   } catch (e: any) {
     errorMsg.value = e?.data?.detail?.message || e?.message || "Undo failed";
@@ -210,7 +280,7 @@ async function redo() {
   isBusy.value = true;
   errorMsg.value = null;
   try {
-    await $fetch(`${config.public.apiBase}/pdf/redo/${jobId.value}`, { method: "POST" });
+    await $fetch(`${config.public.apiBase}/pdf/redo/${jobId.value}`, {method: "POST"});
     await refreshInfo();
   } catch (e: any) {
     errorMsg.value = e?.data?.detail?.message || e?.message || "Redo failed";
@@ -274,16 +344,18 @@ watch([page, jobId], async () => {
 });
 
 onMounted(() => {
-  nextTick(() => {});
+  nextTick(() => {
+  });
 });
 
-onBeforeUnmount(() => {});
+onBeforeUnmount(() => {
+});
 </script>
 
 <template>
   <u-container class="pdf">
     <div class="pdf__header text-center space-y-3">
-      <page-header title="services.pdfEditor.title" headline="services.pdfEditor.headline" class="mb-6" />
+      <page-header title="services.pdfEditor.title" headline="services.pdfEditor.headline" class="mb-6"/>
       <p class="pdf__subtitle text-muted mx-auto">{{ t("services.pdfEditor.subtitle") }}</p>
     </div>
 
@@ -292,18 +364,18 @@ onBeforeUnmount(() => {});
         <div class="ui-anim-border__inner pdf__panel-inner">
           <div class="pdf__panel-head">
             <div class="pdf__panel-title">
-              <u-icon name="i-lucide-upload" />
+              <u-icon name="i-lucide-upload"/>
               <span>{{ t("services.pdfEditor.upload.title") }}</span>
             </div>
 
             <button type="button" class="ui-pill-btn ui-pill-btn_animated" @click="openPicker">
               <span class="ui-pill-btn__inner">
-                <u-icon name="i-lucide-plus" />
+                <u-icon name="i-lucide-plus"/>
                 {{ t("services.pdfEditor.upload.add") }}
               </span>
             </button>
 
-            <input ref="fileInput" type="file" accept="application/pdf,.pdf" multiple class="hidden" @change="onPick" />
+            <input ref="fileInput" type="file" accept="application/pdf,.pdf" multiple class="hidden" @change="onPick"/>
           </div>
 
           <div v-if="selectedFiles.length" class="pdf__files">
@@ -311,7 +383,7 @@ onBeforeUnmount(() => {});
               <li v-for="(f, i) in selectedFiles" :key="f.name + i" class="pdf__file">
                 <div class="pdf__file-left">
                   <div class="pdf__file-ico">
-                    <u-icon name="i-lucide-file-text" />
+                    <u-icon name="i-lucide-file-text"/>
                   </div>
                   <div class="pdf__file-meta">
                     <div class="pdf__file-name">{{ f.name }}</div>
@@ -322,19 +394,20 @@ onBeforeUnmount(() => {});
                 </div>
 
                 <button type="button" class="pdf__icon-btn pdf__icon-btn_danger" @click="removeFile(i)">
-                  <u-icon name="i-lucide-x" />
+                  <u-icon name="i-lucide-x"/>
                 </button>
               </li>
             </ul>
 
             <div class="pdf__upload-actions">
-              <custom-button variant="full" class="pdf__run-btn" :class="{ 'opacity-60 pointer-events-none': isBusy }" @click="createJob">
+              <custom-button variant="full" class="pdf__run-btn" :class="{ 'opacity-60 pointer-events-none': isBusy }"
+                             @click="createJob">
                 {{ jobId ? t("services.pdfEditor.upload.replace") : t("services.pdfEditor.upload.start") }}
               </custom-button>
 
               <button type="button" class="ui-pill-btn" @click="clearAll">
                 <span class="ui-pill-btn__inner">
-                  <u-icon name="i-lucide-trash-2" />
+                  <u-icon name="i-lucide-trash-2"/>
                   {{ t("services.pdfEditor.upload.clear") }}
                 </span>
               </button>
@@ -355,13 +428,13 @@ onBeforeUnmount(() => {});
 
             <div class="pdf__pages-nav">
               <button type="button" class="pdf__icon-btn" :disabled="page <= 1" @click="page--">
-                <u-icon name="i-lucide-chevron-left" />
+                <u-icon name="i-lucide-chevron-left"/>
               </button>
 
               <div class="pdf__page-chip">{{ t("services.pdfEditor.page") }} {{ page }} / {{ pages }}</div>
 
               <button type="button" class="pdf__icon-btn" :disabled="page >= pages" @click="page++">
-                <u-icon name="i-lucide-chevron-right" />
+                <u-icon name="i-lucide-chevron-right"/>
               </button>
             </div>
           </div>
@@ -374,30 +447,29 @@ onBeforeUnmount(() => {});
         <div class="ui-anim-border__inner pdf__panel-inner">
           <div class="pdf__panel-head">
             <div class="pdf__panel-title">
-              <u-icon name="i-lucide-file-image" />
+              <u-icon name="i-lucide-file-image"/>
               <span>{{ t("services.pdfEditor.preview") }}</span>
             </div>
 
             <div v-if="jobId" class="pdf__top-actions">
-              <div class="pdf__top-actions-row flex gap-2">
-                <button title="Белый цвет фона" type="button" class="pdf__icon-btn" @click="bgColor = 'white'" :disabled="isBusy">
-                  <u-icon name="i-lucide-color" /> Белый
-                </button>
-                <button title="Чёрный цвет фона" type="button" class="pdf__icon-btn" @click="bgColor = 'black'" :disabled="isBusy">
-                  <u-icon name="i-lucide-color" /> Чёрный
-                </button>
-                <button title="Прозрачный цвет фона" type="button" class="pdf__icon-btn" @click="bgColor = null" :disabled="isBusy">
-                  <u-icon name="i-lucide-color" /> Прозрачный
-                </button>
-              </div>
+              <USelect
+                  title="Заливка фона"
+                  v-model="bgColor"
+                  :disabled="isBusy"
+                  :options="[
+                    { label: 'Белый', value: 'white' },
+                    { label: 'Чёрный', value: 'black' },
+                    { label: 'Прозрачный', value: null }
+                  ]"
+              />
               <button type="button" class="pdf__icon-btn" @click="undo" :disabled="isBusy">
-                <u-icon name="i-lucide-undo-2" />
+                <u-icon name="i-lucide-undo-2"/>
               </button>
               <button type="button" class="pdf__icon-btn" @click="redo" :disabled="isBusy">
-                <u-icon name="i-lucide-redo-2" />
+                <u-icon name="i-lucide-redo-2"/>
               </button>
               <button type="button" class="pdf__icon-btn" @click="download" :disabled="isBusy">
-                <u-icon name="i-lucide-download" />
+                <u-icon name="i-lucide-download"/>
               </button>
             </div>
           </div>
@@ -407,8 +479,9 @@ onBeforeUnmount(() => {});
           </div>
 
           <div v-else class="pdf__canvas-wrap">
-            <div ref="stageRef" class="pdf__stage" :class="{'pdf__stage_white': bgColor === 'white', 'pdf__stage_black': bgColor === 'black',}">
-              <img :src="previewUrl" class="pdf__preview" alt="" />
+            <div ref="stageRef" class="pdf__stage"
+                 :class="{'pdf__stage_white': bgColor === 'white', 'pdf__stage_black': bgColor === 'black',}">
+              <img :src="previewUrl" class="pdf__preview" alt=""/>
 
               <div
                   v-if="textBox.enabled"
@@ -430,24 +503,28 @@ onBeforeUnmount(() => {});
                   :hRel="signature.hRel"
                   :strokes="signature.strokes"
                   :strokeWidth="signature.strokeWidth"
-                  @update:xRel="(v: number) => (signature.xRel = v)"
-                  @update:yRel="(v: number) => (signature.yRel = v)"
-                  @update:wRel="(v: number) => (signature.wRel = v)"
-                  @update:hRel="(v: number) => (signature.hRel = v)"
-                  @update:strokes="(v: Array<Array<[number, number]>>) => (signature.strokes = v)"
+                  :opacity="signature.opacity"
+                  :disabled="isBusy"
+                  @update:xRel="(v) => (signature.xRel = v)"
+                  @update:yRel="(v) => (signature.yRel = v)"
+                  @update:wRel="(v) => (signature.wRel = v)"
+                  @update:hRel="(v) => (signature.hRel = v)"
+                  @update:strokes="(v) => (signature.strokes = v)"
               />
             </div>
           </div>
 
           <div v-if="jobId" class="pdf__toolbar">
             <div class="pdf__toolbar-left">
-              <button type="button" class="services__pill" :class="{ services__pill_active: textBox.enabled }" @click="textBox.enabled = !textBox.enabled">
-                <u-icon name="i-lucide-type" />
+              <button type="button" class="services__pill" :class="{ services__pill_active: textBox.enabled }"
+                      @click="textBox.enabled = !textBox.enabled">
+                <u-icon name="i-lucide-type"/>
                 {{ t("services.pdfEditor.tools.text") }}
               </button>
 
-              <button type="button" class="services__pill" :class="{ services__pill_active: signature.enabled }" @click="signature.enabled = !signature.enabled">
-                <u-icon name="i-lucide-pen-tool" />
+              <button type="button" class="services__pill" :class="{ services__pill_active: signature.enabled }"
+                      @click="signature.enabled = !signature.enabled">
+                <u-icon name="i-lucide-pen-tool"/>
                 {{ t("services.pdfEditor.tools.signature") }}
               </button>
 
@@ -455,7 +532,7 @@ onBeforeUnmount(() => {});
 
               <div class="pdf__toolbar-mini">
                 <span class="text-muted">DPI</span>
-                <u-input v-model.number="dpi" type="number" min="72" max="300" class="pdf__dpi" />
+                <u-input v-model.number="dpi" type="number" min="72" max="300" class="pdf__dpi"/>
               </div>
             </div>
 
@@ -463,12 +540,36 @@ onBeforeUnmount(() => {});
               <div class="pdf__tool-title">{{ t("services.pdfEditor.text.title") }}</div>
 
               <div class="pdf__tool-grid">
-                <u-input v-model="textBox.value" />
-                <u-input v-model.number="textBox.fontSize" type="number" min="8" max="72" />
-                <u-input v-model.number="textBox.opacity" type="number" min="5" max="60" />
+                <div class="pdf__field">
+                  <div class="pdf__label">{{ t("services.pdfEditor.text.valueLabel") }}</div>
+                  <u-input v-model="textBox.value" :placeholder="t('services.pdfEditor.text.valuePlaceholder')"/>
+                </div>
+
+                <div class="pdf__field">
+                  <div class="pdf__label">{{ t("services.pdfEditor.text.fontSizeLabel") }}</div>
+                  <u-input v-model.number="textBox.fontSize" type="number" min="8" max="72"
+                           :placeholder="t('services.pdfEditor.text.fontSizePlaceholder')"/>
+                  <div class="pdf__help text-muted">{{ t("services.pdfEditor.text.fontSizeHelp") }}</div>
+                </div>
+
+                <div class="pdf__field">
+                  <div class="pdf__label">{{ t("services.pdfEditor.text.opacityLabel") }}</div>
+                  <u-input v-model.number="textBox.opacity" type="number" min="5" max="60"
+                           :placeholder="t('services.pdfEditor.text.opacityPlaceholder')"/>
+                  <div class="pdf__help text-muted">{{ t("services.pdfEditor.text.opacityHelp") }}</div>
+                </div>
               </div>
 
-              <custom-button variant="full" class="pdf__run-btn" :class="{ 'opacity-60 pointer-events-none': isBusy }" @click="applyText">
+              <div class="pdf__tool-hint text-muted">
+                {{ t("services.pdfEditor.text.hintDrag") }}
+              </div>
+
+              <custom-button
+                  variant="full"
+                  class="pdf__run-btn"
+                  :class="{ 'opacity-60 pointer-events-none': isBusy || !textBox.value.trim() }"
+                  @click="applyText"
+              >
                 {{ t("services.pdfEditor.applyText") }}
               </custom-button>
             </div>
@@ -477,15 +578,39 @@ onBeforeUnmount(() => {});
               <div class="pdf__tool-title">{{ t("services.pdfEditor.signature.title") }}</div>
 
               <div class="pdf__tool-grid">
-                <u-input v-model.number="signature.strokeWidth" type="number" min="0.5" max="8" />
-                <u-input v-model.number="signature.opacity" type="number" min="10" max="100" />
-                <button type="button" class="services__pill" @click="signature.strokes = []">
-                  <u-icon name="i-lucide-eraser" />
-                  {{ t("services.pdfEditor.signature.clear") }}
-                </button>
+                <div class="pdf__field">
+                  <div class="pdf__label">{{ t("services.pdfEditor.signature.strokeWidthLabel") }}</div>
+                  <u-input v-model.number="signature.strokeWidth" type="number" min="0.5" max="8"
+                           :placeholder="t('services.pdfEditor.signature.strokeWidthPlaceholder')"/>
+                  <div class="pdf__help text-muted">{{ t("services.pdfEditor.signature.strokeWidthHelp") }}</div>
+                </div>
+
+                <div class="pdf__field">
+                  <div class="pdf__label">{{ t("services.pdfEditor.signature.opacityLabel") }}</div>
+                  <u-input v-model.number="signature.opacity" type="number" min="10" max="100"
+                           :placeholder="t('services.pdfEditor.signature.opacityPlaceholder')"/>
+                  <div class="pdf__help text-muted">{{ t("services.pdfEditor.signature.opacityHelp") }}</div>
+                </div>
+
+                <div class="pdf__field">
+                  <div class="pdf__label">{{ t("services.pdfEditor.signature.actionsLabel") }}</div>
+                  <button type="button" class="services__pill" :disabled="isBusy" @click="signature.strokes = []">
+                    <u-icon name="i-lucide-eraser"/>
+                    {{ t("services.pdfEditor.signature.clear") }}
+                  </button>
+                </div>
               </div>
 
-              <custom-button variant="full" class="pdf__run-btn" :class="{ 'opacity-60 pointer-events-none': isBusy }" @click="applySignature">
+              <div class="pdf__tool-hint text-muted">
+                {{ t("services.pdfEditor.signature.hintDrawMove") }}
+              </div>
+
+              <custom-button
+                  variant="full"
+                  class="pdf__run-btn"
+                  :class="{ 'opacity-60 pointer-events-none': isBusy || !signature.strokes.length }"
+                  @click="applySignature"
+              >
                 {{ t("services.pdfEditor.applySignature") }}
               </custom-button>
             </div>
@@ -496,7 +621,7 @@ onBeforeUnmount(() => {});
   </u-container>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .pdf {
   padding-top: 24px;
   padding-bottom: 96px;
@@ -702,11 +827,11 @@ onBeforeUnmount(() => {});
   background: rgba(255, 255, 255, 0.02);
 
   &_white {
-    background-color: white;
+    background-color: white !important;
   }
 
   &_black {
-    background-color: black;
+    background-color: black !important;
   }
 }
 
