@@ -10,13 +10,10 @@ const route = useRoute();
 const router = useRouter();
 
 onMounted(async () => {
-  const qJob = route.query.job;
-
-  if (typeof qJob === "string" && qJob.length > 10) {
-    jobId.value = qJob;
-    await refreshInfo();
-  }
+  if (!jobId.value) return;
+  await refreshInfo();
 });
+
 type TextAlign = "left" | "center" | "right" | "justify";
 
 const textBox = reactive({
@@ -76,15 +73,6 @@ const errorMsg = ref<string | null>(null);
 const stageRef = ref<HTMLDivElement | null>(null);
 
 const bgColor = ref<string | null>(null);
-
-const textBox = reactive({
-  enabled: false,
-  value: "Hello!",
-  opacity: 30,
-  fontSize: 28,
-  xRel: 0.15,
-  yRel: 0.15,
-});
 
 const signature = reactive({
   enabled: false,
@@ -167,12 +155,7 @@ async function createJob() {
 
     jobId.value = res.jobId;
 
-    await router.replace({
-      query: {
-        ...route.query,
-        job: res.jobId,
-      },
-    });
+    await router.push(`/services/pdf-editor/${res.jobId}`);
 
     page.value = 1;
     await refreshInfo();
@@ -214,6 +197,12 @@ async function applyText() {
       x: relToPdfX(textBox.xRel),
       y: relToPdfY(textBox.yRel),
       fontSize: textBox.fontSize,
+      color: textBox.color,
+      font: textBox.font,
+      bold: textBox.bold,
+      italic: textBox.italic,
+      underline: textBox.underline,
+      align: textBox.align,
     };
 
     const form = new FormData();
@@ -301,6 +290,51 @@ const dragText = reactive({
   dy: 0,
 });
 
+const dragIcon = reactive({
+  active: false,
+  pointerId: -1,
+  dx: 0,
+  dy: 0,
+});
+
+function onIconDown(e: PointerEvent) {
+  if (!stageRef.value) return;
+  const target = e.currentTarget as HTMLElement;
+  target.setPointerCapture(e.pointerId);
+
+  dragIcon.active = true;
+  dragIcon.pointerId = e.pointerId;
+
+  const r = stageRef.value.getBoundingClientRect();
+  const xPx = iconBox.xRel * r.width;
+  const yPx = iconBox.yRel * r.height;
+
+  dragIcon.dx = e.clientX - (r.left + xPx);
+  dragIcon.dy = e.clientY - (r.top + yPx);
+}
+
+function onIconMove(e: PointerEvent) {
+  if (!dragIcon.active) return;
+  if (dragIcon.pointerId !== e.pointerId) return;
+  if (!stageRef.value) return;
+
+  const r = stageRef.value.getBoundingClientRect();
+  const x = e.clientX - r.left - dragIcon.dx;
+  const y = e.clientY - r.top - dragIcon.dy;
+
+  iconBox.xRel = clamp01(x / r.width);
+  iconBox.yRel = clamp01(y / r.height);
+}
+
+function onIconUp(e: PointerEvent) {
+  if (dragIcon.pointerId !== e.pointerId) return;
+  dragIcon.active = false;
+  dragIcon.pointerId = -1;
+
+  const target = e.currentTarget as HTMLElement;
+  if (target?.hasPointerCapture?.(e.pointerId)) target.releasePointerCapture(e.pointerId);
+}
+
 function onTextDown(e: PointerEvent) {
   if (!stageRef.value) return;
   const target = e.currentTarget as HTMLElement;
@@ -339,8 +373,10 @@ function onTextUp(e: PointerEvent) {
   if (target?.hasPointerCapture?.(e.pointerId)) target.releasePointerCapture(e.pointerId);
 }
 
-watch([page, jobId], async () => {
-  await nextTick();
+watch(jobId, async () => {
+  if (!jobId.value) return;
+  page.value = 1;
+  await refreshInfo();
 });
 
 onMounted(() => {
@@ -360,7 +396,7 @@ onBeforeUnmount(() => {
     </div>
 
     <div class="pdf__grid">
-      <section class="ui-anim-border pdf__panel">
+      <section v-if="!jobId" class="ui-anim-border pdf__panel">
         <div class="ui-anim-border__inner pdf__panel-inner">
           <div class="pdf__panel-head">
             <div class="pdf__panel-title">
@@ -369,10 +405,10 @@ onBeforeUnmount(() => {
             </div>
 
             <button type="button" class="ui-pill-btn ui-pill-btn_animated" @click="openPicker">
-              <span class="ui-pill-btn__inner">
-                <u-icon name="i-lucide-plus"/>
-                {{ t("services.pdfEditor.upload.add") }}
-              </span>
+          <span class="ui-pill-btn__inner">
+            <u-icon name="i-lucide-plus"/>
+            {{ t("services.pdfEditor.upload.add") }}
+          </span>
             </button>
 
             <input ref="fileInput" type="file" accept="application/pdf,.pdf" multiple class="hidden" @change="onPick"/>
@@ -387,8 +423,9 @@ onBeforeUnmount(() => {
                   </div>
                   <div class="pdf__file-meta">
                     <div class="pdf__file-name">{{ f.name }}</div>
-                    <div class="pdf__file-size text-muted">
-                      {{ Math.max(1, Math.round((f.size / 1024 / 1024) * 10) / 10) }} MB
+                    <div class="pdf__file-size text-muted">{{
+                        Math.max(1, Math.round((f.size / 1024 / 1024) * 10) / 10)
+                      }} MB
                     </div>
                   </div>
                 </div>
@@ -402,14 +439,14 @@ onBeforeUnmount(() => {
             <div class="pdf__upload-actions">
               <custom-button variant="full" class="pdf__run-btn" :class="{ 'opacity-60 pointer-events-none': isBusy }"
                              @click="createJob">
-                {{ jobId ? t("services.pdfEditor.upload.replace") : t("services.pdfEditor.upload.start") }}
+                {{ t("services.pdfEditor.upload.start") }}
               </custom-button>
 
               <button type="button" class="ui-pill-btn" @click="clearAll">
-                <span class="ui-pill-btn__inner">
-                  <u-icon name="i-lucide-trash-2"/>
-                  {{ t("services.pdfEditor.upload.clear") }}
-                </span>
+            <span class="ui-pill-btn__inner">
+              <u-icon name="i-lucide-trash-2"/>
+              {{ t("services.pdfEditor.upload.clear") }}
+            </span>
               </button>
             </div>
           </div>
@@ -418,32 +455,11 @@ onBeforeUnmount(() => {
             {{ t("services.pdfEditor.upload.hint") }}
           </div>
 
-          <div v-if="jobId" class="pdf__pages">
-            <div class="pdf__pages-head">
-              <div class="pdf__pages-title">
-                {{ t("services.pdfEditor.pages") }}: <b>{{ pages }}</b>
-              </div>
-              <div class="text-muted">v<b>{{ activeVersion }}</b></div>
-            </div>
-
-            <div class="pdf__pages-nav">
-              <button type="button" class="pdf__icon-btn" :disabled="page <= 1" @click="page--">
-                <u-icon name="i-lucide-chevron-left"/>
-              </button>
-
-              <div class="pdf__page-chip">{{ t("services.pdfEditor.page") }} {{ page }} / {{ pages }}</div>
-
-              <button type="button" class="pdf__icon-btn" :disabled="page >= pages" @click="page++">
-                <u-icon name="i-lucide-chevron-right"/>
-              </button>
-            </div>
-          </div>
-
           <div v-if="errorMsg" class="pdf__error">{{ errorMsg }}</div>
         </div>
       </section>
 
-      <section class="ui-anim-border pdf__panel">
+      <section class="ui-anim-border pdf__panel pdf__panel_preview">
         <div class="ui-anim-border__inner pdf__panel-inner">
           <div class="pdf__panel-head">
             <div class="pdf__panel-title">
@@ -452,16 +468,25 @@ onBeforeUnmount(() => {
             </div>
 
             <div v-if="jobId" class="pdf__top-actions">
-              <USelect
-                  title="Заливка фона"
-                  v-model="bgColor"
-                  :disabled="isBusy"
-                  :options="[
-                    { label: 'Белый', value: 'white' },
-                    { label: 'Чёрный', value: 'black' },
-                    { label: 'Прозрачный', value: null }
-                  ]"
-              />
+              <button type="button" class="pdf__icon-btn" :disabled="isBusy || page <= 1" @click="page--">
+                <u-icon name="i-lucide-chevron-left"/>
+              </button>
+
+              <div class="pdf__page-chip">{{ t("services.pdfEditor.page") }} {{ page }} / {{ pages }}</div>
+
+              <button type="button" class="pdf__icon-btn" :disabled="isBusy || page >= pages" @click="page++">
+                <u-icon name="i-lucide-chevron-right"/>
+              </button>
+
+              <div class="pdf__sep"/>
+
+              <div class="pdf__toolbar-mini">
+                <span class="text-muted">DPI</span>
+                <u-input v-model.number="dpi" type="number" min="72" max="300" class="pdf__dpi"/>
+              </div>
+
+              <div class="pdf__sep"/>
+
               <button type="button" class="pdf__icon-btn" @click="undo" :disabled="isBusy">
                 <u-icon name="i-lucide-undo-2"/>
               </button>
@@ -478,21 +503,201 @@ onBeforeUnmount(() => {
             {{ t("services.pdfEditor.previewHint") }}
           </div>
 
-          <div v-else class="pdf__canvas-wrap">
+          <div v-else class="pdf__toolstrip">
+            <button type="button" class="services__pill" :class="{ services__pill_active: textBox.enabled }"
+                    @click="textBox.enabled = !textBox.enabled">
+              <u-icon name="i-lucide-type"/>
+              {{ t("services.pdfEditor.tools.text") }}
+            </button>
+
+            <button type="button" class="services__pill" :class="{ services__pill_active: signature.enabled }"
+                    @click="signature.enabled = !signature.enabled">
+              <u-icon name="i-lucide-pen-tool"/>
+              {{ t("services.pdfEditor.tools.signature") }}
+            </button>
+
+            <button type="button" class="services__pill" :class="{ services__pill_active: iconBox.enabled }"
+                    @click="iconBox.enabled = !iconBox.enabled">
+              <u-icon name="i-lucide-smile"/>
+              {{ t("services.pdfEditor.tools.icon") }}
+            </button>
+          </div>
+
+          <div v-if="jobId && textBox.enabled" class="pdf__tool-section">
+            <div class="pdf__tool-title">{{ t("services.pdfEditor.text.title") }}</div>
+
+            <div class="pdf__tool-grid4">
+              <div class="pdf__field">
+                <div class="pdf__label">{{ t("services.pdfEditor.text.valueLabel") }}</div>
+                <u-input v-model="textBox.value" :placeholder="t('services.pdfEditor.text.valuePlaceholder')"/>
+              </div>
+
+              <div class="pdf__field">
+                <div class="pdf__label">{{ t("services.pdfEditor.text.fontLabel") }}</div>
+                <u-select v-model="textBox.font" :options="availableFonts"/>
+              </div>
+
+              <div class="pdf__field">
+                <div class="pdf__label">{{ t("services.pdfEditor.text.fontSizeLabel") }}</div>
+                <u-input v-model.number="textBox.fontSize" type="number" min="8" max="120"/>
+              </div>
+
+              <div class="pdf__field">
+                <div class="pdf__label">{{ t("services.pdfEditor.text.colorLabel") }}</div>
+                <u-input v-model="textBox.color" type="color"/>
+              </div>
+
+              <div class="pdf__field">
+                <div class="pdf__label">{{ t("services.pdfEditor.text.opacityLabel") }}</div>
+                <u-input v-model.number="textBox.opacity" type="number" min="5" max="100"/>
+              </div>
+
+              <div class="pdf__field">
+                <div class="pdf__label">{{ t("services.pdfEditor.text.alignLabel") }}</div>
+                <u-select v-model="textBox.align" :options="alignOptions"/>
+              </div>
+
+              <div class="pdf__field pdf__field_row">
+                <div class="pdf__label">{{ t("services.pdfEditor.text.styleLabel") }}</div>
+                <div class="pdf__style-row">
+                  <button type="button" class="pdf__chip" :class="{ pdf__chip_active: textBox.bold }"
+                          @click="textBox.bold = !textBox.bold">B
+                  </button>
+                  <button type="button" class="pdf__chip" :class="{ pdf__chip_active: textBox.italic }"
+                          @click="textBox.italic = !textBox.italic">I
+                  </button>
+                  <button type="button" class="pdf__chip" :class="{ pdf__chip_active: textBox.underline }"
+                          @click="textBox.underline = !textBox.underline">U
+                  </button>
+                </div>
+              </div>
+
+              <div class="pdf__field pdf__field_row">
+                <div class="pdf__label">{{ t("services.pdfEditor.text.applyLabel") }}</div>
+                <custom-button
+                    variant="full"
+                    class="pdf__run-btn"
+                    :class="{ 'opacity-60 pointer-events-none': isBusy || !textBox.value.trim() }"
+                    @click="applyText"
+                >
+                  {{ t("services.pdfEditor.applyText") }}
+                </custom-button>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="jobId && iconBox.enabled" class="pdf__tool-section">
+            <div class="pdf__tool-title">{{ t("services.pdfEditor.icon.title") }}</div>
+
+            <div class="pdf__tool-grid4">
+              <div class="pdf__field">
+                <div class="pdf__label">{{ t("services.pdfEditor.icon.nameLabel") }}</div>
+                <u-input v-model="iconBox.name" :placeholder="t('services.pdfEditor.icon.namePlaceholder')"/>
+                <div class="pdf__help text-muted">{{ t("services.pdfEditor.icon.nameHelp") }}</div>
+              </div>
+
+              <div class="pdf__field">
+                <div class="pdf__label">{{ t("services.pdfEditor.icon.sizeLabel") }}</div>
+                <u-input v-model.number="iconBox.size" type="number" min="12" max="240"/>
+              </div>
+
+              <div class="pdf__field">
+                <div class="pdf__label">{{ t("services.pdfEditor.icon.colorLabel") }}</div>
+                <u-input v-model="iconBox.color" type="color"/>
+              </div>
+
+              <div class="pdf__field">
+                <div class="pdf__label">{{ t("services.pdfEditor.icon.opacityLabel") }}</div>
+                <u-input v-model.number="iconBox.opacity" type="number" min="5" max="100"/>
+              </div>
+            </div>
+
+            <div class="pdf__icon-preview">
+              <u-icon :name="`i-lucide-${iconBox.name}`"/>
+              <span class="text-muted">{{ `i-lucide-${iconBox.name}` }}</span>
+            </div>
+          </div>
+
+          <div v-if="jobId && signature.enabled" class="pdf__tool-section">
+            <div class="pdf__tool-title">{{ t("services.pdfEditor.signature.title") }}</div>
+
+            <div class="pdf__tool-grid4">
+              <div class="pdf__field">
+                <div class="pdf__label">{{ t("services.pdfEditor.signature.strokeWidthLabel") }}</div>
+                <u-input v-model.number="signature.strokeWidth" type="number" min="0.5" max="8"/>
+              </div>
+
+              <div class="pdf__field">
+                <div class="pdf__label">{{ t("services.pdfEditor.signature.opacityLabel") }}</div>
+                <u-input v-model.number="signature.opacity" type="number" min="10" max="100"/>
+              </div>
+
+              <div class="pdf__field pdf__field_row">
+                <div class="pdf__label">{{ t("services.pdfEditor.signature.actionsLabel") }}</div>
+                <button type="button" class="services__pill" :disabled="isBusy" @click="signature.strokes = []">
+                  <u-icon name="i-lucide-eraser"/>
+                  {{ t("services.pdfEditor.signature.clear") }}
+                </button>
+              </div>
+
+              <div class="pdf__field pdf__field_row">
+                <div class="pdf__label">{{ t("services.pdfEditor.signature.applyLabel") }}</div>
+                <custom-button
+                    variant="full"
+                    class="pdf__run-btn"
+                    :class="{ 'opacity-60 pointer-events-none': isBusy || !signature.strokes.length }"
+                    @click="applySignature"
+                >
+                  {{ t("services.pdfEditor.applySignature") }}
+                </custom-button>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="jobId" class="pdf__canvas-wrap">
             <div ref="stageRef" class="pdf__stage"
-                 :class="{'pdf__stage_white': bgColor === 'white', 'pdf__stage_black': bgColor === 'black',}">
+                 :class="{'pdf__stage_white': bgColor === 'white', 'pdf__stage_black': bgColor === 'black'}">
               <img :src="previewUrl" class="pdf__preview" alt=""/>
 
               <div
                   v-if="textBox.enabled"
-                  class="pdf__overlay-box"
-                  :style="{ left: `${textBox.xRel * 100}%`, top: `${textBox.yRel * 100}%` }"
+                  class="pdf__overlay-textbox"
+                  :style="{
+              left: `${textBox.xRel * 100}%`,
+              top: `${textBox.yRel * 100}%`,
+              opacity: textBox.opacity / 100,
+              color: textBox.color,
+              fontSize: `${textBox.fontSize}px`,
+              fontFamily: textBox.font,
+              fontWeight: textBox.bold ? '900' : '700',
+              fontStyle: textBox.italic ? 'italic' : 'normal',
+              textDecoration: textBox.underline ? 'underline' : 'none',
+              textAlign: textBox.align
+            }"
                   @pointerdown="onTextDown"
                   @pointermove="onTextMove"
                   @pointerup="onTextUp"
                   @pointercancel="onTextUp"
               >
-                <div class="pdf__overlay-text">{{ textBox.value }}</div>
+                {{ textBox.value }}
+              </div>
+
+              <div
+                  v-if="iconBox.enabled"
+                  class="pdf__overlay-icon"
+                  :style="{
+              left: `${iconBox.xRel * 100}%`,
+              top: `${iconBox.yRel * 100}%`,
+              opacity: iconBox.opacity / 100,
+              color: iconBox.color,
+              fontSize: `${iconBox.size}px`
+            }"
+                  @pointerdown="onIconDown"
+                  @pointermove="onIconMove"
+                  @pointerup="onIconUp"
+                  @pointercancel="onIconUp"
+              >
+                <u-icon :name="`i-lucide-${iconBox.name}`"/>
               </div>
 
               <SignatureOverlay
@@ -503,116 +708,12 @@ onBeforeUnmount(() => {
                   :hRel="signature.hRel"
                   :strokes="signature.strokes"
                   :strokeWidth="signature.strokeWidth"
-                  :opacity="signature.opacity"
-                  :disabled="isBusy"
-                  @update:xRel="(v) => (signature.xRel = v)"
-                  @update:yRel="(v) => (signature.yRel = v)"
-                  @update:wRel="(v) => (signature.wRel = v)"
-                  @update:hRel="(v) => (signature.hRel = v)"
-                  @update:strokes="(v) => (signature.strokes = v)"
+                  @update:xRel="(v: number) => (signature.xRel = v)"
+                  @update:yRel="(v: number) => (signature.yRel = v)"
+                  @update:wRel="(v: number) => (signature.wRel = v)"
+                  @update:hRel="(v: number) => (signature.hRel = v)"
+                  @update:strokes="(v: Array<Array<[number, number]>>) => (signature.strokes = v)"
               />
-            </div>
-          </div>
-
-          <div v-if="jobId" class="pdf__toolbar">
-            <div class="pdf__toolbar-left">
-              <button type="button" class="services__pill" :class="{ services__pill_active: textBox.enabled }"
-                      @click="textBox.enabled = !textBox.enabled">
-                <u-icon name="i-lucide-type"/>
-                {{ t("services.pdfEditor.tools.text") }}
-              </button>
-
-              <button type="button" class="services__pill" :class="{ services__pill_active: signature.enabled }"
-                      @click="signature.enabled = !signature.enabled">
-                <u-icon name="i-lucide-pen-tool"/>
-                {{ t("services.pdfEditor.tools.signature") }}
-              </button>
-
-              <div class="pdf__toolbar-spacer"></div>
-
-              <div class="pdf__toolbar-mini">
-                <span class="text-muted">DPI</span>
-                <u-input v-model.number="dpi" type="number" min="72" max="300" class="pdf__dpi"/>
-              </div>
-            </div>
-
-            <div v-if="textBox.enabled" class="pdf__tool-section">
-              <div class="pdf__tool-title">{{ t("services.pdfEditor.text.title") }}</div>
-
-              <div class="pdf__tool-grid">
-                <div class="pdf__field">
-                  <div class="pdf__label">{{ t("services.pdfEditor.text.valueLabel") }}</div>
-                  <u-input v-model="textBox.value" :placeholder="t('services.pdfEditor.text.valuePlaceholder')"/>
-                </div>
-
-                <div class="pdf__field">
-                  <div class="pdf__label">{{ t("services.pdfEditor.text.fontSizeLabel") }}</div>
-                  <u-input v-model.number="textBox.fontSize" type="number" min="8" max="72"
-                           :placeholder="t('services.pdfEditor.text.fontSizePlaceholder')"/>
-                  <div class="pdf__help text-muted">{{ t("services.pdfEditor.text.fontSizeHelp") }}</div>
-                </div>
-
-                <div class="pdf__field">
-                  <div class="pdf__label">{{ t("services.pdfEditor.text.opacityLabel") }}</div>
-                  <u-input v-model.number="textBox.opacity" type="number" min="5" max="60"
-                           :placeholder="t('services.pdfEditor.text.opacityPlaceholder')"/>
-                  <div class="pdf__help text-muted">{{ t("services.pdfEditor.text.opacityHelp") }}</div>
-                </div>
-              </div>
-
-              <div class="pdf__tool-hint text-muted">
-                {{ t("services.pdfEditor.text.hintDrag") }}
-              </div>
-
-              <custom-button
-                  variant="full"
-                  class="pdf__run-btn"
-                  :class="{ 'opacity-60 pointer-events-none': isBusy || !textBox.value.trim() }"
-                  @click="applyText"
-              >
-                {{ t("services.pdfEditor.applyText") }}
-              </custom-button>
-            </div>
-
-            <div v-if="signature.enabled" class="pdf__tool-section">
-              <div class="pdf__tool-title">{{ t("services.pdfEditor.signature.title") }}</div>
-
-              <div class="pdf__tool-grid">
-                <div class="pdf__field">
-                  <div class="pdf__label">{{ t("services.pdfEditor.signature.strokeWidthLabel") }}</div>
-                  <u-input v-model.number="signature.strokeWidth" type="number" min="0.5" max="8"
-                           :placeholder="t('services.pdfEditor.signature.strokeWidthPlaceholder')"/>
-                  <div class="pdf__help text-muted">{{ t("services.pdfEditor.signature.strokeWidthHelp") }}</div>
-                </div>
-
-                <div class="pdf__field">
-                  <div class="pdf__label">{{ t("services.pdfEditor.signature.opacityLabel") }}</div>
-                  <u-input v-model.number="signature.opacity" type="number" min="10" max="100"
-                           :placeholder="t('services.pdfEditor.signature.opacityPlaceholder')"/>
-                  <div class="pdf__help text-muted">{{ t("services.pdfEditor.signature.opacityHelp") }}</div>
-                </div>
-
-                <div class="pdf__field">
-                  <div class="pdf__label">{{ t("services.pdfEditor.signature.actionsLabel") }}</div>
-                  <button type="button" class="services__pill" :disabled="isBusy" @click="signature.strokes = []">
-                    <u-icon name="i-lucide-eraser"/>
-                    {{ t("services.pdfEditor.signature.clear") }}
-                  </button>
-                </div>
-              </div>
-
-              <div class="pdf__tool-hint text-muted">
-                {{ t("services.pdfEditor.signature.hintDrawMove") }}
-              </div>
-
-              <custom-button
-                  variant="full"
-                  class="pdf__run-btn"
-                  :class="{ 'opacity-60 pointer-events-none': isBusy || !signature.strokes.length }"
-                  @click="applySignature"
-              >
-                {{ t("services.pdfEditor.applySignature") }}
-              </custom-button>
             </div>
           </div>
         </div>
@@ -981,4 +1082,122 @@ onBeforeUnmount(() => {
 .pdf__sig-canvas_move {
   cursor: grab;
 }
+
+.pdf__panel_preview {
+  grid-column: 1 / -1;
+}
+
+.pdf__toolstrip {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.pdf__sep {
+  width: 1px;
+  height: 30px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 0 6px;
+}
+
+.pdf__tool-grid4 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
+
+  @media (min-width: 860px) {
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+  }
+}
+
+.pdf__field {
+  display: grid;
+  gap: 6px;
+}
+
+.pdf__field_row {
+  grid-column: 1 / -1;
+}
+
+.pdf__label {
+  font-weight: 900;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.light .pdf__label {
+  color: rgba(21, 22, 42, 0.86);
+}
+
+.pdf__help {
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.pdf__style-row {
+  display: inline-flex;
+  gap: 8px;
+}
+
+.pdf__chip {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 900;
+}
+
+.pdf__chip_active {
+  border-color: rgba(128, 90, 245, 0.35);
+  background: rgba(128, 90, 245, 0.18);
+}
+
+.pdf__overlay-textbox {
+  position: absolute;
+  padding: 8px 10px;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+  user-select: none;
+  max-width: 70%;
+  cursor: grab;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.pdf__overlay-textbox:active {
+  cursor: grabbing;
+}
+
+.pdf__overlay-icon {
+  position: absolute;
+  padding: 10px;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+  user-select: none;
+  cursor: grab;
+}
+
+.pdf__overlay-icon:active {
+  cursor: grabbing;
+}
+
+.pdf__icon-preview {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
 </style>
