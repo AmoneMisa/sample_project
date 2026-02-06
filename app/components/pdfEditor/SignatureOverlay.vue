@@ -1,5 +1,155 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
+import {computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch} from "vue";
+
+type Strokes = Array<Array<[number, number]>>;
+const MIN_W = 0.08;
+const MIN_H = 0.06;
+const resizing = reactive({
+  active: false,
+  pointerId: -1,
+  corner: "" as "br" | "tr" | "bl" | "tl" | "",
+  startX: 0,
+  startY: 0,
+  startXRel: 0,
+  startYRel: 0,
+  startWRel: 0,
+  startHRel: 0,
+});
+
+function onHandleDown(e: PointerEvent, corner: "br" | "tr" | "bl" | "tl") {
+  if (props.disabled) return;
+  const stageRect = getStageRect();
+  if (!stageRect) return;
+
+  (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+
+  resizing.active = true;
+  resizing.pointerId = e.pointerId;
+  resizing.corner = corner;
+
+  resizing.startX = e.clientX;
+  resizing.startY = e.clientY;
+
+  resizing.startXRel = props.xRel;
+  resizing.startYRel = props.yRel;
+  resizing.startWRel = props.wRel;
+  resizing.startHRel = props.hRel;
+}
+
+function onHandleMove(e: PointerEvent) {
+  if (!resizing.active) return;
+  if (resizing.pointerId !== e.pointerId) return;
+
+  const stageRect = getStageRect();
+  if (!stageRect) return;
+
+  const dxRel = (e.clientX - resizing.startX) / stageRect.width;
+  const dyRel = (e.clientY - resizing.startY) / stageRect.height;
+
+  let xRel = resizing.startXRel;
+  let yRel = resizing.startYRel;
+  let wRel = resizing.startWRel;
+  let hRel = resizing.startHRel;
+
+  // corners:
+  if (resizing.corner.includes("r")) wRel = resizing.startWRel + dxRel;
+  if (resizing.corner.includes("l")) {
+    wRel = resizing.startWRel - dxRel;
+    xRel = resizing.startXRel + dxRel;
+  }
+  if (resizing.corner.includes("b")) hRel = resizing.startHRel + dyRel;
+  if (resizing.corner.includes("t")) {
+    hRel = resizing.startHRel - dyRel;
+    yRel = resizing.startYRel + dyRel;
+  }
+
+  wRel = Math.max(MIN_W, wRel);
+  hRel = Math.max(MIN_H, hRel);
+
+  // keep inside stage
+  const maxW = 1 - xRel;
+  const maxH = 1 - yRel;
+  wRel = Math.min(wRel, maxW);
+  hRel = Math.min(hRel, maxH);
+
+  const clampedPos = clampRelXY(xRel, yRel);
+
+  emit("update:xRel", clampedPos.xRel);
+  emit("update:yRel", clampedPos.yRel);
+  emit("update:wRel", wRel);
+  emit("update:hRel", hRel);
+
+  nextTick(() => resizeCanvas());
+}
+
+function onHandleUp(e: PointerEvent) {
+  if (resizing.pointerId !== e.pointerId) return;
+  resizing.active = false;
+  resizing.pointerId = -1;
+  resizing.corner = "";
+  const el = e.currentTarget as HTMLElement;
+  if (el?.hasPointerCapture?.(e.pointerId)) el.releasePointerCapture(e.pointerId);
+}
+
+const undoStack = ref<Strokes[]>([]);
+const redoStack = ref<Strokes[]>([]);
+const mode = ref<"move" | "draw" | "erase">("draw");
+const eraser = reactive({radius: 0.06}); // в долях (0..1) от меньшей стороны
+
+function cloneStrokes(s: Strokes): Strokes {
+  return s.map(st => st.map(p => [p[0], p[1]] as [number, number]));
+}
+
+function eraseAt(x: number, y: number) {
+  const rad = eraser.radius;
+  const rad2 = rad * rad;
+
+  const next: Strokes = [];
+  for (const stroke of props.strokes) {
+    const filtered = stroke.filter(([px, py]) => {
+      const dx = px - x;
+      const dy = py - y;
+      return (dx * dx + dy * dy) > rad2;
+    });
+    if (filtered.length >= 2) next.push(filtered);
+  }
+  emit("update:strokes", next);
+}
+
+function pushUndo() {
+  undoStack.value.push(cloneStrokes(props.strokes));
+  if (undoStack.value.length > 50) undoStack.value.shift(); // лимит истории
+  redoStack.value = [];
+}
+
+function doUndo() {
+  if (!undoStack.value.length) return;
+  redoStack.value.push(cloneStrokes(props.strokes));
+  const prev = undoStack.value.pop()!;
+  emit("update:strokes", prev);
+  nextTick(() => redraw());
+}
+
+function doRedo() {
+  if (!redoStack.value.length) return;
+  undoStack.value.push(cloneStrokes(props.strokes));
+  const next = redoStack.value.pop()!;
+  emit("update:strokes", next);
+  nextTick(() => redraw());
+}
+
+function clampRelXY(xRel: number, yRel: number) {
+  const x = clamp01(xRel);
+  const y = clamp01(yRel);
+
+  const maxX = Math.max(0, 1 - props.wRel);
+  const maxY = Math.max(0, 1 - props.hRel);
+
+  return {
+    xRel: Math.max(0, Math.min(maxX, x)),
+    yRel: Math.max(0, Math.min(maxY, y)),
+  };
+}
 
 const props = defineProps<{
   xRel: number;
@@ -23,10 +173,8 @@ const emit = defineEmits<{
 const boxRef = ref<HTMLDivElement | null>(null);
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 
-const mode = ref<"move" | "draw">("draw");
-
-const drag = reactive({ active: false, dx: 0, dy: 0 });
-const drawing = reactive({ active: false });
+const drag = reactive({active: false, dx: 0, dy: 0});
+const drawing = reactive({active: false});
 
 const style = computed(() => ({
   left: `${props.xRel * 100}%`,
@@ -118,8 +266,12 @@ function onBoxMove(e: PointerEvent) {
   const x = e.clientX - stageRect.left - drag.dx;
   const y = e.clientY - stageRect.top - drag.dy;
 
-  emit("update:xRel", clamp01(x / stageRect.width));
-  emit("update:yRel", clamp01(y / stageRect.height));
+  const nx = x / stageRect.width;
+  const ny = y / stageRect.height;
+
+  const clamped = clampRelXY(nx, ny);
+  emit("update:xRel", clamped.xRel);
+  emit("update:yRel", clamped.yRel);
 }
 
 function onBoxUp(e: PointerEvent) {
@@ -130,13 +282,13 @@ function onBoxUp(e: PointerEvent) {
 
 function relFromCanvas(e: PointerEvent) {
   const c = canvasRef.value;
-  if (!c) return { x: 0, y: 0 };
+  if (!c) return {x: 0, y: 0};
 
   const r = c.getBoundingClientRect();
   const x = (e.clientX - r.left) / Math.max(1, r.width);
   const y = (e.clientY - r.top) / Math.max(1, r.height);
 
-  return { x: clamp01(x), y: clamp01(y) };
+  return {x: clamp01(x), y: clamp01(y)};
 }
 
 function onCanvasDown(e: PointerEvent) {
@@ -145,7 +297,7 @@ function onCanvasDown(e: PointerEvent) {
 
   const c = canvasRef.value;
   if (!c) return;
-
+  pushUndo();
   c.setPointerCapture(e.pointerId);
   drawing.active = true;
 
@@ -159,6 +311,13 @@ function onCanvasMove(e: PointerEvent) {
   if (!drawing.active) return;
 
   const p = relFromCanvas(e);
+
+  if (mode.value === "erase") {
+    eraseAt(p.x, p.y);
+    nextTick(() => redraw());
+    return;
+  }
+
   const strokes = props.strokes.slice();
   const last = strokes[strokes.length - 1];
   if (!last) return;
@@ -194,7 +353,7 @@ onBeforeUnmount(() => {
 watch(
     () => props.strokes,
     () => nextTick(() => redraw()),
-    { deep: true },
+    {deep: true},
 );
 
 watch(
@@ -223,7 +382,7 @@ watch(
           aria-label="Рисовать"
           @click="mode = 'draw';"
       >
-        <u-icon name="i-lucide-signature" />
+        <u-icon name="i-lucide-signature"/>
       </button>
 
       <button
@@ -235,9 +394,16 @@ watch(
           aria-label="Перемещать"
           @click="mode = 'move';"
       >
-        <u-icon name="i-lucide-move-vertical" />
+        <u-icon name="i-lucide-move-vertical"/>
       </button>
     </div>
+    <div
+        class="pdf__sig-handle pdf__sig-handle_br"
+        @pointerdown.stop.prevent="(e) => onHandleDown(e, 'br')"
+        @pointermove.stop.prevent="onHandleMove"
+        @pointerup.stop.prevent="onHandleUp"
+        @pointercancel.stop.prevent="onHandleUp"
+    />
 
     <canvas
         ref="canvasRef"
@@ -255,19 +421,21 @@ watch(
 .pdf__sig {
   position: absolute;
   border-radius: 16px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(205,153,255,0.22);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(205, 153, 255, 0.22);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
   overflow: hidden;
 }
+
 .pdf__sig-head {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 8px 10px;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   background: rgba(14, 12, 21, 0.35);
 }
+
 .pdf__sig-canvas {
   width: 100%;
   height: calc(100% - 34px);
@@ -275,4 +443,21 @@ watch(
   touch-action: none;
   cursor: crosshair;
 }
+
+.pdf__sig-handle {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.12);
+  z-index: 4;
+}
+
+.pdf__sig-handle_br {
+  right: 8px;
+  bottom: 8px;
+  cursor: nwse-resize;
+}
+
 </style>

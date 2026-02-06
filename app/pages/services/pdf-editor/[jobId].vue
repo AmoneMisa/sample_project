@@ -322,10 +322,10 @@ onMounted(async () => {
                 </span>
               </button>
               <div class="pdf__sep"/>
-              <USelect
+              <u-select
                   :disabled="isBusy"
                   v-model="bgColor"
-                  :options="[
+                  :items="[
     { label: t('services.pdfEditor.bg.white'), value: 'white' },
     { label: t('services.pdfEditor.bg.black'), value: 'black' },
     { label: t('services.pdfEditor.bg.transparent'), value: null }]"
@@ -396,7 +396,7 @@ onMounted(async () => {
 
               <div class="pdf__field">
                 <div class="pdf__label">{{ t("services.pdfEditor.text.fontLabel") }}</div>
-                <u-select v-model="textBox.font" :options="availableFonts"/>
+                <u-select v-model="textBox.font" :items="availableFonts"/>
               </div>
 
               <div class="pdf__field">
@@ -416,7 +416,7 @@ onMounted(async () => {
 
               <div class="pdf__field">
                 <div class="pdf__label">{{ t("services.pdfEditor.text.alignLabel") }}</div>
-                <u-select v-model="textBox.align" :options="alignOptions"/>
+                <u-select v-model="textBox.align" :items="alignOptions"/>
               </div>
 
               <div class="pdf__field pdf__field_row">
