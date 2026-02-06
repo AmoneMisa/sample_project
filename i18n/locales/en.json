@@ -72,140 +72,180 @@
       },
       "dpi": "DPI",
       "version": "Version"
+    }
+  },
+  "menu": {
+    "home": "Home",
+    "tools": "Tools",
+    "pages": "Pages",
+    "innerPages": "Inner Pages",
+    "dashboard": "Dashboard",
+    "textGenerator": "Text Generator",
+    "imageGenerator": "Image Generator",
+    "codeGenerator": "Code Generator",
+    "blog": "Blog",
+    "pricing": "Pricing",
+    "profile": "Profile",
+    "sessions": "Sessions"
+  },
+  "badge": {
+    "cool": "Cool",
+    "discount": "Discount",
+    "easyToBuy": "Easy to buy"
+  },
+  "button": {
+    "getStart": "Get started"
+  },
+  "hero": {
+    "title": "Examine the Potential of",
+    "title2": "AI Hack",
+    "subtitle": "Unleash Brainwave's AI potential. Use the open AI conversation app Pixcels Themes",
+    "cta": "Start with AI",
+    "rotated1": "AI Chatting",
+    "rotated2": "AI Writing"
+  },
+  "form": {
+    "placeholder": "Type something to prompt AI...",
+    "button": "Start with AI"
+  },
+  "trust": {
+    "title": "Trusted by 800,000+ highly productive companies"
+  },
+  "tabs": {
+    "headline": "Rainbow unlocks the potential of AI",
+    "title": "Generative AI made for creators.",
+    "audio": {
+      "label": "Audio",
+      "title": "AI Audio Generation",
+      "text": "Audio generating AI refers to artificial intelligence that creates sound from text or data.",
+      "features": [
+        "Transformer Models",
+        "Conditional Generative Models",
+        "Pre-trained Models",
+        "Variational Autoencoders"
+      ],
+      "cta": "Start Exploring Now →"
     },
-    "menu": {
-      "home": "Home",
-      "tools": "Tools",
-      "pages": "Pages",
-      "innerPages": "Inner Pages",
-      "dashboard": "Dashboard",
-      "textGenerator": "Text Generator",
-      "imageGenerator": "Image Generator",
-      "codeGenerator": "Code Generator",
-      "blog": "Blog",
-      "pricing": "Pricing",
-      "profile": "Profile",
-      "sessions": "Sessions"
+    "code": {
+      "label": "Code",
+      "title": "AI Code Generation",
+      "text": "Generate clean, functional code from natural language prompts using advanced models.",
+      "features": [
+        "Syntax-aware transformers",
+        "Contextual completion",
+        "Multi-language support",
+        "Secure-by-default scaffolding"
+      ],
+      "cta": "Start Exploring Now →"
     },
-    "badge": {
-      "cool": "Cool",
-      "discount": "Discount",
-      "easyToBuy": "Easy to buy"
+    "photo": {
+      "label": "Photo",
+      "title": "AI Photo Generation",
+      "text": "Produce high-quality visuals from text prompts using generative diffusion models.",
+      "features": [
+        "Stable Diffusion",
+        "Style Transfer",
+        "Inpainting & Outpainting",
+        "Prompt-to-image pipelines"
+      ],
+      "cta": "Start Exploring Now →"
     },
-    "button": {
-      "getStart": "Get started"
+    "video": {
+      "label": "Video",
+      "title": "AI Video Generation",
+      "text": "Create dynamic video content from scripts, storyboards, or voice input.",
+      "features": [
+        "Scene synthesis",
+        "Lip-syncing",
+        "Motion interpolation",
+        "Multi-modal rendering"
+      ],
+      "cta": "Start Exploring Now →"
+    }
+  },
+  "carousel": {
+    "headline": "Assisting Individuals",
+    "title": "Chat Smarter, Not Harder with"
+  },
+  "cards": {
+    "ask": {
+      "title": "Ask anything",
+      "description": "Lets users quickly find answers to their questions without having to search through multiple sources."
     },
-    "hero": {
-      "title": "Examine the Potential of",
-      "title2": "AI Hack",
-      "subtitle": "Unleash Brainwave's AI potential. Use the open AI conversation app Pixcels Themes",
-      "cta": "Start with AI",
-      "rotated1": "AI Chatting",
-      "rotated2": "AI Writing"
+    "connect": {
+      "title": "Connect everywhere",
+      "description": "Lets users quickly find answers to their questions without having to search through multiple sources."
     },
-    "form": {
-      "placeholder": "Type something to prompt AI...",
-      "button": "Start with AI"
+    "fast": {
+      "title": "Fast responding",
+      "description": "Lets users quickly find answers to their questions without having to search through multiple sources."
+    }
+  },
+  "tabs2": {
+    "connect": {
+      "label": "Connect with AI",
+      "title": "Connect with AI chatbot",
+      "description": "Identify the platform or interface through which you can access the chatbot. This could be a website, a messaging app, or a dedicated application.",
+      "headline": "How it works"
     },
-    "trust": {
-      "title": "Trusted by 800,000+ highly productive companies"
+    "workflow": {
+      "label": "Streamline Workflow",
+      "title": "Streamline Your Workflow",
+      "description": "Discover tools and techniques to optimize your workflow, making your tasks more efficient and manageable.",
+      "headline": "Exploring Efficiency"
     },
-    "tabs": {
-      "headline": "Rainbow unlocks the potential of AI",
+    "cyber": {
+      "label": "Cybersecurity",
+      "title": "Protecting Your Digital Presence",
+      "description": "Gain insights into cybersecurity measures and strategies to safeguard your online identity and sensitive information.",
+      "headline": "Navigating Cybersecurity"
+    },
+    "data": {
+      "label": "Data Analysis",
+      "title": "Demystifying Data Analytics",
+      "description": "Learn the fundamentals of data analysis, including tools and methodologies, to extract meaningful insights from raw data.",
+      "headline": "Mastering Data Analysis"
+    },
+    "cta": "Try It Now →"
+  },
+  "collaboration": {
+    "headline": "AI Collaboration",
+    "title": "AI Chat app for seamless collaboration",
+    "cta": "Try it now →"
+  },
+  "community": {
+    "title": "Join our AI Experts community",
+    "description": "Meet and learn from 80+ creators & companies who share how they use AI to create better content at lightning speed."
+  },
+  "testimonials": {
+    "headline": "Assisting Individuals",
+    "title": "The opinions of the community",
+    "item": {
+      "role": "Nursing Assistant",
+      "quote": "Pixcels-Themes has become such an integral part of our work!"
+    }
+  },
+  "features": {
+    "button": "Explore More →"
+  },
+  "reviews": {
+    "title": "Based on 20,000+ reviews"
+  },
+  "download": {
+    "headline": "Get Started With Pixcels",
+    "title": "Experience Products in AI",
+    "description": "Based on the conversation with the AI chatbot, you will receive personalized recommendations."
+  },
+  "page": {
+    "tabsWithBackground": {
       "title": "Generative AI made for creators.",
-      "audio": {
-        "label": "Audio",
-        "title": "AI Audio Generation",
-        "text": "Audio generating AI refers to artificial intelligence that creates sound from text or data.",
-        "features": [
-          "Transformer Models",
-          "Conditional Generative Models",
-          "Pre-trained Models",
-          "Variational Autoencoders"
-        ],
-        "cta": "Start Exploring Now →"
-      },
-      "code": {
-        "label": "Code",
-        "title": "AI Code Generation",
-        "text": "Generate clean, functional code from natural language prompts using advanced models.",
-        "features": [
-          "Syntax-aware transformers",
-          "Contextual completion",
-          "Multi-language support",
-          "Secure-by-default scaffolding"
-        ],
-        "cta": "Start Exploring Now →"
-      },
-      "photo": {
-        "label": "Photo",
-        "title": "AI Photo Generation",
-        "text": "Produce high-quality visuals from text prompts using generative diffusion models.",
-        "features": [
-          "Stable Diffusion",
-          "Style Transfer",
-          "Inpainting & Outpainting",
-          "Prompt-to-image pipelines"
-        ],
-        "cta": "Start Exploring Now →"
-      },
-      "video": {
-        "label": "Video",
-        "title": "AI Video Generation",
-        "text": "Create dynamic video content from scripts, storyboards, or voice input.",
-        "features": [
-          "Scene synthesis",
-          "Lip-syncing",
-          "Motion interpolation",
-          "Multi-modal rendering"
-        ],
-        "cta": "Start Exploring Now →"
-      }
+      "headline": "Rainbow unlocks the potential of AI"
     },
-    "carousel": {
-      "headline": "Assisting Individuals",
-      "title": "Chat Smarter, Not Harder with"
+    "featuresCarousel": {
+      "button": "Explore More →"
     },
-    "cards": {
-      "ask": {
-        "title": "Ask anything",
-        "description": "Lets users quickly find answers to their questions without having to search through multiple sources."
-      },
-      "connect": {
-        "title": "Connect everywhere",
-        "description": "Lets users quickly find answers to their questions without having to search through multiple sources."
-      },
-      "fast": {
-        "title": "Fast responding",
-        "description": "Lets users quickly find answers to their questions without having to search through multiple sources."
-      }
-    },
-    "tabs2": {
-      "connect": {
-        "label": "Connect with AI",
-        "title": "Connect with AI chatbot",
-        "description": "Identify the platform or interface through which you can access the chatbot. This could be a website, a messaging app, or a dedicated application.",
-        "headline": "How it works"
-      },
-      "workflow": {
-        "label": "Streamline Workflow",
-        "title": "Streamline Your Workflow",
-        "description": "Discover tools and techniques to optimize your workflow, making your tasks more efficient and manageable.",
-        "headline": "Exploring Efficiency"
-      },
-      "cyber": {
-        "label": "Cybersecurity",
-        "title": "Protecting Your Digital Presence",
-        "description": "Gain insights into cybersecurity measures and strategies to safeguard your online identity and sensitive information.",
-        "headline": "Navigating Cybersecurity"
-      },
-      "data": {
-        "label": "Data Analysis",
-        "title": "Demystifying Data Analytics",
-        "description": "Learn the fundamentals of data analysis, including tools and methodologies, to extract meaningful insights from raw data.",
-        "headline": "Mastering Data Analysis"
-      },
-      "cta": "Try It Now →"
+    "tabsWithUnderButtons": {
+      "button": "Try It Now →"
     },
     "collaboration": {
       "headline": "AI Collaboration",
@@ -214,153 +254,114 @@
     },
     "community": {
       "title": "Join our AI Experts community",
-      "description": "Meet and learn from 80+ creators & companies who share how they use AI to create better content at lightning speed."
+      "description": "Meet and learn from 80+ creators & companies who share how they use AI to create better content at lightning speed.",
+      "cta": "Join Now Today Free"
     },
-    "testimonials": {
-      "headline": "Assisting Individuals",
-      "title": "The opinions of the community",
-      "item": {
-        "role": "Nursing Assistant",
-        "quote": "Pixcels-Themes has become such an integral part of our work!"
+    "featureCards": {
+      "noRisk": {
+        "title": "100% No-Risk, Money Back Guarantee!",
+        "description": "Refunds will be issued within period of 14 days from the purchase date"
+      },
+      "upgrade": {
+        "title": "Upgrade or Cancel Anytime",
+        "description": "Passages there are many variations of Lorem Ipsum available."
+      },
+      "free": {
+        "title": "Not sure yet? Try the free version",
+        "description": "Refunds will be issued within period of 14 days from the purchase date"
       }
     },
-    "features": {
-      "button": "Explore More →"
+    "reviewLogos": {
+      "title": "Based on 20,000+ reviews on"
+    }
+  },
+  "pricing": {
+    "headline": "Pricing",
+    "title": "Pricing plans for everyone",
+    "switcher": {
+      "monthly": "Monthly",
+      "yearly": "Yearly",
+      "discountBadge": "–10%"
     },
-    "reviews": {
-      "title": "Based on 20,000+ reviews"
+    "badge": {
+      "bestOffer": "Best Offer"
     },
-    "download": {
-      "headline": "Get Started With Pixcels",
-      "title": "Experience Products in AI",
-      "description": "Based on the conversation with the AI chatbot, you will receive personalized recommendations."
+    "featuresTitle": "Features",
+    "actions": {
+      "showLess": "Show Less",
+      "showMore": "Show More",
+      "getStarted": "Get Started"
     },
-    "page": {
-      "tabsWithBackground": {
-        "title": "Generative AI made for creators.",
-        "headline": "Rainbow unlocks the potential of AI"
+    "limitedOffer": "Limited Offer",
+    "plans": {
+      "basic": {
+        "name": "Basic",
+        "description": "For large teams & corporations",
+        "monthly": "Free",
+        "yearly": "Free",
+        "features": [
+          "7,700 3–5 day turnaround",
+          "6+ Naive development",
+          "5+ Task delivered one-by-one",
+          "AI Blog Updates via dashboard & slack",
+          "Advance Updates via dashboard & slack"
+        ]
       },
-      "featuresCarousel": {
-        "button": "Explore More →"
+      "premium": {
+        "name": "Premium",
+        "description": "For large teams & corporations",
+        "monthly": "$59.00 /Per Month",
+        "yearly": "$499.00 /Per Year",
+        "features": [
+          "12,700 7–9 day turnaround",
+          "6+ Naive development",
+          "5+ Task delivered one-by-one",
+          "7,700 3–5 day turnaround",
+          "AI Blog Updates via dashboard & slack",
+          "Advance Updates via dashboard & slack"
+        ]
       },
-      "tabsWithUnderButtons": {
-        "button": "Try It Now →"
-      },
-      "collaboration": {
-        "headline": "AI Collaboration",
-        "title": "AI Chat app for seamless collaboration",
-        "cta": "Try it now →"
-      },
-      "community": {
-        "title": "Join our AI Experts community",
-        "description": "Meet and learn from 80+ creators & companies who share how they use AI to create better content at lightning speed.",
-        "cta": "Join Now Today Free"
-      },
-      "featureCards": {
-        "noRisk": {
-          "title": "100% No-Risk, Money Back Guarantee!",
-          "description": "Refunds will be issued within period of 14 days from the purchase date"
-        },
-        "upgrade": {
-          "title": "Upgrade or Cancel Anytime",
-          "description": "Passages there are many variations of Lorem Ipsum available."
-        },
-        "free": {
-          "title": "Not sure yet? Try the free version",
-          "description": "Refunds will be issued within period of 14 days from the purchase date"
-        }
-      },
-      "reviewLogos": {
-        "title": "Based on 20,000+ reviews on"
-      }
-    },
-    "pricing": {
-      "headline": "Pricing",
-      "title": "Pricing plans for everyone",
-      "switcher": {
-        "monthly": "Monthly",
-        "yearly": "Yearly",
-        "discountBadge": "–10%"
-      },
-      "badge": {
-        "bestOffer": "Best Offer"
-      },
-      "featuresTitle": "Features",
-      "actions": {
-        "showLess": "Show Less",
-        "showMore": "Show More",
-        "getStarted": "Get Started"
-      },
-      "limitedOffer": "Limited Offer",
-      "plans": {
-        "basic": {
-          "name": "Basic",
-          "description": "For large teams & corporations",
-          "monthly": "Free",
-          "yearly": "Free",
-          "features": [
-            "7,700 3–5 day turnaround",
-            "6+ Naive development",
-            "5+ Task delivered one-by-one",
-            "AI Blog Updates via dashboard & slack",
-            "Advance Updates via dashboard & slack"
-          ]
-        },
-        "premium": {
-          "name": "Premium",
-          "description": "For large teams & corporations",
-          "monthly": "$59.00 /Per Month",
-          "yearly": "$499.00 /Per Year",
-          "features": [
-            "12,700 7–9 day turnaround",
-            "6+ Naive development",
-            "5+ Task delivered one-by-one",
-            "7,700 3–5 day turnaround",
-            "AI Blog Updates via dashboard & slack",
-            "Advance Updates via dashboard & slack"
-          ]
-        },
-        "enterprise": {
-          "name": "Enterprise",
-          "description": "For large teams & corporations",
-          "monthly": "$79.00 /Per Month",
-          "yearly": "$599.00 /Per Year",
-          "features": [
-            "15,700 15–30 day turnaround",
-            "6+ Naive development",
-            "5+ Task delivered one-by-one",
-            "7,700 3–5 day turnaround",
-            "6+ Naive development"
-          ]
-        }
-      }
-    },
-    "footer": {
-      "about": "It has long been known that a reader's attention will be diverted from",
-      "quickLinksTitle": "Quick Links",
-      "servicesTitle": "Services",
-      "contactTitle": "Contact",
-      "quickLinks": {
-        "pages": "Pages",
-        "blog": "Blog",
-        "contact": "Contact",
-        "howToUse": "How to use",
-        "roadmap": "Roadmap"
-      },
-      "services": {
-        "imageGenerator": "Image Generator",
-        "videoGenerator": "Video Generator",
-        "textGenerator": "Text Generator",
-        "codeGenerator": "Code Generator",
-        "educationFeedback": "Education Feedback"
-      },
-      "contact": {
-        "address": "8819 Ohio St. South Gate, North America, USA",
-        "phone": "📞 +1 386-688-3295"
-      },
-      "newsletter": {
-        "title": "Join a Newsletter",
-        "placeholder": "Enter Your Email Here"
+      "enterprise": {
+        "name": "Enterprise",
+        "description": "For large teams & corporations",
+        "monthly": "$79.00 /Per Month",
+        "yearly": "$599.00 /Per Year",
+        "features": [
+          "15,700 15–30 day turnaround",
+          "6+ Naive development",
+          "5+ Task delivered one-by-one",
+          "7,700 3–5 day turnaround",
+          "6+ Naive development"
+        ]
       }
     }
+  },
+  "footer": {
+    "about": "It has long been known that a reader's attention will be diverted from",
+    "quickLinksTitle": "Quick Links",
+    "servicesTitle": "Services",
+    "contactTitle": "Contact",
+    "quickLinks": {
+      "pages": "Pages",
+      "blog": "Blog",
+      "contact": "Contact",
+      "howToUse": "How to use",
+      "roadmap": "Roadmap"
+    },
+    "services": {
+      "imageGenerator": "Image Generator",
+      "videoGenerator": "Video Generator",
+      "textGenerator": "Text Generator",
+      "codeGenerator": "Code Generator",
+      "educationFeedback": "Education Feedback"
+    },
+    "contact": {
+      "address": "8819 Ohio St. South Gate, North America, USA",
+      "phone": "📞 +1 386-688-3295"
+    },
+    "newsletter": {
+      "title": "Join a Newsletter",
+      "placeholder": "Enter Your Email Here"
+    }
   }
+}

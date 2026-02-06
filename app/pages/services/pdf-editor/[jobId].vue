@@ -321,7 +321,15 @@ onMounted(async () => {
                   {{ t("services.pdfEditor.upload.new") }}
                 </span>
               </button>
-
+              <div class="pdf__sep"/>
+              <USelect
+                  :disabled="isBusy"
+                  v-model="bgColor"
+                  :options="[
+    { label: t('services.pdfEditor.bg.white'), value: 'white' },
+    { label: t('services.pdfEditor.bg.black'), value: 'black' },
+    { label: t('services.pdfEditor.bg.transparent'), value: null }]"
+              />
               <div class="pdf__sep"/>
 
               <button type="button" class="pdf__icon-btn" :disabled="isBusy || page <= 1" @click="page--">
