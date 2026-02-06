@@ -1,158 +1,248 @@
 <script setup lang="ts">
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
+
 const props = defineProps<{
-  xRel: number
-  yRel: number
-  wRel: number
-  hRel: number
-  strokes: Array<Array<[number, number]>>
+  xRel: number;
+  yRel: number;
+  wRel: number;
+  hRel: number;
+  strokes: Array<Array<[number, number]>>;
+  strokeWidth: number;
 }>();
 
 const emit = defineEmits<{
-  (e: "update:xRel", v: number): void
-  (e: "update:yRel", v: number): void
-  (e: "update:wRel", v: number): void
-  (e: "update:hRel", v: number): void
-  (e: "update:strokes", v: Array<Array<[number, number]>>): void
+  (e: "update:xRel", v: number): void;
+  (e: "update:yRel", v: number): void;
+  (e: "update:wRel", v: number): void;
+  (e: "update:hRel", v: number): void;
+  (e: "update:strokes", v: Array<Array<[number, number]>>): void;
 }>();
 
 const boxRef = ref<HTMLDivElement | null>(null);
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 
-const drawing = ref(false);
-let currentStroke: Array<[number, number]> = [];
+const mode = ref<"move" | "draw">("draw");
+
+const drag = reactive({ active: false, dx: 0, dy: 0 });
+const drawing = reactive({ active: false });
+
+const style = computed(() => ({
+  left: `${props.xRel * 100}%`,
+  top: `${props.yRel * 100}%`,
+  width: `${props.wRel * 100}%`,
+  height: `${props.hRel * 100}%`,
+}));
 
 function clamp01(n: number) {
   return Math.max(0, Math.min(1, n));
 }
 
-function resizeCanvas() {
-  const box = boxRef.value;
-  const canvas = canvasRef.value;
-  if (!box || !canvas) return;
+function getStageRect() {
+  const stage = boxRef.value?.closest(".pdf__stage") as HTMLElement | null;
+  if (!stage) return null;
+  return stage.getBoundingClientRect();
+}
 
-  const dpr = Math.max(1, window.devicePixelRatio || 1);
-  const rect = box.getBoundingClientRect();
-  canvas.width = Math.round(rect.width * dpr);
-  canvas.height = Math.round(rect.height * dpr);
-  canvas.style.width = `${rect.width}px`;
-  canvas.style.height = `${rect.height}px`;
+function resizeCanvas() {
+  const c = canvasRef.value;
+  const el = boxRef.value;
+  if (!c || !el) return;
+
+  const r = el.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+
+  c.width = Math.max(1, Math.floor(r.width * dpr));
+  c.height = Math.max(1, Math.floor(r.height * dpr));
+  c.style.width = `${r.width}px`;
+  c.style.height = `${r.height}px`;
 
   redraw();
 }
 
 function redraw() {
-  const canvas = canvasRef.value;
-  if (!canvas) return;
-  const ctx = canvas.getContext("2d");
+  const c = canvasRef.value;
+  if (!c) return;
+
+  const ctx = c.getContext("2d");
   if (!ctx) return;
 
-  const dpr = Math.max(1, window.devicePixelRatio || 1);
+  const dpr = window.devicePixelRatio || 1;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // default white
+  const w = c.width / dpr;
+  const h = c.height / dpr;
+
+  ctx.clearRect(0, 0, w, h);
+  ctx.lineWidth = props.strokeWidth;
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
-  ctx.lineWidth = 2;
-
-  const rect = canvas.getBoundingClientRect();
-  const w = rect.width;
-  const h = rect.height;
+  ctx.strokeStyle = "rgba(255,255,255,0.92)";
 
   for (const stroke of props.strokes) {
-    if (stroke.length < 2) continue;
+    if (!stroke || stroke.length < 2) continue;
     ctx.beginPath();
     ctx.moveTo(stroke[0][0] * w, stroke[0][1] * h);
-    for (const pt of stroke.slice(1)) {
-      ctx.lineTo(pt[0] * w, pt[1] * h);
+    for (let i = 1; i < stroke.length; i++) {
+      ctx.lineTo(stroke[i][0] * w, stroke[i][1] * h);
     }
-    ctx.strokeStyle = "rgba(255,255,255,0.95)";
     ctx.stroke();
   }
 }
 
-function getRelPoint(e: PointerEvent): [number, number] {
-  const box = boxRef.value!;
-  const rect = box.getBoundingClientRect();
-  const x = (e.clientX - rect.left) / rect.width;
-  const y = (e.clientY - rect.top) / rect.height;
-  return [clamp01(x), clamp01(y)];
+function onBoxDown(e: PointerEvent) {
+  if (mode.value !== "move") return;
+  const stageRect = getStageRect();
+  if (!stageRect) return;
+
+  (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+  drag.active = true;
+
+  const xPx = props.xRel * stageRect.width;
+  const yPx = props.yRel * stageRect.height;
+  drag.dx = e.clientX - (stageRect.left + xPx);
+  drag.dy = e.clientY - (stageRect.top + yPx);
 }
 
-function onDown(e: PointerEvent) {
-  e.preventDefault();
-  drawing.value = true;
-  currentStroke = [];
-  const pt = getRelPoint(e);
-  currentStroke.push(pt);
-  ;(e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+function onBoxMove(e: PointerEvent) {
+  if (!drag.active) return;
+  const stageRect = getStageRect();
+  if (!stageRect) return;
+
+  const x = e.clientX - stageRect.left - drag.dx;
+  const y = e.clientY - stageRect.top - drag.dy;
+
+  emit("update:xRel", clamp01(x / stageRect.width));
+  emit("update:yRel", clamp01(y / stageRect.height));
 }
 
-function onMove(e: PointerEvent) {
-  if (!drawing.value) return;
-  const pt = getRelPoint(e);
-  currentStroke.push(pt);
-
-  // live draw (optimistically)
-  emit("update:strokes", [...props.strokes, currentStroke]);
+function onBoxUp(e: PointerEvent) {
+  drag.active = false;
+  const el = e.currentTarget as HTMLElement;
+  if (el?.hasPointerCapture?.(e.pointerId)) el.releasePointerCapture(e.pointerId);
 }
 
-function onUp() {
-  if (!drawing.value) return;
-  drawing.value = false;
-  if (currentStroke.length >= 2) {
-    emit("update:strokes", [...props.strokes, currentStroke]);
-  } else {
-    emit("update:strokes", props.strokes);
-  }
-  currentStroke = [];
+function relFromCanvas(e: PointerEvent) {
+  const c = canvasRef.value;
+  if (!c) return { x: 0, y: 0 };
+
+  const r = c.getBoundingClientRect();
+  const x = (e.clientX - r.left) / Math.max(1, r.width);
+  const y = (e.clientY - r.top) / Math.max(1, r.height);
+
+  return { x: clamp01(x), y: clamp01(y) };
 }
+
+function onCanvasDown(e: PointerEvent) {
+  if (mode.value !== "draw") return;
+  const c = canvasRef.value;
+  if (!c) return;
+
+  c.setPointerCapture(e.pointerId);
+  drawing.active = true;
+
+  const p = relFromCanvas(e);
+  emit("update:strokes", [...props.strokes, [[p.x, p.y]]]);
+
+  nextTick(() => {
+    redraw();
+  });
+}
+
+function onCanvasMove(e: PointerEvent) {
+  if (!drawing.active) return;
+
+  const p = relFromCanvas(e);
+  const strokes = props.strokes.slice();
+  const last = strokes[strokes.length - 1];
+  if (!last) return;
+
+  last.push([p.x, p.y]);
+  emit("update:strokes", strokes);
+
+  nextTick(() => {
+    redraw();
+  });
+}
+
+function onCanvasUp(e: PointerEvent) {
+  drawing.active = false;
+  const c = canvasRef.value;
+  if (c?.hasPointerCapture?.(e.pointerId)) c.releasePointerCapture(e.pointerId);
+}
+
+let ro: ResizeObserver | null = null;
 
 onMounted(() => {
-  resizeCanvas();
-  window.addEventListener("resize", resizeCanvas);
+  nextTick(() => {
+    resizeCanvas();
+  });
+
+  if (boxRef.value) {
+    ro = new ResizeObserver(() => {
+      resizeCanvas();
+    });
+    ro.observe(boxRef.value);
+  }
 });
 
 onBeforeUnmount(() => {
-  window.removeEventListener("resize", resizeCanvas);
+  if (ro && boxRef.value) ro.unobserve(boxRef.value);
+  ro = null;
 });
 
 watch(
     () => props.strokes,
-    () => redraw(),
-    { deep: true }
+    () => {
+      nextTick(() => {
+        redraw();
+      });
+    },
+    { deep: true },
+);
+
+watch(
+    () => props.strokeWidth,
+    () => {
+      nextTick(() => {
+        redraw();
+      });
+    },
 );
 </script>
 
 <template>
   <div
       ref="boxRef"
-      class="sig"
-      :style="{
-      left: `${xRel * 100}%`,
-      top: `${yRel * 100}%`,
-      width: `${wRel * 100}%`,
-      height: `${hRel * 100}%`
-    }"
+      class="pdf__sig"
+      :style="style"
+      @pointerdown="onBoxDown"
+      @pointermove="onBoxMove"
+      @pointerup="onBoxUp"
+      @pointercancel="onBoxUp"
   >
-    <div class="sig__head">
-      <span class="sig__label">Signature</span>
+    <div class="pdf__sig-head">
+      <button type="button" class="pdf__sig-chip" :class="{ 'pdf__sig-chip_active': mode === 'draw' }" @click="mode = 'draw'">
+        ✍
+      </button>
+      <button type="button" class="pdf__sig-chip" :class="{ 'pdf__sig-chip_active': mode === 'move' }" @click="mode = 'move'">
+        ↕
+      </button>
     </div>
 
     <canvas
         ref="canvasRef"
-        class="sig__canvas"
-        @pointerdown="onDown"
-        @pointermove="onMove"
-        @pointerup="onUp"
-        @pointercancel="onUp"
-        @pointerleave="onUp"
+        class="pdf__sig-canvas"
+        :class="mode === 'draw' ? 'pdf__sig-canvas_draw' : 'pdf__sig-canvas_move'"
+        @pointerdown="onCanvasDown"
+        @pointermove="onCanvasMove"
+        @pointerup="onCanvasUp"
+        @pointercancel="onCanvasUp"
     />
   </div>
 </template>
 
 <style scoped>
-.sig {
+.pdf__sig {
   position: absolute;
   border-radius: 16px;
   background: rgba(255,255,255,0.03);
@@ -160,7 +250,7 @@ watch(
   box-shadow: 0 12px 30px rgba(0,0,0,0.25);
   overflow: hidden;
 }
-.sig__head {
+.pdf__sig-head {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -168,12 +258,7 @@ watch(
   border-bottom: 1px solid rgba(255,255,255,0.06);
   background: rgba(14, 12, 21, 0.35);
 }
-.sig__label {
-  font-weight: 900;
-  font-size: 12px;
-  color: rgba(255,255,255,0.82);
-}
-.sig__canvas {
+.pdf__sig-canvas {
   width: 100%;
   height: calc(100% - 34px);
   display: block;

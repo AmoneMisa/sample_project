@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import PageHeader from "~/components/common/PageHeader.vue";
 import CustomButton from "~/components/common/CustomButton.vue";
+import { computed, defineComponent, h, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
+import SignatureOverlay from "~/components/pdfEditor/SignatureOverlay.vue";
 
 const config = useRuntimeConfig();
-const {t} = useI18n();
-
-type ServerTool = "rotate" | "watermark_text" | "watermark_image" | "draw_signature";
+const { t } = useI18n();
 
 const fileInput = ref<HTMLInputElement | null>(null);
 const selectedFiles = ref<File[]>([]);
@@ -22,7 +22,10 @@ const dpi = ref<number>(144);
 const isBusy = ref(false);
 const errorMsg = ref<string | null>(null);
 
-/** overlay state (in RELATIVE 0..1) */
+const stageRef = ref<HTMLDivElement | null>(null);
+
+const bgColor = ref<string | null>(null);
+
 const textBox = reactive({
   enabled: false,
   value: "Hello!",
@@ -34,7 +37,6 @@ const textBox = reactive({
 
 const signature = reactive({
   enabled: false,
-  // strokes: Array<stroke>, stroke: Array<[xRel, yRel]> within signature rect 0..1
   strokes: [] as Array<Array<[number, number]>>,
   xRel: 0.15,
   yRel: 0.25,
@@ -45,9 +47,8 @@ const signature = reactive({
 });
 
 const previewUrl = computed(() => {
-  if (!jobId.value) return ""
-  // v param to bust browser cache
-  return `${config.public.apiBase}/pdf/preview/${jobId.value}/${page.value}?dpi=${dpi.value}&v=${activeVersion.value}`
+  if (!jobId.value) return "";
+  return `${config.public.apiBase}/pdf/preview/${jobId.value}/${page.value}?dpi=${dpi.value}&v=${activeVersion.value}`;
 });
 
 function openPicker() {
@@ -63,13 +64,29 @@ function onPick(e: Event) {
 }
 
 function addFiles(files: File[]) {
-  const pdfs = files.filter(f => f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf"));
+  const pdfs = files.filter((f) => f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf"));
   if (!pdfs.length) return;
   selectedFiles.value = [...selectedFiles.value, ...pdfs];
 }
 
 function clearAll() {
   selectedFiles.value = [];
+}
+
+function removeFile(i: number) {
+  selectedFiles.value = selectedFiles.value.filter((_, idx) => idx !== i);
+}
+
+function clamp01(n: number) {
+  return Math.max(0, Math.min(1, n));
+}
+
+function relToPdfX(xRel: number) {
+  return xRel * pageW.value;
+}
+
+function relToPdfY(yRel: number) {
+  return pageH.value - yRel * pageH.value;
 }
 
 async function createJob() {
@@ -81,12 +98,13 @@ async function createJob() {
     const form = new FormData();
     for (const f of selectedFiles.value) form.append("files", f);
 
-    const res = await $fetch<{ jobId: string; expiresAt: number; downloadUrl: string }>(
-        `${config.public.apiBase}/pdf/create`,
-        {method: "POST", body: form}
-    );
+    const res = await $fetch<{ jobId: string }>(`${config.public.apiBase}/pdf/create`, {
+      method: "POST",
+      body: form,
+    });
 
     jobId.value = res.jobId;
+    page.value = 1;
     await refreshInfo();
   } catch (e: any) {
     errorMsg.value = e?.data?.detail?.message || e?.message || "Create failed";
@@ -97,10 +115,9 @@ async function createJob() {
 
 async function refreshInfo() {
   if (!jobId.value) return;
-  // page-info (желательно иметь на бэке)
   try {
     const info = await $fetch<{ pages: number; pageW: number; pageH: number; activeVersion: number }>(
-        `${config.public.apiBase}/pdf/page-info/${jobId.value}`
+        `${config.public.apiBase}/pdf/page-info/${jobId.value}`,
     );
     pages.value = info.pages;
     pageW.value = info.pageW;
@@ -108,26 +125,11 @@ async function refreshInfo() {
     activeVersion.value = info.activeVersion;
     if (page.value > pages.value) page.value = pages.value;
   } catch {
-    // fallback: хотя бы статус
     const st = await $fetch<{ activeVersion: number }>(`${config.public.apiBase}/pdf/status/${jobId.value}`);
     activeVersion.value = st.activeVersion;
   }
 }
 
-function relToPdfX(xRel: number) {
-  return xRel * pageW.value;
-}
-
-function relToPdfY(yRel: number) {
-  // PDF origin bottom-left. На картинке обычно top-left.
-  // Поэтому: yPdf = pageH - (yRel * pageH)
-  return pageH.value - yRel * pageH.value;
-}
-
-/**
- * Apply text as watermark_text on a selected page.
- * We'll treat it as "add text" MVP.
- */
 async function applyText() {
   if (!jobId.value) return;
   if (!textBox.value.trim()) return;
@@ -148,11 +150,7 @@ async function applyText() {
     form.append("tool", "watermark_text");
     form.append("options", JSON.stringify(options));
 
-    const res = await $fetch<{ activeVersion: number }>(`${config.public.apiBase}/pdf/apply/${jobId.value}`, {
-      method: "POST",
-      body: form,
-    });
-
+    await $fetch(`${config.public.apiBase}/pdf/apply/${jobId.value}`, { method: "POST", body: form });
     await refreshInfo();
   } catch (e: any) {
     errorMsg.value = e?.data?.detail?.message || e?.message || "Apply text failed";
@@ -171,10 +169,10 @@ async function applySignature() {
     const options = {
       page: page.value,
       x: relToPdfX(signature.xRel),
-      y: relToPdfY(signature.yRel) - (signature.hRel * pageH.value), // rect anchored top-left in UI; convert to PDF bottom-left
+      y: relToPdfY(signature.yRel) - signature.hRel * pageH.value,
       w: signature.wRel * pageW.value,
       h: signature.hRel * pageH.value,
-      strokes: signature.strokes.map(stroke => stroke.map(([x, y]) => [x, 1 - y])), // invert y inside rect
+      strokes: signature.strokes.map((stroke) => stroke.map(([x, y]) => [x, 1 - y])),
       strokeWidth: signature.strokeWidth,
       opacity: signature.opacity,
     };
@@ -183,96 +181,137 @@ async function applySignature() {
     form.append("tool", "draw_signature");
     form.append("options", JSON.stringify(options));
 
-    await $fetch(`${config.public.apiBase}/pdf/apply/${jobId.value}`, {method: "POST", body: form});
-    await refreshInfo()
-
-    // optional: clear after apply
-    signature.strokes = []
+    await $fetch(`${config.public.apiBase}/pdf/apply/${jobId.value}`, { method: "POST", body: form });
+    await refreshInfo();
+    signature.strokes = [];
   } catch (e: any) {
-    errorMsg.value = e?.data?.detail?.message || e?.message || "Apply signature failed"
+    errorMsg.value = e?.data?.detail?.message || e?.message || "Apply signature failed";
   } finally {
-    isBusy.value = false
+    isBusy.value = false;
   }
 }
 
 async function undo() {
-  if (!jobId.value) return
-  isBusy.value = true
-  errorMsg.value = null
+  if (!jobId.value) return;
+  isBusy.value = true;
+  errorMsg.value = null;
   try {
-    await $fetch(`${config.public.apiBase}/pdf/undo/${jobId.value}`, {method: "POST"})
-    await refreshInfo()
+    await $fetch(`${config.public.apiBase}/pdf/undo/${jobId.value}`, { method: "POST" });
+    await refreshInfo();
   } catch (e: any) {
-    errorMsg.value = e?.data?.detail?.message || e?.message || "Undo failed"
+    errorMsg.value = e?.data?.detail?.message || e?.message || "Undo failed";
   } finally {
-    isBusy.value = false
+    isBusy.value = false;
   }
 }
 
 async function redo() {
-  if (!jobId.value) return
-  isBusy.value = true
-  errorMsg.value = null
+  if (!jobId.value) return;
+  isBusy.value = true;
+  errorMsg.value = null;
   try {
-    await $fetch(`${config.public.apiBase}/pdf/redo/${jobId.value}`, {method: "POST"})
-    await refreshInfo()
+    await $fetch(`${config.public.apiBase}/pdf/redo/${jobId.value}`, { method: "POST" });
+    await refreshInfo();
   } catch (e: any) {
-    errorMsg.value = e?.data?.detail?.message || e?.message || "Redo failed"
+    errorMsg.value = e?.data?.detail?.message || e?.message || "Redo failed";
   } finally {
-    isBusy.value = false
+    isBusy.value = false;
   }
 }
 
 function download() {
-  if (!jobId.value) return
-  window.open(`${config.public.apiBase}/pdf/download/${jobId.value}`, "_blank")
+  if (!jobId.value) return;
+  window.open(`${config.public.apiBase}/pdf/download/${jobId.value}`, "_blank");
 }
+
+const dragText = reactive({
+  active: false,
+  pointerId: -1,
+  dx: 0,
+  dy: 0,
+});
+
+function onTextDown(e: PointerEvent) {
+  if (!stageRef.value) return;
+  const target = e.currentTarget as HTMLElement;
+  target.setPointerCapture(e.pointerId);
+
+  dragText.active = true;
+  dragText.pointerId = e.pointerId;
+
+  const r = stageRef.value.getBoundingClientRect();
+  const xPx = textBox.xRel * r.width;
+  const yPx = textBox.yRel * r.height;
+
+  dragText.dx = e.clientX - (r.left + xPx);
+  dragText.dy = e.clientY - (r.top + yPx);
+}
+
+function onTextMove(e: PointerEvent) {
+  if (!dragText.active) return;
+  if (dragText.pointerId !== e.pointerId) return;
+  if (!stageRef.value) return;
+
+  const r = stageRef.value.getBoundingClientRect();
+  const x = e.clientX - r.left - dragText.dx;
+  const y = e.clientY - r.top - dragText.dy;
+
+  textBox.xRel = clamp01(x / r.width);
+  textBox.yRel = clamp01(y / r.height);
+}
+
+function onTextUp(e: PointerEvent) {
+  if (dragText.pointerId !== e.pointerId) return;
+  dragText.active = false;
+  dragText.pointerId = -1;
+
+  const target = e.currentTarget as HTMLElement;
+  if (target?.hasPointerCapture?.(e.pointerId)) target.releasePointerCapture(e.pointerId);
+}
+
+watch([page, jobId], async () => {
+  await nextTick();
+});
+
+onMounted(() => {
+  nextTick(() => {});
+});
+
+onBeforeUnmount(() => {});
 </script>
 
 <template>
   <u-container class="pdf">
     <div class="pdf__header text-center space-y-3">
-      <page-header
-          title="services.pdfEditor.title"
-          headline="services.pdfEditor.headline"
-          class="mb-6"
-      />
+      <page-header title="services.pdfEditor.title" headline="services.pdfEditor.headline" class="mb-6" />
       <p class="pdf__subtitle text-muted mx-auto">{{ t("services.pdfEditor.subtitle") }}</p>
     </div>
 
     <div class="pdf__grid">
-      <!-- LEFT: upload + pages -->
       <section class="ui-anim-border pdf__panel">
         <div class="ui-anim-border__inner pdf__panel-inner">
           <div class="pdf__panel-head">
             <div class="pdf__panel-title">
-              <u-icon name="i-lucide-upload"/>
+              <u-icon name="i-lucide-upload" />
               <span>{{ t("services.pdfEditor.upload.title") }}</span>
             </div>
 
             <button type="button" class="ui-pill-btn ui-pill-btn_animated" @click="openPicker">
               <span class="ui-pill-btn__inner">
-                <u-icon name="i-lucide-plus"/>
+                <u-icon name="i-lucide-plus" />
                 {{ t("services.pdfEditor.upload.add") }}
               </span>
             </button>
 
-            <input
-                ref="fileInput"
-                type="file"
-                accept="application/pdf,.pdf"
-                multiple
-                class="hidden"
-                @change="onPick"
-            />
+            <input ref="fileInput" type="file" accept="application/pdf,.pdf" multiple class="hidden" @change="onPick" />
           </div>
 
-          <div class="pdf__files" v-if="selectedFiles.length">
+          <div v-if="selectedFiles.length" class="pdf__files">
             <ul class="pdf__file-list">
-              <li class="pdf__file" v-for="(f, i) in selectedFiles" :key="f.name + i">
+              <li v-for="(f, i) in selectedFiles" :key="f.name + i" class="pdf__file">
                 <div class="pdf__file-left">
                   <div class="pdf__file-ico">
-                    <u-icon name="i-lucide-file-text"/>
+                    <u-icon name="i-lucide-file-text" />
                   </div>
                   <div class="pdf__file-meta">
                     <div class="pdf__file-name">{{ f.name }}</div>
@@ -281,21 +320,21 @@ function download() {
                     </div>
                   </div>
                 </div>
-                <button class="pdf__icon-btn pdf__icon-btn_danger" @click="selectedFiles.splice(i, 1)">
-                  <u-icon name="i-lucide-x"/>
+
+                <button type="button" class="pdf__icon-btn pdf__icon-btn_danger" @click="removeFile(i)">
+                  <u-icon name="i-lucide-x" />
                 </button>
               </li>
             </ul>
 
             <div class="pdf__upload-actions">
-              <custom-button variant="full" class="pdf__run-btn" :class="{ 'opacity-60 pointer-events-none': isBusy }"
-                             @click="createJob">
+              <custom-button variant="full" class="pdf__run-btn" :class="{ 'opacity-60 pointer-events-none': isBusy }" @click="createJob">
                 {{ jobId ? t("services.pdfEditor.upload.replace") : t("services.pdfEditor.upload.start") }}
               </custom-button>
 
               <button type="button" class="ui-pill-btn" @click="clearAll">
                 <span class="ui-pill-btn__inner">
-                  <u-icon name="i-lucide-trash-2"/>
+                  <u-icon name="i-lucide-trash-2" />
                   {{ t("services.pdfEditor.upload.clear") }}
                 </span>
               </button>
@@ -311,50 +350,54 @@ function download() {
               <div class="pdf__pages-title">
                 {{ t("services.pdfEditor.pages") }}: <b>{{ pages }}</b>
               </div>
-              <div class="text-muted">
-                v<b>{{ activeVersion }}</b>
-              </div>
+              <div class="text-muted">v<b>{{ activeVersion }}</b></div>
             </div>
 
             <div class="pdf__pages-nav">
-              <button class="pdf__icon-btn" :disabled="page <= 1" @click="page--">
-                <u-icon name="i-lucide-chevron-left"/>
+              <button type="button" class="pdf__icon-btn" :disabled="page <= 1" @click="page--">
+                <u-icon name="i-lucide-chevron-left" />
               </button>
 
-              <div class="pdf__page-chip">
-                {{ t("services.pdfEditor.page") }} {{ page }} / {{ pages }}
-              </div>
+              <div class="pdf__page-chip">{{ t("services.pdfEditor.page") }} {{ page }} / {{ pages }}</div>
 
-              <button class="pdf__icon-btn" :disabled="page >= pages" @click="page++">
-                <u-icon name="i-lucide-chevron-right"/>
+              <button type="button" class="pdf__icon-btn" :disabled="page >= pages" @click="page++">
+                <u-icon name="i-lucide-chevron-right" />
               </button>
             </div>
           </div>
 
-          <div v-if="errorMsg" class="pdf__error">
-            {{ errorMsg }}
-          </div>
+          <div v-if="errorMsg" class="pdf__error">{{ errorMsg }}</div>
         </div>
       </section>
 
-      <!-- RIGHT: preview + overlay + tools -->
       <section class="ui-anim-border pdf__panel">
         <div class="ui-anim-border__inner pdf__panel-inner">
           <div class="pdf__panel-head">
             <div class="pdf__panel-title">
-              <u-icon name="i-lucide-file-image"/>
+              <u-icon name="i-lucide-file-image" />
               <span>{{ t("services.pdfEditor.preview") }}</span>
             </div>
 
-            <div class="pdf__top-actions" v-if="jobId">
-              <button class="pdf__icon-btn" @click="undo" :disabled="isBusy">
-                <u-icon name="i-lucide-undo-2"/>
+            <div v-if="jobId" class="pdf__top-actions">
+              <div class="pdf__top-actions-row flex gap-2">
+                <button title="Белый цвет фона" type="button" class="pdf__icon-btn" @click="bgColor = 'white'" :disabled="isBusy">
+                  <u-icon name="i-lucide-color" /> Белый
+                </button>
+                <button title="Чёрный цвет фона" type="button" class="pdf__icon-btn" @click="bgColor = 'black'" :disabled="isBusy">
+                  <u-icon name="i-lucide-color" /> Чёрный
+                </button>
+                <button title="Прозрачный цвет фона" type="button" class="pdf__icon-btn" @click="bgColor = null" :disabled="isBusy">
+                  <u-icon name="i-lucide-color" /> Прозрачный
+                </button>
+              </div>
+              <button type="button" class="pdf__icon-btn" @click="undo" :disabled="isBusy">
+                <u-icon name="i-lucide-undo-2" />
               </button>
-              <button class="pdf__icon-btn" @click="redo" :disabled="isBusy">
-                <u-icon name="i-lucide-redo-2"/>
+              <button type="button" class="pdf__icon-btn" @click="redo" :disabled="isBusy">
+                <u-icon name="i-lucide-redo-2" />
               </button>
-              <button class="pdf__icon-btn" @click="download" :disabled="isBusy">
-                <u-icon name="i-lucide-download"/>
+              <button type="button" class="pdf__icon-btn" @click="download" :disabled="isBusy">
+                <u-icon name="i-lucide-download" />
               </button>
             </div>
           </div>
@@ -364,74 +407,85 @@ function download() {
           </div>
 
           <div v-else class="pdf__canvas-wrap">
-            <!-- page preview -->
-            <div class="pdf__stage">
-              <img :src="previewUrl" class="pdf__preview" alt=""/>
+            <div ref="stageRef" class="pdf__stage" :class="{'pdf__stage_white': bgColor === 'white', 'pdf__stage_black': bgColor === 'black',}">
+              <img :src="previewUrl" class="pdf__preview" alt="" />
 
-              <!-- Text draggable -->
               <div
                   v-if="textBox.enabled"
                   class="pdf__overlay-box"
-                  :style="{
-                  left: `${textBox.xRel * 100}%`,
-                  top: `${textBox.yRel * 100}%`,
-                }"
-                  @pointerdown="(e) => $emit"
+                  :style="{ left: `${textBox.xRel * 100}%`, top: `${textBox.yRel * 100}%` }"
+                  @pointerdown="onTextDown"
+                  @pointermove="onTextMove"
+                  @pointerup="onTextUp"
+                  @pointercancel="onTextUp"
               >
                 <div class="pdf__overlay-text">{{ textBox.value }}</div>
               </div>
 
-              <!-- Signature placement + drawing -->
               <SignatureOverlay
                   v-if="signature.enabled"
-                  v-model:xRel="signature.xRel"
-                  v-model:yRel="signature.yRel"
-                  v-model:wRel="signature.wRel"
-                  v-model:hRel="signature.hRel"
-                  v-model:strokes="signature.strokes"
+                  :xRel="signature.xRel"
+                  :yRel="signature.yRel"
+                  :wRel="signature.wRel"
+                  :hRel="signature.hRel"
+                  :strokes="signature.strokes"
+                  :strokeWidth="signature.strokeWidth"
+                  @update:xRel="(v: number) => (signature.xRel = v)"
+                  @update:yRel="(v: number) => (signature.yRel = v)"
+                  @update:wRel="(v: number) => (signature.wRel = v)"
+                  @update:hRel="(v: number) => (signature.hRel = v)"
+                  @update:strokes="(v: Array<Array<[number, number]>>) => (signature.strokes = v)"
               />
             </div>
           </div>
 
-          <div v-if="jobId" class="pdf__toolbox">
-            <div class="pdf__tool-row">
-              <button class="services__pill" :class="{ services__pill_active: textBox.enabled }"
-                      @click="textBox.enabled = !textBox.enabled">
-                <u-icon name="i-lucide-type"/>
+          <div v-if="jobId" class="pdf__toolbar">
+            <div class="pdf__toolbar-left">
+              <button type="button" class="services__pill" :class="{ services__pill_active: textBox.enabled }" @click="textBox.enabled = !textBox.enabled">
+                <u-icon name="i-lucide-type" />
                 {{ t("services.pdfEditor.tools.text") }}
               </button>
-              <button class="services__pill" :class="{ services__pill_active: signature.enabled }"
-                      @click="signature.enabled = !signature.enabled">
-                <u-icon name="i-lucide-pen-tool"/>
+
+              <button type="button" class="services__pill" :class="{ services__pill_active: signature.enabled }" @click="signature.enabled = !signature.enabled">
+                <u-icon name="i-lucide-pen-tool" />
                 {{ t("services.pdfEditor.tools.signature") }}
               </button>
+
+              <div class="pdf__toolbar-spacer"></div>
+
+              <div class="pdf__toolbar-mini">
+                <span class="text-muted">DPI</span>
+                <u-input v-model.number="dpi" type="number" min="72" max="300" class="pdf__dpi" />
+              </div>
             </div>
 
             <div v-if="textBox.enabled" class="pdf__tool-section">
               <div class="pdf__tool-title">{{ t("services.pdfEditor.text.title") }}</div>
-              <u-input v-model="textBox.value"/>
-              <div class="pdf__tool-row">
-                <u-input v-model.number="textBox.fontSize" type="number" min="8" max="72"/>
-                <u-input v-model.number="textBox.opacity" type="number" min="5" max="60"/>
+
+              <div class="pdf__tool-grid">
+                <u-input v-model="textBox.value" />
+                <u-input v-model.number="textBox.fontSize" type="number" min="8" max="72" />
+                <u-input v-model.number="textBox.opacity" type="number" min="5" max="60" />
               </div>
-              <custom-button variant="full" class="pdf__run-btn" :class="{ 'opacity-60 pointer-events-none': isBusy }"
-                             @click="applyText">
+
+              <custom-button variant="full" class="pdf__run-btn" :class="{ 'opacity-60 pointer-events-none': isBusy }" @click="applyText">
                 {{ t("services.pdfEditor.applyText") }}
               </custom-button>
             </div>
 
             <div v-if="signature.enabled" class="pdf__tool-section">
               <div class="pdf__tool-title">{{ t("services.pdfEditor.signature.title") }}</div>
-              <div class="pdf__tool-row">
-                <u-input v-model.number="signature.strokeWidth" type="number" min="0.5" max="8"/>
-                <u-input v-model.number="signature.opacity" type="number" min="10" max="100"/>
-                <button class="services__pill" @click="signature.strokes = []">
-                  <u-icon name="i-lucide-eraser"/>
+
+              <div class="pdf__tool-grid">
+                <u-input v-model.number="signature.strokeWidth" type="number" min="0.5" max="8" />
+                <u-input v-model.number="signature.opacity" type="number" min="10" max="100" />
+                <button type="button" class="services__pill" @click="signature.strokes = []">
+                  <u-icon name="i-lucide-eraser" />
                   {{ t("services.pdfEditor.signature.clear") }}
                 </button>
               </div>
-              <custom-button variant="full" class="pdf__run-btn" :class="{ 'opacity-60 pointer-events-none': isBusy }"
-                             @click="applySignature">
+
+              <custom-button variant="full" class="pdf__run-btn" :class="{ 'opacity-60 pointer-events-none': isBusy }" @click="applySignature">
                 {{ t("services.pdfEditor.applySignature") }}
               </custom-button>
             </div>
@@ -442,13 +496,7 @@ function download() {
   </u-container>
 </template>
 
-<!-- SignatureOverlay component below -->
-<script lang="ts">
-export default {}
-</script>
-
 <style scoped>
-/* reuse your styles vibe */
 .pdf {
   padding-top: 24px;
   padding-bottom: 96px;
@@ -492,11 +540,15 @@ export default {}
   align-items: center;
   gap: 10px;
   font-weight: 900;
-  color: rgba(255, 255, 255, .9);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .light .pdf__panel-title {
-  color: rgba(21, 22, 42, .85);
+  color: rgba(21, 22, 42, 0.85);
+}
+
+.pdf__files {
+  margin-top: 6px;
 }
 
 .pdf__file-list {
@@ -511,8 +563,8 @@ export default {}
   gap: 10px;
   padding: 10px;
   border-radius: 14px;
-  background: rgba(255, 255, 255, .03);
-  border: 1px solid rgba(255, 255, 255, .06);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .pdf__file-left {
@@ -528,13 +580,13 @@ export default {}
   border-radius: 999px;
   display: grid;
   place-items: center;
-  background: rgba(255, 255, 255, .05);
-  border: 1px solid rgba(255, 255, 255, .08);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .pdf__file-name {
   font-weight: 800;
-  color: rgba(255, 255, 255, .88);
+  color: rgba(255, 255, 255, 0.88);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -542,21 +594,35 @@ export default {}
 }
 
 .light .pdf__file-name {
-  color: rgba(21, 22, 42, .86);
+  color: rgba(21, 22, 42, 0.86);
 }
 
 .pdf__icon-btn {
   width: 36px;
   height: 36px;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, .08);
-  background: rgba(255, 255, 255, .04);
-  color: rgba(255, 255, 255, .85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.85);
+  transition: filter 160ms ease, transform 140ms ease;
+}
+
+.pdf__icon-btn:hover {
+  filter: brightness(1.08);
+}
+
+.pdf__icon-btn:active {
+  transform: translateY(1px);
 }
 
 .pdf__icon-btn:disabled {
-  opacity: .45;
+  opacity: 0.45;
   cursor: not-allowed;
+}
+
+.pdf__icon-btn_danger {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 80, 120, 0.08);
 }
 
 .pdf__upload-actions {
@@ -573,7 +639,7 @@ export default {}
 .pdf__pages {
   margin-top: 16px;
   padding-top: 14px;
-  border-top: 1px solid rgba(255, 255, 255, .06);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .pdf__pages-head {
@@ -586,11 +652,11 @@ export default {}
 
 .pdf__pages-title {
   font-weight: 900;
-  color: rgba(255, 255, 255, .88);
+  color: rgba(255, 255, 255, 0.88);
 }
 
 .light .pdf__pages-title {
-  color: rgba(21, 22, 42, .86);
+  color: rgba(21, 22, 42, 0.86);
 }
 
 .pdf__pages-nav {
@@ -604,7 +670,7 @@ export default {}
   padding: 8px 12px;
   border-radius: 999px;
   border: 1px solid var(--ui-border);
-  background: rgba(255, 255, 255, .03);
+  background: rgba(255, 255, 255, 0.03);
   font-weight: 900;
 }
 
@@ -612,8 +678,15 @@ export default {}
   margin-top: 12px;
   padding: 10px 12px;
   border-radius: 14px;
-  background: rgba(255, 80, 120, 0.10);
+  background: rgba(255, 80, 120, 0.1);
   border: 1px solid rgba(255, 80, 120, 0.18);
+}
+
+.pdf__hint {
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .pdf__canvas-wrap {
@@ -625,8 +698,16 @@ export default {}
   width: 100%;
   border-radius: 18px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, .06);
-  background: rgba(255, 255, 255, .02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.02);
+
+  &_white {
+    background-color: white;
+  }
+
+  &_black {
+    background-color: black;
+  }
 }
 
 .pdf__preview {
@@ -637,58 +718,142 @@ export default {}
 
 .pdf__overlay-box {
   position: absolute;
-  transform: translate(-0%, -0%);
-  left: 10%;
-  top: 10%;
+  transform: translate(0%, 0%);
   padding: 10px 12px;
   border-radius: 14px;
-  background: rgba(128, 90, 245, .16);
-  border: 1px solid rgba(205, 153, 255, .22);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, .25);
+  background: rgba(128, 90, 245, 0.16);
+  border: 1px solid rgba(205, 153, 255, 0.22);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
   user-select: none;
   max-width: 70%;
+  cursor: grab;
+}
+
+.pdf__overlay-box:active {
+  cursor: grabbing;
 }
 
 .pdf__overlay-text {
   font-weight: 900;
-  color: rgba(255, 255, 255, .92);
+  color: rgba(255, 255, 255, 0.92);
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
-.pdf__toolbox {
+.pdf__toolbar {
   margin-top: 14px;
   padding-top: 14px;
-  border-top: 1px solid rgba(255, 255, 255, .06);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.pdf__tool-row {
+.pdf__toolbar-left {
   display: flex;
+  align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+.pdf__toolbar-spacer {
+  flex: 1;
+}
+
+.pdf__toolbar-mini {
+  display: inline-flex;
   align-items: center;
+  gap: 8px;
+}
+
+.pdf__dpi {
+  width: 120px;
 }
 
 .pdf__tool-section {
   margin-top: 12px;
   padding: 12px;
   border-radius: 16px;
-  background: rgba(255, 255, 255, .03);
-  border: 1px solid rgba(255, 255, 255, .06);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .pdf__tool-title {
   font-weight: 900;
   margin-bottom: 10px;
-  color: rgba(255, 255, 255, .9);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .light .pdf__tool-title {
-  color: rgba(21, 22, 42, .86);
+  color: rgba(21, 22, 42, 0.86);
 }
 
-.pdf__hint {
-  padding: 12px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, .03);
-  border: 1px solid rgba(255, 255, 255, .06);
+.pdf__tool-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
+  @media (min-width: 560px) {
+    grid-template-columns: 2fr 1fr 1fr;
+  }
+}
+
+.pdf__top-actions {
+  display: inline-flex;
+  gap: 8px;
+}
+
+.pdf__sig {
+  position: absolute;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(205, 153, 255, 0.18);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  transform: translate(0%, 0%);
+}
+
+.pdf__sig-head {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: inline-flex;
+  gap: 8px;
+  z-index: 3;
+}
+
+.pdf__sig-chip {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(14, 12, 21, 0.65);
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 900;
+  transition: filter 160ms ease, transform 140ms ease;
+}
+
+.pdf__sig-chip:hover {
+  filter: brightness(1.08);
+}
+
+.pdf__sig-chip:active {
+  transform: translateY(1px);
+}
+
+.pdf__sig-chip_active {
+  border-color: rgba(128, 90, 245, 0.35);
+  background: rgba(128, 90, 245, 0.18);
+}
+
+.pdf__sig-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+.pdf__sig-canvas_draw {
+  cursor: crosshair;
+}
+
+.pdf__sig-canvas_move {
+  cursor: grab;
 }
 </style>

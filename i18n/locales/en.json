@@ -1,4 +1,62 @@
 {
+  "services": {
+    "pdfEditor": {
+      "title": "Online PDF Editor",
+      "headline": "Edit PDF files online",
+      "subtitle": "Add text, signatures, rotate pages, and download your edited PDF in seconds.",
+
+      "upload": {
+        "title": "Upload PDF",
+        "add": "Add files",
+        "start": "Start editing",
+        "replace": "Replace file",
+        "clear": "Clear list",
+        "hint": "Upload one or more PDF files to begin editing."
+      },
+
+      "pages": "Pages",
+      "page": "Page",
+
+      "preview": "Preview",
+      "previewHint": "Upload a file to see the preview.",
+
+      "tools": {
+        "text": "Text",
+        "signature": "Signature"
+      },
+
+      "text": {
+        "title": "Add text"
+      },
+
+      "applyText": "Apply text",
+
+      "signature": {
+        "title": "Draw signature",
+        "clear": "Clear"
+      },
+
+      "applySignature": "Apply signature",
+
+      "actions": {
+        "undo": "Undo",
+        "redo": "Redo",
+        "download": "Download"
+      },
+
+      "errors": {
+        "create": "Failed to create PDF job.",
+        "applyText": "Failed to apply text.",
+        "applySignature": "Failed to apply signature.",
+        "undo": "Failed to undo.",
+        "redo": "Failed to redo.",
+        "download": "Failed to download file."
+      },
+
+      "dpi": "DPI",
+      "version": "Version"
+    }
+  },
   "menu": {
     "home": "Home",
     "tools": "Tools",
