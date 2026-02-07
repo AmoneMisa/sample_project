@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import PageHeader from "~/components/common/PageHeader.vue";
 import CustomButton from "~/components/common/CustomButton.vue";
-import { computed, reactive, ref, watch, onMounted } from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import SignatureOverlay from "~/components/pdfEditor/SignatureOverlay.vue";
 import TextOverlay from "~/components/pdfEditor/TextOverlay.vue";
+import {v4 as uuidv4} from "uuid";
 
 const config = useRuntimeConfig();
-const { t } = useI18n();
+const {t} = useI18n();
 const route = useRoute();
 const router = useRouter();
 
@@ -74,16 +75,16 @@ const selectedId = ref<string | null>(null);
 const tool = ref<"none" | "text" | "signature">("none");
 
 const availableFonts: Array<{ label: string; value: PdfFont }> = [
-  { label: "Helvetica", value: "helvetica" },
-  { label: "Times", value: "times" },
-  { label: "Courier", value: "courier" },
+  {label: "Helvetica", value: "helvetica"},
+  {label: "Times", value: "times"},
+  {label: "Courier", value: "courier"},
 ];
 
 const alignOptions: Array<{ label: string; value: TextAlign }> = [
-  { label: "Left", value: "left" },
-  { label: "Center", value: "center" },
-  { label: "Right", value: "right" },
-  { label: "Justify", value: "justify" },
+  {label: "Left", value: "left"},
+  {label: "Center", value: "center"},
+  {label: "Right", value: "right"},
+  {label: "Justify", value: "justify"},
 ];
 
 const previewUrl = computed(() => {
@@ -176,9 +177,8 @@ function selectEl(id: string) {
  *  Create elements
  *  --------------------------*/
 function addText() {
-  const id = crypto.randomUUID();
   const el: TextEl = {
-    id,
+    id: uuidv4(),
     type: "text",
     page: page.value,
     xRel: 0.15,
@@ -197,14 +197,13 @@ function addText() {
     autoFit: true,
   };
   elements.value.push(el);
-  selectedId.value = id;
+  selectedId.value = el.id;
   tool.value = "text";
 }
 
 function addSignature() {
-  const id = crypto.randomUUID();
   const el: SigEl = {
-    id,
+    id: uuidv4(),
     type: "signature",
     page: page.value,
     xRel: 0.15,
@@ -217,7 +216,7 @@ function addSignature() {
     color: "#ffffff",
   };
   elements.value.push(el);
-  selectedId.value = id;
+  selectedId.value = el.id;
   tool.value = "signature";
 }
 
@@ -299,7 +298,7 @@ async function saveDocument() {
         const form = new FormData();
         form.append("tool", "watermark_text");
         form.append("options", JSON.stringify(options));
-        await $fetch(`${config.public.apiBase}/pdf/apply/${jobId.value}`, { method: "POST", body: form });
+        await $fetch(`${config.public.apiBase}/pdf/apply/${jobId.value}`, {method: "POST", body: form});
       }
 
       if (el.type === "signature") {
@@ -322,7 +321,7 @@ async function saveDocument() {
         const form = new FormData();
         form.append("tool", "draw_signature");
         form.append("options", JSON.stringify(options));
-        await $fetch(`${config.public.apiBase}/pdf/apply/${jobId.value}`, { method: "POST", body: form });
+        await $fetch(`${config.public.apiBase}/pdf/apply/${jobId.value}`, {method: "POST", body: form});
       }
     }
 
@@ -346,7 +345,7 @@ onMounted(async () => {
 <template>
   <u-container class="pdf">
     <div class="pdf__header text-center space-y-3">
-      <page-header title="services.pdfEditor.title" headline="services.pdfEditor.headline" class="mb-6" />
+      <page-header title="services.pdfEditor.title" headline="services.pdfEditor.headline" class="mb-6"/>
       <p class="pdf__subtitle text-muted mx-auto">{{ t("services.pdfEditor.subtitle") }}</p>
     </div>
 
@@ -355,19 +354,19 @@ onMounted(async () => {
         <div class="ui-anim-border__inner pdf__panel-inner">
           <div class="pdf__panel-head">
             <div class="pdf__panel-title">
-              <u-icon name="i-lucide-file-image" />
+              <u-icon name="i-lucide-file-image"/>
               <span>{{ t("services.pdfEditor.preview") }}</span>
             </div>
 
             <div class="pdf__top-actions">
               <button type="button" class="ui-pill-btn" @click="uploadNew" :disabled="isBusy">
                 <span class="ui-pill-btn__inner">
-                  <u-icon name="i-lucide-upload" />
+                  <u-icon name="i-lucide-upload"/>
                   {{ t("services.pdfEditor.upload.new") }}
                 </span>
               </button>
 
-              <div class="pdf__sep" />
+              <div class="pdf__sep"/>
 
               <u-select
                   :disabled="isBusy"
@@ -379,29 +378,29 @@ onMounted(async () => {
                 ]"
               />
 
-              <div class="pdf__sep" />
+              <div class="pdf__sep"/>
 
               <button type="button" class="pdf__icon-btn" :disabled="isBusy || page <= 1" @click="page--">
-                <u-icon name="i-lucide-chevron-left" />
+                <u-icon name="i-lucide-chevron-left"/>
               </button>
 
               <div class="pdf__page-chip">{{ t("services.pdfEditor.page") }} {{ page }} / {{ pages }}</div>
 
               <button type="button" class="pdf__icon-btn" :disabled="isBusy || page >= pages" @click="page++">
-                <u-icon name="i-lucide-chevron-right" />
+                <u-icon name="i-lucide-chevron-right"/>
               </button>
 
-              <div class="pdf__sep" />
+              <div class="pdf__sep"/>
 
               <div class="pdf__toolbar-mini">
                 <span class="text-muted">DPI</span>
-                <u-input v-model.number="dpi" type="number" min="72" max="220" class="pdf__dpi" />
+                <u-input v-model.number="dpi" type="number" min="72" max="220" class="pdf__dpi"/>
               </div>
 
-              <div class="pdf__sep" />
+              <div class="pdf__sep"/>
 
               <button type="button" class="pdf__icon-btn" @click="download" :disabled="isBusy">
-                <u-icon name="i-lucide-download" />
+                <u-icon name="i-lucide-download"/>
               </button>
 
               <custom-button
@@ -417,8 +416,9 @@ onMounted(async () => {
 
           <!-- Toolstrip: creates new elements -->
           <div class="pdf__toolstrip">
-            <button type="button" class="services__pill" :class="{ services__pill_active: tool === 'text' }" @click="addText">
-              <u-icon name="i-lucide-type" />
+            <button type="button" class="services__pill" :class="{ services__pill_active: tool === 'text' }"
+                    @click="addText">
+              <u-icon name="i-lucide-type"/>
               {{ t("services.pdfEditor.tools.text") }}
             </button>
 
@@ -428,58 +428,59 @@ onMounted(async () => {
                 :class="{ services__pill_active: tool === 'signature' }"
                 @click="addSignature"
             >
-              <u-icon name="i-lucide-pen-tool" />
+              <u-icon name="i-lucide-pen-tool"/>
               {{ t("services.pdfEditor.tools.signature") }}
             </button>
 
             <button type="button" class="services__pill" :disabled="!selectedId" @click="removeSelected">
-              <u-icon name="i-lucide-trash-2" />
+              <u-icon name="i-lucide-trash-2"/>
               {{ t("services.pdfEditor.removeElement") || "Remove" }}
             </button>
           </div>
 
-          <!-- Properties panel for selected element -->
           <div v-if="selectedEl && selectedEl.type === 'text'" class="pdf__tool-section">
             <div class="pdf__tool-title">{{ t("services.pdfEditor.text.title") }}</div>
 
             <div class="pdf__tool-grid4">
               <div class="pdf__field">
                 <div class="pdf__label">{{ t("services.pdfEditor.text.valueLabel") }}</div>
-                <u-input v-model="selectedEl.value" :placeholder="t('services.pdfEditor.text.valuePlaceholder')" />
+                <u-input v-model="selectedEl.value" :placeholder="t('services.pdfEditor.text.valuePlaceholder')"/>
               </div>
 
               <div class="pdf__field">
                 <div class="pdf__label">{{ t("services.pdfEditor.text.fontLabel") }}</div>
-                <u-select v-model="selectedEl.font" :items="availableFonts" />
+                <u-select v-model="selectedEl.font" :items="availableFonts"/>
               </div>
 
               <div class="pdf__field">
                 <div class="pdf__label">{{ t("services.pdfEditor.text.fontSizeLabel") }}</div>
-                <u-input v-model.number="selectedEl.fontSize" type="number" min="8" max="120" />
+                <u-input v-model.number="selectedEl.fontSize" type="number" min="8" max="120"/>
               </div>
 
               <div class="pdf__field">
                 <div class="pdf__label">{{ t("services.pdfEditor.text.colorLabel") }}</div>
-                <u-input v-model="selectedEl.color" type="color" />
+                <u-input v-model="selectedEl.color" type="color"/>
               </div>
 
               <div class="pdf__field">
                 <div class="pdf__label">{{ t("services.pdfEditor.text.opacityLabel") }}</div>
-                <u-input v-model.number="selectedEl.opacity" type="number" min="5" max="100" />
+                <u-input v-model.number="selectedEl.opacity" type="number" min="5" max="100"/>
               </div>
 
               <div class="pdf__field">
                 <div class="pdf__label">{{ t("services.pdfEditor.text.alignLabel") }}</div>
-                <u-select v-model="selectedEl.align" :items="alignOptions" />
+                <u-select v-model="selectedEl.align" :items="alignOptions"/>
               </div>
 
               <div class="pdf__field pdf__field_row">
                 <div class="pdf__label">{{ t("services.pdfEditor.text.styleLabel") }}</div>
                 <div class="pdf__style-row">
-                  <button type="button" class="pdf__chip" :class="{ pdf__chip_active: selectedEl.bold }" @click="selectedEl.bold = !selectedEl.bold">
+                  <button type="button" class="pdf__chip" :class="{ pdf__chip_active: selectedEl.bold }"
+                          @click="selectedEl.bold = !selectedEl.bold">
                     B
                   </button>
-                  <button type="button" class="pdf__chip" :class="{ pdf__chip_active: selectedEl.italic }" @click="selectedEl.italic = !selectedEl.italic">
+                  <button type="button" class="pdf__chip" :class="{ pdf__chip_active: selectedEl.italic }"
+                          @click="selectedEl.italic = !selectedEl.italic">
                     I
                   </button>
                   <button
@@ -491,7 +492,8 @@ onMounted(async () => {
                     U
                   </button>
 
-                  <button type="button" class="pdf__chip" :class="{ pdf__chip_active: selectedEl.autoFit }" @click="selectedEl.autoFit = !selectedEl.autoFit">
+                  <button type="button" class="pdf__chip" :class="{ pdf__chip_active: selectedEl.autoFit }"
+                          @click="selectedEl.autoFit = !selectedEl.autoFit">
                     AF
                   </button>
                 </div>
@@ -508,23 +510,23 @@ onMounted(async () => {
             <div class="pdf__tool-grid4">
               <div class="pdf__field">
                 <div class="pdf__label">{{ t("services.pdfEditor.signature.strokeWidthLabel") }}</div>
-                <u-input v-model.number="selectedEl.strokeWidth" type="number" min="0.5" max="8" />
+                <u-input v-model.number="selectedEl.strokeWidth" type="number" min="0.5" max="8"/>
               </div>
 
               <div class="pdf__field">
                 <div class="pdf__label">{{ t("services.pdfEditor.signature.opacityLabel") }}</div>
-                <u-input v-model.number="selectedEl.opacity" type="number" min="10" max="100" />
+                <u-input v-model.number="selectedEl.opacity" type="number" min="10" max="100"/>
               </div>
 
               <div class="pdf__field">
                 <div class="pdf__label">{{ t("services.pdfEditor.signature.colorLabel") || "Color" }}</div>
-                <u-input v-model="selectedEl.color" type="color" />
+                <u-input v-model="selectedEl.color" type="color"/>
               </div>
 
               <div class="pdf__field pdf__field_row">
                 <div class="pdf__label">{{ t("services.pdfEditor.signature.actionsLabel") }}</div>
                 <button type="button" class="services__pill" :disabled="isBusy" @click="selectedEl.strokes = []">
-                  <u-icon name="i-lucide-eraser" />
+                  <u-icon name="i-lucide-eraser"/>
                   {{ t("services.pdfEditor.signature.clear") }}
                 </button>
               </div>
@@ -541,7 +543,7 @@ onMounted(async () => {
                 :class="{ pdf__stage_white: bgColor === 'white', pdf__stage_black: bgColor === 'black' }"
                 @pointerdown="onStageDown"
             >
-              <img :src="previewUrl" class="pdf__preview" alt="" />
+              <img :src="previewUrl" class="pdf__preview" alt=""/>
 
               <!-- Render only elements for current page -->
               <template v-for="el in elements.filter((x) => x.page === page)" :key="el.id">

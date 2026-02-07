@@ -93,7 +93,7 @@ const drag = reactive({
 
 function onMoveDown(e: PointerEvent) {
   if (props.disabled) return;
-  if (props.enabled === false) return;
+  if (!props.enabled) return;
 
   // IMPORTANT: if not selected — do NOT start dragging
   // Let parent handle selection by its own @pointerdown.stop on component
@@ -159,7 +159,7 @@ const resizing = reactive({
 
 function onHandleDown(e: PointerEvent, corner: "br" | "tr" | "bl" | "tl") {
   if (props.disabled) return;
-  if (props.enabled === false) return;
+  if (!props.enabled) return;
   if (!props.selected) return;
 
   const stageRect = getStageRect();
@@ -234,7 +234,7 @@ function onHandleUp(e: PointerEvent) {
  * --------------------------*/
 function autoFitFont() {
   if (!props.autoFit) return;
-  if (props.enabled === false) return;
+  if (!props.enabled) return;
 
   const minFs = props.minFontSize ?? 8;
   const maxFs = props.maxFontSize ?? 120;
