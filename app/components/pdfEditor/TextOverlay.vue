@@ -4,7 +4,11 @@ import { computed, reactive, ref, watch, nextTick, onMounted, onBeforeUnmount } 
 type TextAlign = "left" | "center" | "right" | "justify";
 
 const props = defineProps<{
-  enabled: boolean;
+  // kept for backward-compat; in new flow you can always render and toggle via v-if in parent
+  enabled?: boolean;
+
+  // selection (controls рамку/хендлы и возможность двигать/ресайзить)
+  selected?: boolean;
 
   // position & size in stage relative coords (0..1)
   xRel: number;
@@ -31,7 +35,6 @@ const props = defineProps<{
   // if true -> fit fontSize to width when box / text changes
   autoFit?: boolean;
 
-  // Minimum / maximum font sizes for auto fit
   minFontSize?: number;
   maxFontSize?: number;
 }>();
@@ -41,14 +44,11 @@ const emit = defineEmits<{
   (e: "update:yRel", v: number): void;
   (e: "update:wRel", v: number): void;
   (e: "update:hRel", v: number): void;
-
   (e: "update:fontSize", v: number): void;
-
-  // Optional: expose computed maxWidth in PDF points if parent provides pageW
-  // but we keep this component stage-only; parent can compute itself.
 }>();
 
 const boxRef = ref<HTMLDivElement | null>(null);
+const measurerRef = ref<HTMLDivElement | null>(null);
 
 const MIN_W = 0.10;
 const MIN_H = 0.06;
@@ -81,7 +81,9 @@ function clampRelXYWH(xRel: number, yRel: number, wRel: number, hRel: number) {
   return { xRel, yRel, wRel, hRel };
 }
 
-// -------- Drag (Move) --------
+/** ---------------------------
+ * Move (drag) — only when selected
+ * --------------------------*/
 const drag = reactive({
   active: false,
   pointerId: -1,
@@ -91,7 +93,11 @@ const drag = reactive({
 
 function onMoveDown(e: PointerEvent) {
   if (props.disabled) return;
-  if (!props.enabled) return;
+  if (props.enabled === false) return;
+
+  // IMPORTANT: if not selected — do NOT start dragging
+  // Let parent handle selection by its own @pointerdown.stop on component
+  if (!props.selected) return;
 
   const stageRect = getStageRect();
   if (!stageRect) return;
@@ -136,7 +142,9 @@ function onMoveUp(e: PointerEvent) {
   if (el?.hasPointerCapture?.(e.pointerId)) el.releasePointerCapture(e.pointerId);
 }
 
-// -------- Resize --------
+/** ---------------------------
+ * Resize — only when selected
+ * --------------------------*/
 const resizing = reactive({
   active: false,
   pointerId: -1,
@@ -151,7 +159,8 @@ const resizing = reactive({
 
 function onHandleDown(e: PointerEvent, corner: "br" | "tr" | "bl" | "tl") {
   if (props.disabled) return;
-  if (!props.enabled) return;
+  if (props.enabled === false) return;
+  if (!props.selected) return;
 
   const stageRect = getStageRect();
   if (!stageRect) return;
@@ -199,7 +208,6 @@ function onHandleMove(e: PointerEvent) {
     yRel = resizing.startYRel + dyRel;
   }
 
-  // Apply base min and boundary clamps
   const clamped = clampRelXYWH(xRel, yRel, wRel, hRel);
 
   emit("update:xRel", clamped.xRel);
@@ -221,13 +229,12 @@ function onHandleUp(e: PointerEvent) {
   if (el?.hasPointerCapture?.(e.pointerId)) el.releasePointerCapture(e.pointerId);
 }
 
-// -------- Font AutoFit --------
-// We fit based on actual rendered width in DOM, so it matches the preview.
-const measurerRef = ref<HTMLDivElement | null>(null);
-
+/** ---------------------------
+ * Font AutoFit (DOM-based)
+ * --------------------------*/
 function autoFitFont() {
   if (!props.autoFit) return;
-  if (!props.enabled) return;
+  if (props.enabled === false) return;
 
   const minFs = props.minFontSize ?? 8;
   const maxFs = props.maxFontSize ?? 120;
@@ -239,36 +246,28 @@ function autoFitFont() {
   const m = measurerRef.value;
   if (!m) return;
 
-  // binary-ish search: fast and stable
+  const text = (props.value || "").trim();
+  if (!text) return;
+
   let lo = minFs;
   let hi = Math.max(minFs, Math.min(maxFs, props.fontSize || maxFs));
   let best = lo;
 
-  // set baseline style once
   m.style.fontFamily = props.font || "inherit";
   m.style.fontWeight = props.bold ? "900" : "700";
   m.style.fontStyle = props.italic ? "italic" : "normal";
-  m.style.letterSpacing = "0px";
   m.style.whiteSpace = "pre-wrap";
   m.style.wordBreak = "break-word";
   m.style.lineHeight = "1.15";
+  m.style.width = `${boxWpx}px`;
 
-  const text = (props.value || "").trim();
-  if (!text) return;
-
-  // We fit by width: the back uses maxWidth for alignment and justify.
-  // Height fitting можно добавить потом, если надо.
   for (let i = 0; i < 14; i++) {
     const mid = Math.floor((lo + hi) / 2);
     m.style.fontSize = `${mid}px`;
     m.textContent = text;
 
-    // scrollWidth is correct when width constraint exists
-    // We'll force a width equal to our overlay width
-    m.style.width = `${boxWpx}px`;
-
-    const w = m.scrollWidth; // actual needed width
-    if (w <= boxWpx + 0.5) {
+    const needed = m.scrollWidth;
+    if (needed <= boxWpx + 0.5) {
       best = mid;
       lo = mid + 1;
     } else {
@@ -276,7 +275,6 @@ function autoFitFont() {
     }
   }
 
-  // Only emit if changed (avoid loops)
   if (best !== props.fontSize) emit("update:fontSize", best);
 }
 
@@ -319,55 +317,59 @@ const boxStyle = computed(() => ({
   textDecoration: props.underline ? "underline" : "none",
   textAlign: props.align,
 }));
+
+const isShown = computed(() => props.enabled !== false);
 </script>
 
 <template>
-  <!-- hidden measurer -->
-  <div ref="measurerRef" class="pdf__text-measure" aria-hidden="true" />
-
   <div
-      v-if="enabled"
+      v-if="isShown"
       ref="boxRef"
       class="pdf__text"
+      :class="{ 'pdf__text_selected': !!selected }"
       :style="boxStyle"
       @pointerdown="onMoveDown"
       @pointermove="onMoveMove"
       @pointerup="onMoveUp"
       @pointercancel="onMoveUp"
   >
-    <div class="pdf__text-inner" @pointerdown.stop.prevent>
+    <!-- measurer lives INSIDE root (important: single-root component!) -->
+    <div ref="measurerRef" class="pdf__text-measure" aria-hidden="true" />
+
+    <div class="pdf__text-inner">
       {{ value }}
     </div>
 
-    <!-- resize handles -->
-    <div
-        class="pdf__text-handle pdf__text-handle_tl"
-        @pointerdown.stop.prevent="(e) => onHandleDown(e, 'tl')"
-        @pointermove.stop.prevent="onHandleMove"
-        @pointerup.stop.prevent="onHandleUp"
-        @pointercancel.stop.prevent="onHandleUp"
-    />
-    <div
-        class="pdf__text-handle pdf__text-handle_tr"
-        @pointerdown.stop.prevent="(e) => onHandleDown(e, 'tr')"
-        @pointermove.stop.prevent="onHandleMove"
-        @pointerup.stop.prevent="onHandleUp"
-        @pointercancel.stop.prevent="onHandleUp"
-    />
-    <div
-        class="pdf__text-handle pdf__text-handle_bl"
-        @pointerdown.stop.prevent="(e) => onHandleDown(e, 'bl')"
-        @pointermove.stop.prevent="onHandleMove"
-        @pointerup.stop.prevent="onHandleUp"
-        @pointercancel.stop.prevent="onHandleUp"
-    />
-    <div
-        class="pdf__text-handle pdf__text-handle_br"
-        @pointerdown.stop.prevent="(e) => onHandleDown(e, 'br')"
-        @pointermove.stop.prevent="onHandleMove"
-        @pointerup.stop.prevent="onHandleUp"
-        @pointercancel.stop.prevent="onHandleUp"
-    />
+    <template v-if="selected">
+      <div
+          class="pdf__text-handle pdf__text-handle_tl"
+          @pointerdown.stop.prevent="(e) => onHandleDown(e, 'tl')"
+          @pointermove.stop.prevent="onHandleMove"
+          @pointerup.stop.prevent="onHandleUp"
+          @pointercancel.stop.prevent="onHandleUp"
+      />
+      <div
+          class="pdf__text-handle pdf__text-handle_tr"
+          @pointerdown.stop.prevent="(e) => onHandleDown(e, 'tr')"
+          @pointermove.stop.prevent="onHandleMove"
+          @pointerup.stop.prevent="onHandleUp"
+          @pointercancel.stop.prevent="onHandleUp"
+      />
+      <div
+          class="pdf__text-handle pdf__text-handle_bl"
+          @pointerdown.stop.prevent="(e) => onHandleDown(e, 'bl')"
+          @pointermove.stop.prevent="onHandleMove"
+          @pointerup.stop.prevent="onHandleUp"
+          @pointercancel.stop.prevent="onHandleUp"
+      />
+      <div
+          class="pdf__text-handle pdf__text-handle_br"
+          @pointerdown.stop.prevent="(e) => onHandleDown(e, 'br')"
+          @pointermove.stop.prevent="onHandleMove"
+          @pointerup.stop.prevent="onHandleUp"
+          @pointercancel.stop.prevent="onHandleUp"
+      />
+    </template>
   </div>
 </template>
 
@@ -379,11 +381,20 @@ const boxStyle = computed(() => ({
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
   user-select: none;
-  cursor: grab;
   overflow: hidden;
+  cursor: default;
 }
 
-.pdf__text:active {
+.pdf__text_selected {
+  border-color: rgba(128, 90, 245, 0.42);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25), 0 0 0 2px rgba(128, 90, 245, 0.18) inset;
+}
+
+/* only selected -> move cursor */
+.pdf__text_selected {
+  cursor: grab;
+}
+.pdf__text_selected:active {
   cursor: grabbing;
 }
 

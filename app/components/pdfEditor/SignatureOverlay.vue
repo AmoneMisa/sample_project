@@ -3,16 +3,32 @@ import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } 
 
 type Stroke = Array<[number, number]>;
 type Strokes = Array<Stroke>;
+type Mode = "move" | "draw" | "erase";
 
 const props = defineProps<{
+  // selection
+  selected?: boolean;
+
+  // position & size in stage relative coords (0..1)
   xRel: number;
   yRel: number;
   wRel: number;
   hRel: number;
+
+  // strokes in REL coords (0..1 inside canvas area)
   strokes: Strokes;
+
   strokeWidth: number;
   opacity?: number;
+
   disabled?: boolean;
+
+  // header height (px). If not provided -> auto from DOM
+  headerPx?: number;
+
+  // minimum box size (rel)
+  minWRel?: number;
+  minHRel?: number;
 }>();
 
 const emit = defineEmits<{
@@ -25,59 +41,59 @@ const emit = defineEmits<{
 
 const boxRef = ref<HTMLDivElement | null>(null);
 const canvasRef = ref<HTMLCanvasElement | null>(null);
+const headRef = ref<HTMLDivElement | null>(null);
 
-const mode = ref<"move" | "draw" | "erase">("draw");
+const mode = ref<Mode>("draw");
 
 const drag = reactive({ active: false, dx: 0, dy: 0, pointerId: -1 });
 const drawing = reactive({ active: false, pointerId: -1 });
 
 const eraser = reactive({
-  // radius in REL coords (0..1 of overlay box)
-  radius: 0.06,
+  radius: 0.06, // radius in REL coords (0..1 of canvas area)
 });
 
-const MIN_W = 0.08;
-const MIN_H = 0.06;
+const MIN_W = computed(() => Math.max(0.04, props.minWRel ?? 0.08));
+const MIN_H = computed(() => Math.max(0.04, props.minHRel ?? 0.10)); // подпись обычно выше
 
-const resizing = reactive({
-  active: false,
-  pointerId: -1,
-  corner: "" as "br" | "tr" | "bl" | "tl" | "",
-  startX: 0,
-  startY: 0,
-  startXRel: 0,
-  startYRel: 0,
-  startWRel: 0,
-  startHRel: 0,
-});
-
-const undoStack = ref<Strokes[]>([]);
-const redoStack = ref<Strokes[]>([]);
-
-function cloneStrokes(s: Strokes): Strokes {
-  return s.map((st) => st.map((p) => [p[0], p[1]] as [number, number]));
+function clamp01(n: number) {
+  return Math.max(0, Math.min(1, n));
 }
 
-function pushUndo() {
-  undoStack.value.push(cloneStrokes(props.strokes));
-  if (undoStack.value.length > 60) undoStack.value.shift();
-  redoStack.value = [];
+function getStageEl(): HTMLElement | null {
+  return boxRef.value?.closest(".pdf__stage") as HTMLElement | null;
 }
 
-function doUndo() {
-  if (!undoStack.value.length) return;
-  redoStack.value.push(cloneStrokes(props.strokes));
-  const prev = undoStack.value.pop()!;
-  emit("update:strokes", prev);
-  nextTick(() => redraw());
+function getStageRect() {
+  const stage = getStageEl();
+  if (!stage) return null;
+  return stage.getBoundingClientRect();
 }
 
-function doRedo() {
-  if (!redoStack.value.length) return;
-  undoStack.value.push(cloneStrokes(props.strokes));
-  const next = redoStack.value.pop()!;
-  emit("update:strokes", next);
-  nextTick(() => redraw());
+function getHeaderPx(): number {
+  if (typeof props.headerPx === "number") return Math.max(0, props.headerPx);
+  const h = headRef.value?.getBoundingClientRect().height ?? 0;
+  return Math.max(0, h);
+}
+
+// clamp so that WHOLE box stays inside stage and not above header line
+function clampRelXYWH(xRel: number, yRel: number, wRel: number, hRel: number) {
+  wRel = Math.max(MIN_W.value, Math.min(1, wRel));
+  hRel = Math.max(MIN_H.value, Math.min(1, hRel));
+
+  const stageRect = getStageRect();
+  const stageH = stageRect?.height ?? 1;
+  const headerRel = stageH > 0 ? getHeaderPx() / stageH : 0; // top forbidden zone in stage coords
+
+  // x within [0..1-w]
+  const maxX = Math.max(0, 1 - wRel);
+  xRel = Math.max(0, Math.min(maxX, xRel));
+
+  // y must be >= headerRel and <= 1-h
+  const minY = Math.max(0, Math.min(1, headerRel));
+  const maxY = Math.max(minY, 1 - hRel);
+  yRel = Math.max(minY, Math.min(maxY, yRel));
+
+  return { xRel, yRel, wRel, hRel, headerRel };
 }
 
 const style = computed(() => ({
@@ -87,33 +103,13 @@ const style = computed(() => ({
   height: `${props.hRel * 100}%`,
 }));
 
-function clamp01(n: number) {
-  return Math.max(0, Math.min(1, n));
-}
-
-function getStageRect() {
-  const stage = boxRef.value?.closest(".pdf__stage") as HTMLElement | null;
-  if (!stage) return null;
-  return stage.getBoundingClientRect();
-}
-
-// clamp so that WHOLE box stays inside stage
-function clampRelXY(xRel: number, yRel: number) {
-  const maxX = Math.max(0, 1 - props.wRel);
-  const maxY = Math.max(0, 1 - props.hRel);
-  return {
-    xRel: Math.max(0, Math.min(maxX, xRel)),
-    yRel: Math.max(0, Math.min(maxY, yRel)),
-  };
-}
-
+/** ---------------------------
+ * Canvas size / redraw
+ * --------------------------*/
 function resizeCanvas() {
   const c = canvasRef.value;
-  const el = boxRef.value;
-  if (!c || !el) return;
+  if (!c) return;
 
-  // height minus header area – canvas element already is sized via CSS calc,
-  // but we set actual pixel buffer based on its real rect.
   const r = c.getBoundingClientRect();
   const dpr = window.devicePixelRatio || 1;
 
@@ -157,6 +153,41 @@ function redraw() {
   }
 }
 
+/** ---------------------------
+ * Undo / redo (local)
+ * --------------------------*/
+const undoStack = ref<Strokes[]>([]);
+const redoStack = ref<Strokes[]>([]);
+
+function cloneStrokes(s: Strokes): Strokes {
+  return s.map((st) => st.map((p) => [p[0], p[1]] as [number, number]));
+}
+
+function pushUndo() {
+  undoStack.value.push(cloneStrokes(props.strokes));
+  if (undoStack.value.length > 60) undoStack.value.shift();
+  redoStack.value = [];
+}
+
+function doUndo() {
+  if (!undoStack.value.length) return;
+  redoStack.value.push(cloneStrokes(props.strokes));
+  const prev = undoStack.value.pop()!;
+  emit("update:strokes", prev);
+  nextTick(() => redraw());
+}
+
+function doRedo() {
+  if (!redoStack.value.length) return;
+  undoStack.value.push(cloneStrokes(props.strokes));
+  const next = redoStack.value.pop()!;
+  emit("update:strokes", next);
+  nextTick(() => redraw());
+}
+
+/** ---------------------------
+ * Rel coords from canvas
+ * --------------------------*/
 function relFromCanvas(e: PointerEvent) {
   const c = canvasRef.value;
   if (!c) return { x: 0, y: 0 };
@@ -168,9 +199,12 @@ function relFromCanvas(e: PointerEvent) {
   return { x: clamp01(x), y: clamp01(y) };
 }
 
-// ---- MOVE BOX ----
+/** ---------------------------
+ * MOVE BOX (only selected, only in mode=move)
+ * --------------------------*/
 function onBoxDown(e: PointerEvent) {
   if (props.disabled) return;
+  if (!props.selected) return;
   if (mode.value !== "move") return;
 
   const stageRect = getStageRect();
@@ -202,7 +236,7 @@ function onBoxMove(e: PointerEvent) {
   const nx = x / stageRect.width;
   const ny = y / stageRect.height;
 
-  const clamped = clampRelXY(nx, ny);
+  const clamped = clampRelXYWH(nx, ny, props.wRel, props.hRel);
   emit("update:xRel", clamped.xRel);
   emit("update:yRel", clamped.yRel);
 }
@@ -216,9 +250,24 @@ function onBoxUp(e: PointerEvent) {
   if (el?.hasPointerCapture?.(e.pointerId)) el.releasePointerCapture(e.pointerId);
 }
 
-// ---- RESIZE ----
+/** ---------------------------
+ * RESIZE (only selected)
+ * --------------------------*/
+const resizing = reactive({
+  active: false,
+  pointerId: -1,
+  corner: "" as "br" | "tr" | "bl" | "tl" | "",
+  startX: 0,
+  startY: 0,
+  startXRel: 0,
+  startYRel: 0,
+  startWRel: 0,
+  startHRel: 0,
+});
+
 function onHandleDown(e: PointerEvent, corner: "br" | "tr" | "bl" | "tl") {
   if (props.disabled) return;
+  if (!props.selected) return;
 
   const stageRect = getStageRect();
   if (!stageRect) return;
@@ -266,28 +315,12 @@ function onHandleMove(e: PointerEvent) {
     yRel = resizing.startYRel + dyRel;
   }
 
-  wRel = Math.max(MIN_W, wRel);
-  hRel = Math.max(MIN_H, hRel);
+  const clamped = clampRelXYWH(xRel, yRel, wRel, hRel);
 
-  // keep inside stage
-  xRel = clamp01(xRel);
-  yRel = clamp01(yRel);
-
-  const maxW = 1 - xRel;
-  const maxH = 1 - yRel;
-  wRel = Math.min(wRel, maxW);
-  hRel = Math.min(hRel, maxH);
-
-  // Now also clamp pos so that box doesn't jump out when using left/top corners
-  const maxX = Math.max(0, 1 - wRel);
-  const maxY = Math.max(0, 1 - hRel);
-  xRel = Math.max(0, Math.min(maxX, xRel));
-  yRel = Math.max(0, Math.min(maxY, yRel));
-
-  emit("update:xRel", xRel);
-  emit("update:yRel", yRel);
-  emit("update:wRel", wRel);
-  emit("update:hRel", hRel);
+  emit("update:xRel", clamped.xRel);
+  emit("update:yRel", clamped.yRel);
+  emit("update:wRel", clamped.wRel);
+  emit("update:hRel", clamped.hRel);
 
   nextTick(() => resizeCanvas());
 }
@@ -303,7 +336,9 @@ function onHandleUp(e: PointerEvent) {
   if (el?.hasPointerCapture?.(e.pointerId)) el.releasePointerCapture(e.pointerId);
 }
 
-// ---- DRAW / ERASE ----
+/** ---------------------------
+ * DRAW / ERASE (only selected)
+ * --------------------------*/
 function eraseAt(x: number, y: number) {
   const rad = eraser.radius;
   const rad2 = rad * rad;
@@ -322,6 +357,7 @@ function eraseAt(x: number, y: number) {
 
 function onCanvasDown(e: PointerEvent) {
   if (props.disabled) return;
+  if (!props.selected) return;
   if (mode.value !== "draw" && mode.value !== "erase") return;
 
   const c = canvasRef.value;
@@ -376,6 +412,29 @@ function onCanvasUp(e: PointerEvent) {
   if (c?.hasPointerCapture?.(e.pointerId)) c.releasePointerCapture(e.pointerId);
 }
 
+/** ---------------------------
+ * Keybinds (only when selected)
+ * --------------------------*/
+function onKeyDown(e: KeyboardEvent) {
+  if (!props.selected) return;
+  const isMac = navigator.platform.toLowerCase().includes("mac");
+  const mod = isMac ? e.metaKey : e.ctrlKey;
+
+  if (!mod) return;
+
+  if (e.key.toLowerCase() === "z") {
+    e.preventDefault();
+    if (e.shiftKey) doRedo();
+    else doUndo();
+  } else if (e.key.toLowerCase() === "y") {
+    e.preventDefault();
+    doRedo();
+  }
+}
+
+/** ---------------------------
+ * Lifecycle
+ * --------------------------*/
 let ro: ResizeObserver | null = null;
 
 onMounted(() => {
@@ -385,11 +444,15 @@ onMounted(() => {
     ro = new ResizeObserver(() => resizeCanvas());
     ro.observe(canvasRef.value);
   }
+
+  window.addEventListener("keydown", onKeyDown);
 });
 
 onBeforeUnmount(() => {
   if (ro && canvasRef.value) ro.unobserve(canvasRef.value);
   ro = null;
+
+  window.removeEventListener("keydown", onKeyDown);
 });
 
 watch(
@@ -402,24 +465,28 @@ watch(
     () => [props.strokeWidth, props.opacity],
     () => nextTick(() => redraw()),
 );
+
+const canShow = computed(() => true);
 </script>
 
 <template>
   <div
+      v-if="canShow"
       ref="boxRef"
       class="pdf__sig"
+      :class="{ 'pdf__sig_selected': !!selected }"
       :style="style"
       @pointerdown="onBoxDown"
       @pointermove="onBoxMove"
       @pointerup="onBoxUp"
       @pointercancel="onBoxUp"
   >
-    <div class="pdf__sig-head" @pointerdown.stop.prevent>
+    <div ref="headRef" class="pdf__sig-head" @pointerdown.stop.prevent>
       <button
           type="button"
           class="pdf__sig-chip"
           :class="{ 'pdf__sig-chip_active': mode === 'draw' }"
-          :disabled="disabled"
+          :disabled="disabled || !selected"
           title="Рисовать"
           aria-label="Рисовать"
           @click="mode = 'draw'"
@@ -431,7 +498,7 @@ watch(
           type="button"
           class="pdf__sig-chip"
           :class="{ 'pdf__sig-chip_active': mode === 'erase' }"
-          :disabled="disabled"
+          :disabled="disabled || !selected"
           title="Ластик"
           aria-label="Ластик"
           @click="mode = 'erase'"
@@ -443,7 +510,7 @@ watch(
           type="button"
           class="pdf__sig-chip"
           :class="{ 'pdf__sig-chip_active': mode === 'move' }"
-          :disabled="disabled"
+          :disabled="disabled || !selected"
           title="Перемещать"
           aria-label="Перемещать"
           @click="mode = 'move'"
@@ -456,7 +523,7 @@ watch(
       <button
           type="button"
           class="pdf__sig-chip"
-          :disabled="disabled || !undoStack.length"
+          :disabled="disabled || !selected || !undoStack.length"
           title="Undo"
           aria-label="Undo"
           @click="doUndo"
@@ -467,7 +534,7 @@ watch(
       <button
           type="button"
           class="pdf__sig-chip"
-          :disabled="disabled || !redoStack.length"
+          :disabled="disabled || !selected || !redoStack.length"
           title="Redo"
           aria-label="Redo"
           @click="doRedo"
@@ -479,42 +546,49 @@ watch(
     <canvas
         ref="canvasRef"
         class="pdf__sig-canvas"
-        :class="mode === 'draw' ? 'pdf__sig-canvas_draw' : mode === 'erase' ? 'pdf__sig-canvas_erase' : 'pdf__sig-canvas_move'"
+        :class="
+        mode === 'draw'
+          ? 'pdf__sig-canvas_draw'
+          : mode === 'erase'
+            ? 'pdf__sig-canvas_erase'
+            : 'pdf__sig-canvas_move'
+      "
         @pointerdown="onCanvasDown"
         @pointermove="onCanvasMove"
         @pointerup="onCanvasUp"
         @pointercancel="onCanvasUp"
     />
 
-    <!-- resize handles -->
-    <div
-        class="pdf__sig-handle pdf__sig-handle_tl"
-        @pointerdown.stop.prevent="(e) => onHandleDown(e, 'tl')"
-        @pointermove.stop.prevent="onHandleMove"
-        @pointerup.stop.prevent="onHandleUp"
-        @pointercancel.stop.prevent="onHandleUp"
-    />
-    <div
-        class="pdf__sig-handle pdf__sig-handle_tr"
-        @pointerdown.stop.prevent="(e) => onHandleDown(e, 'tr')"
-        @pointermove.stop.prevent="onHandleMove"
-        @pointerup.stop.prevent="onHandleUp"
-        @pointercancel.stop.prevent="onHandleUp"
-    />
-    <div
-        class="pdf__sig-handle pdf__sig-handle_bl"
-        @pointerdown.stop.prevent="(e) => onHandleDown(e, 'bl')"
-        @pointermove.stop.prevent="onHandleMove"
-        @pointerup.stop.prevent="onHandleUp"
-        @pointercancel.stop.prevent="onHandleUp"
-    />
-    <div
-        class="pdf__sig-handle pdf__sig-handle_br"
-        @pointerdown.stop.prevent="(e) => onHandleDown(e, 'br')"
-        @pointermove.stop.prevent="onHandleMove"
-        @pointerup.stop.prevent="onHandleUp"
-        @pointercancel.stop.prevent="onHandleUp"
-    />
+    <template v-if="selected">
+      <div
+          class="pdf__sig-handle pdf__sig-handle_tl"
+          @pointerdown.stop.prevent="(e) => onHandleDown(e, 'tl')"
+          @pointermove.stop.prevent="onHandleMove"
+          @pointerup.stop.prevent="onHandleUp"
+          @pointercancel.stop.prevent="onHandleUp"
+      />
+      <div
+          class="pdf__sig-handle pdf__sig-handle_tr"
+          @pointerdown.stop.prevent="(e) => onHandleDown(e, 'tr')"
+          @pointermove.stop.prevent="onHandleMove"
+          @pointerup.stop.prevent="onHandleUp"
+          @pointercancel.stop.prevent="onHandleUp"
+      />
+      <div
+          class="pdf__sig-handle pdf__sig-handle_bl"
+          @pointerdown.stop.prevent="(e) => onHandleDown(e, 'bl')"
+          @pointermove.stop.prevent="onHandleMove"
+          @pointerup.stop.prevent="onHandleUp"
+          @pointercancel.stop.prevent="onHandleUp"
+      />
+      <div
+          class="pdf__sig-handle pdf__sig-handle_br"
+          @pointerdown.stop.prevent="(e) => onHandleDown(e, 'br')"
+          @pointermove.stop.prevent="onHandleMove"
+          @pointerup.stop.prevent="onHandleUp"
+          @pointercancel.stop.prevent="onHandleUp"
+      />
+    </template>
   </div>
 </template>
 
@@ -527,6 +601,11 @@ watch(
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
   overflow: hidden;
   user-select: none;
+}
+
+.pdf__sig_selected {
+  border-color: rgba(128, 90, 245, 0.42);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25), 0 0 0 2px rgba(128, 90, 245, 0.18) inset;
 }
 
 .pdf__sig-head {
@@ -594,6 +673,8 @@ watch(
   background: rgba(255, 255, 255, 0.12);
   z-index: 4;
 }
+
+/* handles are inside the box, but top handles should sit below header visually */
 .pdf__sig-handle_tl {
   left: 8px;
   top: 59px;

@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import PageHeader from "~/components/common/PageHeader.vue";
 import CustomButton from "~/components/common/CustomButton.vue";
-import {computed, reactive, ref, watch, onMounted} from "vue";
+import { computed, reactive, ref, watch, onMounted } from "vue";
 import SignatureOverlay from "~/components/pdfEditor/SignatureOverlay.vue";
 import TextOverlay from "~/components/pdfEditor/TextOverlay.vue";
 
 const config = useRuntimeConfig();
-const {t} = useI18n();
+const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 
@@ -29,74 +29,65 @@ const errorMsg = ref<string | null>(null);
 const stageRef = ref<HTMLDivElement | null>(null);
 const bgColor = ref<string | null>(null);
 
-const textBox = reactive({
-  enabled: false,
-  value: "Hello!",
-  opacity: 30,
-  fontSize: 28,
-  color: "#ffffff",
-  font: "Inter",
-  bold: false,
-  italic: false,
-  underline: false,
-  align: "left" as TextAlign,
-  xRel: 0.15,
-  yRel: 0.15,
-  wRel: 0.35,
-  hRel: 0.12,
-});
+/** ---------------------------
+ *  Elements model (UI-only)
+ *  --------------------------*/
+type BaseEl = {
+  id: string;
+  page: number;
+  xRel: number;
+  yRel: number;
+  wRel: number;
+  hRel: number;
+};
 
-function mapUiFontToPdf(font: string) {
-  const f = (font || "").toLowerCase();
-  if (f.includes("inter")) return "Helvetica";
-  if (f.includes("arial")) return "Helvetica";
-  if (f.includes("times")) return "Times";
-  if (f.includes("courier")) return "Courier";
-  return "Helvetica";
-}
+type TextEl = BaseEl & {
+  type: "text";
+  value: string;
+  opacity: number;
+  fontSize: number;
+  color: string;
+  font: PdfFont;
+  bold: boolean;
+  italic: boolean;
+  underline: boolean;
+  align: TextAlign;
+  autoFit: boolean;
+};
+
+type SigEl = BaseEl & {
+  type: "signature";
+  strokes: Array<Array<[number, number]>>;
+  strokeWidth: number;
+  opacity: number;
+  color: string;
+};
+
+type PdfEl = TextEl | SigEl;
+
+const elements = ref<PdfEl[]>([]);
+const selectedId = ref<string | null>(null);
+
+/** ---------------------------
+ *  UI tool panel state
+ *  --------------------------*/
+const tool = ref<"none" | "text" | "signature">("none");
 
 const availableFonts: Array<{ label: string; value: PdfFont }> = [
-  {label: "Helvetica", value: "helvetica"},
-  {label: "Times", value: "times"},
-  {label: "Courier", value: "courier"},
+  { label: "Helvetica", value: "helvetica" },
+  { label: "Times", value: "times" },
+  { label: "Courier", value: "courier" },
 ];
 
 const alignOptions: Array<{ label: string; value: TextAlign }> = [
-  {label: "Left", value: "left"},
-  {label: "Center", value: "center"},
-  {label: "Right", value: "right"},
-  {label: "Justify", value: "justify"},
+  { label: "Left", value: "left" },
+  { label: "Center", value: "center" },
+  { label: "Right", value: "right" },
+  { label: "Justify", value: "justify" },
 ];
-
-const signature = reactive({
-  enabled: false,
-  strokes: [] as Array<Array<[number, number]>>,
-  xRel: 0.15,
-  yRel: 0.25,
-  wRel: 0.45,
-  hRel: 0.18,
-  strokeWidth: 2.0,
-  opacity: 100,
-});
-
-function approxTextWidthPx(text: string, fontSize: number) {
-  const len = (text || "").length;
-  return len * fontSize * 0.55;
-}
-
-function pickFontSizeToFit(text: string, targetWidthPx: number, initial: number) {
-  let fs = Math.max(8, Math.min(120, initial));
-  const min = 8;
-
-  while (fs > min && approxTextWidthPx(text, fs) > targetWidthPx) {
-    fs -= 1;
-  }
-  return fs;
-}
 
 const previewUrl = computed(() => {
   if (!jobId.value) return "";
-  // v — как cache-buster, сервер его игнорирует, но браузер не будет держать старые картинки
   return `${config.public.apiBase}/pdf/preview/${jobId.value}/${page.value}?dpi=${dpi.value}&v=${activeVersion.value}`;
 });
 
@@ -104,14 +95,32 @@ function clamp01(n: number) {
   return Math.max(0, Math.min(1, n));
 }
 
+function clampInt(n: number, min: number, max: number) {
+  const x = Number.isFinite(n) ? n : min;
+  return Math.max(min, Math.min(max, x));
+}
+
+// server clamps to 220, so do it in UI too
+watch(dpi, (v) => {
+  dpi.value = clampInt(v, 72, 220);
+});
+
+/** ---------------------------
+ *  Coordinate helpers
+ *  --------------------------*/
 function relToPdfX(xRel: number) {
   return xRel * pageW.value;
 }
 
+// IMPORTANT: your backend assumes PDF origin is bottom-left.
+// Our UI yRel is top-based (0 = top).
 function relToPdfY(yRel: number) {
   return pageH.value - yRel * pageH.value;
 }
 
+/** ---------------------------
+ *  Load page info
+ *  --------------------------*/
 async function refreshInfo() {
   if (!jobId.value) return;
   try {
@@ -127,7 +136,6 @@ async function refreshInfo() {
     if (page.value > pages.value) page.value = pages.value;
     if (page.value < 1) page.value = 1;
   } catch (e: any) {
-    // fallback to status, если вдруг page-info падает
     try {
       const st = await $fetch<{ activeVersion: number }>(`${config.public.apiBase}/pdf/status/${jobId.value}`);
       activeVersion.value = st.activeVersion;
@@ -137,111 +145,93 @@ async function refreshInfo() {
   }
 }
 
-async function applyText() {
+watch(jobId, async () => {
   if (!jobId.value) return;
-  if (!textBox.value.trim()) return;
+  page.value = 1;
+  await refreshInfo();
+});
 
-  isBusy.value = true;
-  errorMsg.value = null;
+watch(page, () => {
+  if (!jobId.value) return;
+  if (page.value < 1) page.value = 1;
+  if (page.value > pages.value) page.value = pages.value;
+});
 
-  try {
-    const maxWidth = textBox.wRel * pageW.value;
-
-    // Подбираем fontSize исходя из ширины бокса на превью:
-    // превью в DOM — это не pdf-пункты, но нам нужно подобрать размер в pdf-пунктах.
-    // Поэтому берём ширину бокса в pdf-пунктах (maxWidth) и под него подгоняем.
-    const fittedSize = pickFontSizeToFit(textBox.value, maxWidth, textBox.fontSize);
-
-    const options = {
-      text: textBox.value,
-      opacity: textBox.opacity,
-      page: page.value,
-      x: relToPdfX(textBox.xRel),
-      y: relToPdfY(textBox.yRel),
-      fontSize: fittedSize,
-      color: textBox.color,
-      font: mapUiFontToPdf(textBox.font),
-      bold: textBox.bold,
-      italic: textBox.italic,
-      underline: textBox.underline,
-      align: textBox.align,
-      maxWidth,
-    };
-
-    const form = new FormData();
-    form.append("tool", "watermark_text");
-    form.append("options", JSON.stringify(options));
-
-    await $fetch(`${config.public.apiBase}/pdf/apply/${jobId.value}`, { method: "POST", body: form });
-    await refreshInfo();
-  } catch (e: any) {
-    errorMsg.value = e?.data?.detail?.message || e?.message || "Apply text failed";
-  } finally {
-    isBusy.value = false;
-  }
+/** ---------------------------
+ *  Selection / focus
+ *  --------------------------*/
+function onStageDown(e: PointerEvent) {
+  const t = e.target as HTMLElement;
+  // overlays should mark their root with data-el-root="true"
+  if (!t.closest("[data-el-root='true']")) selectedId.value = null;
 }
 
-async function applySignature() {
-  if (!jobId.value) return;
-  if (!signature.strokes.length) return;
+const selectedEl = computed(() => elements.value.find((x) => x.id === selectedId.value) ?? null);
 
-  isBusy.value = true;
-  errorMsg.value = null;
-
-  try {
-    const options = {
-      page: page.value,
-      x: relToPdfX(signature.xRel),
-      y: relToPdfY(signature.yRel) - signature.hRel * pageH.value,
-      w: signature.wRel * pageW.value,
-      h: signature.hRel * pageH.value,
-      strokes: signature.strokes.map((stroke) => stroke.map(([x, y]) => [x, 1 - y])),
-      strokeWidth: signature.strokeWidth,
-      opacity: signature.opacity,
-    };
-
-    const form = new FormData();
-    form.append("tool", "draw_signature");
-    form.append("options", JSON.stringify(options));
-
-    await $fetch(`${config.public.apiBase}/pdf/apply/${jobId.value}`, {method: "POST", body: form});
-    await refreshInfo();
-    signature.strokes = [];
-  } catch (e: any) {
-    errorMsg.value = e?.data?.detail?.message || e?.message || "Apply signature failed";
-  } finally {
-    isBusy.value = false;
-  }
+function selectEl(id: string) {
+  selectedId.value = id;
 }
 
-async function undo() {
-  if (!jobId.value) return;
-  isBusy.value = true;
-  errorMsg.value = null;
-
-  try {
-    await $fetch(`${config.public.apiBase}/pdf/undo/${jobId.value}`, {method: "POST"});
-    await refreshInfo();
-  } catch (e: any) {
-    errorMsg.value = e?.data?.detail?.message || e?.message || "Undo failed";
-  } finally {
-    isBusy.value = false;
-  }
+/** ---------------------------
+ *  Create elements
+ *  --------------------------*/
+function addText() {
+  const id = crypto.randomUUID();
+  const el: TextEl = {
+    id,
+    type: "text",
+    page: page.value,
+    xRel: 0.15,
+    yRel: 0.15,
+    wRel: 0.35,
+    hRel: 0.12,
+    value: "Hello!",
+    opacity: 80,
+    fontSize: 28,
+    color: "#ffffff",
+    font: "helvetica",
+    bold: false,
+    italic: false,
+    underline: false,
+    align: "left",
+    autoFit: true,
+  };
+  elements.value.push(el);
+  selectedId.value = id;
+  tool.value = "text";
 }
 
-async function redo() {
-  if (!jobId.value) return;
-  isBusy.value = true;
-  errorMsg.value = null;
+function addSignature() {
+  const id = crypto.randomUUID();
+  const el: SigEl = {
+    id,
+    type: "signature",
+    page: page.value,
+    xRel: 0.15,
+    yRel: 0.65,
+    wRel: 0.45,
+    hRel: 0.18,
+    strokes: [],
+    strokeWidth: 2.0,
+    opacity: 100,
+    color: "#ffffff",
+  };
+  elements.value.push(el);
+  selectedId.value = id;
+  tool.value = "signature";
+}
 
-  try {
-    await $fetch(`${config.public.apiBase}/pdf/redo/${jobId.value}`, {method: "POST"});
-    await refreshInfo();
-  } catch (e: any) {
-    errorMsg.value = e?.data?.detail?.message || e?.message || "Redo failed";
-  } finally {
-    isBusy.value = false;
-  }
+function removeSelected() {
+  if (!selectedId.value) return;
+  elements.value = elements.value.filter((x) => x.id !== selectedId.value);
+  selectedId.value = null;
+}
+
+/** ---------------------------
+ *  Job actions
+ *  --------------------------*/
+function uploadNew() {
+  router.push("/services/pdf-editor");
 }
 
 function download() {
@@ -249,76 +239,102 @@ function download() {
   window.open(`${config.public.apiBase}/pdf/download/${jobId.value}`, "_blank");
 }
 
-function uploadNew() {
-  router.push("/services/pdf-editor");
+/** ---------------------------
+ *  SAVE FLOW
+ *  One click -> apply all overlays.
+ *  (For now uses multiple /apply calls; later swap to /apply-batch.)
+ *  --------------------------*/
+function uiFontToPdf(font: PdfFont) {
+  // backend _pick_font supports Helvetica/Times/Courier variants
+  if (font === "times") return "Times";
+  if (font === "courier") return "Courier";
+  return "Helvetica";
 }
 
-function clampInt(n: number, min: number, max: number) {
-  const x = Number.isFinite(n) ? n : min;
-  return Math.max(min, Math.min(max, x));
+function approxTextWidthPts(text: string, fontSize: number) {
+  // rough but ok for "fit to maxWidth" before going to backend
+  return (text || "").length * fontSize * 0.55;
 }
 
-// server clamps to 220, so do it in UI too
-watch(dpi, (v) => {
-  dpi.value = clampInt(v, 72, 220);
-});
+function pickFontSizeToFit(text: string, maxWidthPts: number, initial: number) {
+  let fs = Math.max(8, Math.min(120, initial));
+  while (fs > 8 && approxTextWidthPts(text, fs) > maxWidthPts) fs -= 1;
+  return fs;
+}
 
-watch(jobId, async () => {
+async function saveDocument() {
   if (!jobId.value) return;
-  page.value = 1;
-  await refreshInfo();
-});
+  errorMsg.value = null;
 
-watch(page, async () => {
-  if (!jobId.value) return;
-  if (page.value < 1) page.value = 1;
-  if (page.value > pages.value) page.value = pages.value;
-});
+  // apply all elements on ALL pages (or you can limit to current page)
+  const items = elements.value.slice().sort((a, b) => a.page - b.page);
 
-// Drag text overlay
-const dragText = reactive({
-  active: false,
-  pointerId: -1,
-  dx: 0,
-  dy: 0,
-});
+  if (!items.length) return;
 
-function onTextDown(e: PointerEvent) {
-  if (!stageRef.value) return;
-  const target = e.currentTarget as HTMLElement;
-  target.setPointerCapture(e.pointerId);
+  isBusy.value = true;
+  try {
+    for (const el of items) {
+      if (el.type === "text") {
+        if (!el.value.trim()) continue;
 
-  dragText.active = true;
-  dragText.pointerId = e.pointerId;
+        const maxWidth = el.wRel * pageW.value;
+        const fittedSize = el.autoFit ? pickFontSizeToFit(el.value, maxWidth, el.fontSize) : el.fontSize;
 
-  const r = stageRef.value.getBoundingClientRect();
-  const xPx = textBox.xRel * r.width;
-  const yPx = textBox.yRel * r.height;
+        const options = {
+          text: el.value,
+          opacity: el.opacity,
+          page: el.page,
+          x: relToPdfX(el.xRel),
+          y: relToPdfY(el.yRel),
+          fontSize: fittedSize,
+          color: el.color,
+          font: uiFontToPdf(el.font),
+          bold: el.bold,
+          italic: el.italic,
+          underline: el.underline,
+          align: el.align,
+          maxWidth,
+        };
 
-  dragText.dx = e.clientX - (r.left + xPx);
-  dragText.dy = e.clientY - (r.top + yPx);
-}
+        const form = new FormData();
+        form.append("tool", "watermark_text");
+        form.append("options", JSON.stringify(options));
+        await $fetch(`${config.public.apiBase}/pdf/apply/${jobId.value}`, { method: "POST", body: form });
+      }
 
-function onTextMove(e: PointerEvent) {
-  if (!dragText.active) return;
-  if (dragText.pointerId !== e.pointerId) return;
-  if (!stageRef.value) return;
+      if (el.type === "signature") {
+        if (!el.strokes.length) continue;
 
-  const r = stageRef.value.getBoundingClientRect();
-  const x = e.clientX - r.left - dragText.dx;
-  const y = e.clientY - r.top - dragText.dy;
+        const options = {
+          page: el.page,
+          x: relToPdfX(el.xRel),
+          // IMPORTANT: signature tool expects y as "bottom of box" in PDF coords
+          y: relToPdfY(el.yRel) - el.hRel * pageH.value,
+          w: el.wRel * pageW.value,
+          h: el.hRel * pageH.value,
+          strokes: el.strokes.map((stroke) => stroke.map(([x, y]) => [x, 1 - y])),
+          strokeWidth: el.strokeWidth,
+          opacity: el.opacity,
+          // color for signature: backend currently uses white.
+          // When backend adds 'color', include it here.
+        };
 
-  textBox.xRel = clamp01(x / r.width);
-  textBox.yRel = clamp01(y / r.height);
-}
+        const form = new FormData();
+        form.append("tool", "draw_signature");
+        form.append("options", JSON.stringify(options));
+        await $fetch(`${config.public.apiBase}/pdf/apply/${jobId.value}`, { method: "POST", body: form });
+      }
+    }
 
-function onTextUp(e: PointerEvent) {
-  if (dragText.pointerId !== e.pointerId) return;
-  dragText.active = false;
-  dragText.pointerId = -1;
-
-  const target = e.currentTarget as HTMLElement;
-  if (target?.hasPointerCapture?.(e.pointerId)) target.releasePointerCapture(e.pointerId);
+    await refreshInfo();
+    // after save you may want to keep UI elements (for continuing) or clear them:
+    // elements.value = [];
+    // selectedId.value = null;
+  } catch (e: any) {
+    errorMsg.value = e?.data?.detail?.message || e?.message || "Save failed";
+  } finally {
+    isBusy.value = false;
+  }
 }
 
 onMounted(async () => {
@@ -330,7 +346,7 @@ onMounted(async () => {
 <template>
   <u-container class="pdf">
     <div class="pdf__header text-center space-y-3">
-      <page-header title="services.pdfEditor.title" headline="services.pdfEditor.headline" class="mb-6"/>
+      <page-header title="services.pdfEditor.title" headline="services.pdfEditor.headline" class="mb-6" />
       <p class="pdf__subtitle text-muted mx-auto">{{ t("services.pdfEditor.subtitle") }}</p>
     </div>
 
@@ -339,234 +355,246 @@ onMounted(async () => {
         <div class="ui-anim-border__inner pdf__panel-inner">
           <div class="pdf__panel-head">
             <div class="pdf__panel-title">
-              <u-icon name="i-lucide-file-image"/>
+              <u-icon name="i-lucide-file-image" />
               <span>{{ t("services.pdfEditor.preview") }}</span>
             </div>
 
             <div class="pdf__top-actions">
               <button type="button" class="ui-pill-btn" @click="uploadNew" :disabled="isBusy">
                 <span class="ui-pill-btn__inner">
-                  <u-icon name="i-lucide-upload"/>
+                  <u-icon name="i-lucide-upload" />
                   {{ t("services.pdfEditor.upload.new") }}
                 </span>
               </button>
-              <div class="pdf__sep"/>
+
+              <div class="pdf__sep" />
+
               <u-select
                   :disabled="isBusy"
                   v-model="bgColor"
                   :items="[
-    { label: t('services.pdfEditor.bg.white'), value: 'white' },
-    { label: t('services.pdfEditor.bg.black'), value: 'black' },
-    { label: t('services.pdfEditor.bg.transparent'), value: null }]"
+                  { label: t('services.pdfEditor.bg.white'), value: 'white' },
+                  { label: t('services.pdfEditor.bg.black'), value: 'black' },
+                  { label: t('services.pdfEditor.bg.transparent'), value: null },
+                ]"
               />
-              <div class="pdf__sep"/>
+
+              <div class="pdf__sep" />
 
               <button type="button" class="pdf__icon-btn" :disabled="isBusy || page <= 1" @click="page--">
-                <u-icon name="i-lucide-chevron-left"/>
+                <u-icon name="i-lucide-chevron-left" />
               </button>
 
               <div class="pdf__page-chip">{{ t("services.pdfEditor.page") }} {{ page }} / {{ pages }}</div>
 
               <button type="button" class="pdf__icon-btn" :disabled="isBusy || page >= pages" @click="page++">
-                <u-icon name="i-lucide-chevron-right"/>
+                <u-icon name="i-lucide-chevron-right" />
               </button>
 
-              <div class="pdf__sep"/>
+              <div class="pdf__sep" />
 
               <div class="pdf__toolbar-mini">
                 <span class="text-muted">DPI</span>
-                <u-input v-model.number="dpi" type="number" min="72" max="220" class="pdf__dpi"/>
+                <u-input v-model.number="dpi" type="number" min="72" max="220" class="pdf__dpi" />
               </div>
 
-              <div class="pdf__sep"/>
+              <div class="pdf__sep" />
 
-              <button type="button" class="pdf__icon-btn" @click="undo" :disabled="isBusy">
-                <u-icon name="i-lucide-undo-2"/>
-              </button>
-              <button type="button" class="pdf__icon-btn" @click="redo" :disabled="isBusy">
-                <u-icon name="i-lucide-redo-2"/>
-              </button>
               <button type="button" class="pdf__icon-btn" @click="download" :disabled="isBusy">
-                <u-icon name="i-lucide-download"/>
+                <u-icon name="i-lucide-download" />
               </button>
+
+              <custom-button
+                  variant="full"
+                  class="pdf__save-btn"
+                  :class="{ 'opacity-60 pointer-events-none': isBusy }"
+                  @click="saveDocument"
+              >
+                {{ t("services.pdfEditor.saveDocument") || "Save document" }}
+              </custom-button>
             </div>
           </div>
 
+          <!-- Toolstrip: creates new elements -->
           <div class="pdf__toolstrip">
-            <button
-                type="button"
-                class="services__pill"
-                :class="{ services__pill_active: textBox.enabled }"
-                @click="textBox.enabled = !textBox.enabled"
-            >
-              <u-icon name="i-lucide-type"/>
+            <button type="button" class="services__pill" :class="{ services__pill_active: tool === 'text' }" @click="addText">
+              <u-icon name="i-lucide-type" />
               {{ t("services.pdfEditor.tools.text") }}
             </button>
 
             <button
                 type="button"
                 class="services__pill"
-                :class="{ services__pill_active: signature.enabled }"
-                @click="signature.enabled = !signature.enabled"
+                :class="{ services__pill_active: tool === 'signature' }"
+                @click="addSignature"
             >
-              <u-icon name="i-lucide-pen-tool"/>
+              <u-icon name="i-lucide-pen-tool" />
               {{ t("services.pdfEditor.tools.signature") }}
+            </button>
+
+            <button type="button" class="services__pill" :disabled="!selectedId" @click="removeSelected">
+              <u-icon name="i-lucide-trash-2" />
+              {{ t("services.pdfEditor.removeElement") || "Remove" }}
             </button>
           </div>
 
-          <div v-if="textBox.enabled" class="pdf__tool-section">
+          <!-- Properties panel for selected element -->
+          <div v-if="selectedEl && selectedEl.type === 'text'" class="pdf__tool-section">
             <div class="pdf__tool-title">{{ t("services.pdfEditor.text.title") }}</div>
 
             <div class="pdf__tool-grid4">
               <div class="pdf__field">
                 <div class="pdf__label">{{ t("services.pdfEditor.text.valueLabel") }}</div>
-                <u-input v-model="textBox.value" :placeholder="t('services.pdfEditor.text.valuePlaceholder')"/>
+                <u-input v-model="selectedEl.value" :placeholder="t('services.pdfEditor.text.valuePlaceholder')" />
               </div>
 
               <div class="pdf__field">
                 <div class="pdf__label">{{ t("services.pdfEditor.text.fontLabel") }}</div>
-                <u-select v-model="textBox.font" :items="availableFonts"/>
+                <u-select v-model="selectedEl.font" :items="availableFonts" />
               </div>
 
               <div class="pdf__field">
                 <div class="pdf__label">{{ t("services.pdfEditor.text.fontSizeLabel") }}</div>
-                <u-input v-model.number="textBox.fontSize" type="number" min="8" max="120"/>
+                <u-input v-model.number="selectedEl.fontSize" type="number" min="8" max="120" />
               </div>
 
               <div class="pdf__field">
                 <div class="pdf__label">{{ t("services.pdfEditor.text.colorLabel") }}</div>
-                <u-input v-model="textBox.color" type="color"/>
+                <u-input v-model="selectedEl.color" type="color" />
               </div>
 
               <div class="pdf__field">
                 <div class="pdf__label">{{ t("services.pdfEditor.text.opacityLabel") }}</div>
-                <u-input v-model.number="textBox.opacity" type="number" min="5" max="100"/>
+                <u-input v-model.number="selectedEl.opacity" type="number" min="5" max="100" />
               </div>
 
               <div class="pdf__field">
                 <div class="pdf__label">{{ t("services.pdfEditor.text.alignLabel") }}</div>
-                <u-select v-model="textBox.align" :items="alignOptions"/>
+                <u-select v-model="selectedEl.align" :items="alignOptions" />
               </div>
 
               <div class="pdf__field pdf__field_row">
                 <div class="pdf__label">{{ t("services.pdfEditor.text.styleLabel") }}</div>
                 <div class="pdf__style-row">
-                  <button type="button" class="pdf__chip" :class="{ pdf__chip_active: textBox.bold }"
-                          @click="textBox.bold = !textBox.bold">
+                  <button type="button" class="pdf__chip" :class="{ pdf__chip_active: selectedEl.bold }" @click="selectedEl.bold = !selectedEl.bold">
                     B
                   </button>
-                  <button type="button" class="pdf__chip" :class="{ pdf__chip_active: textBox.italic }"
-                          @click="textBox.italic = !textBox.italic">
+                  <button type="button" class="pdf__chip" :class="{ pdf__chip_active: selectedEl.italic }" @click="selectedEl.italic = !selectedEl.italic">
                     I
                   </button>
                   <button
                       type="button"
                       class="pdf__chip"
-                      :class="{ pdf__chip_active: textBox.underline }"
-                      @click="textBox.underline = !textBox.underline"
+                      :class="{ pdf__chip_active: selectedEl.underline }"
+                      @click="selectedEl.underline = !selectedEl.underline"
                   >
                     U
                   </button>
-                </div>
-              </div>
 
-              <div class="pdf__field pdf__field_row">
-                <div class="pdf__label">{{ t("services.pdfEditor.text.applyLabel") }}</div>
-                <custom-button
-                    variant="full"
-                    class="pdf__run-btn"
-                    :class="{ 'opacity-60 pointer-events-none': isBusy || !textBox.value.trim() }"
-                    @click="applyText"
-                >
-                  {{ t("services.pdfEditor.applyText") }}
-                </custom-button>
+                  <button type="button" class="pdf__chip" :class="{ pdf__chip_active: selectedEl.autoFit }" @click="selectedEl.autoFit = !selectedEl.autoFit">
+                    AF
+                  </button>
+                </div>
+                <div class="pdf__help text-muted" style="margin-top:6px">
+                  {{ t("services.pdfEditor.text.autoFitHelp") || "AF = auto-fit font size to box width" }}
+                </div>
               </div>
             </div>
           </div>
 
-          <div v-if="signature.enabled" class="pdf__tool-section">
+          <div v-else-if="selectedEl && selectedEl.type === 'signature'" class="pdf__tool-section">
             <div class="pdf__tool-title">{{ t("services.pdfEditor.signature.title") }}</div>
 
             <div class="pdf__tool-grid4">
               <div class="pdf__field">
                 <div class="pdf__label">{{ t("services.pdfEditor.signature.strokeWidthLabel") }}</div>
-                <u-input v-model.number="signature.strokeWidth" type="number" min="0.5" max="8"/>
+                <u-input v-model.number="selectedEl.strokeWidth" type="number" min="0.5" max="8" />
               </div>
 
               <div class="pdf__field">
                 <div class="pdf__label">{{ t("services.pdfEditor.signature.opacityLabel") }}</div>
-                <u-input v-model.number="signature.opacity" type="number" min="10" max="100"/>
+                <u-input v-model.number="selectedEl.opacity" type="number" min="10" max="100" />
+              </div>
+
+              <div class="pdf__field">
+                <div class="pdf__label">{{ t("services.pdfEditor.signature.colorLabel") || "Color" }}</div>
+                <u-input v-model="selectedEl.color" type="color" />
               </div>
 
               <div class="pdf__field pdf__field_row">
                 <div class="pdf__label">{{ t("services.pdfEditor.signature.actionsLabel") }}</div>
-                <button type="button" class="services__pill" :disabled="isBusy" @click="signature.strokes = []">
-                  <u-icon name="i-lucide-eraser"/>
+                <button type="button" class="services__pill" :disabled="isBusy" @click="selectedEl.strokes = []">
+                  <u-icon name="i-lucide-eraser" />
                   {{ t("services.pdfEditor.signature.clear") }}
                 </button>
-              </div>
-
-              <div class="pdf__field pdf__field_row">
-                <div class="pdf__label">{{ t("services.pdfEditor.signature.applyLabel") }}</div>
-                <custom-button
-                    variant="full"
-                    class="pdf__run-btn"
-                    :class="{ 'opacity-60 pointer-events-none': isBusy || !signature.strokes.length }"
-                    @click="applySignature"
-                >
-                  {{ t("services.pdfEditor.applySignature") }}
-                </custom-button>
               </div>
             </div>
           </div>
 
           <div v-if="errorMsg" class="pdf__error">{{ errorMsg }}</div>
 
+          <!-- Canvas -->
           <div class="pdf__canvas-wrap">
-            <div ref="stageRef" class="pdf__stage"
-                 :class="{ pdf__stage_white: bgColor === 'white', pdf__stage_black: bgColor === 'black' }">
-              <img :src="previewUrl" class="pdf__preview" alt=""/>
+            <div
+                ref="stageRef"
+                class="pdf__stage"
+                :class="{ pdf__stage_white: bgColor === 'white', pdf__stage_black: bgColor === 'black' }"
+                @pointerdown="onStageDown"
+            >
+              <img :src="previewUrl" class="pdf__preview" alt="" />
 
-              <TextOverlay
-                  :enabled="textBox.enabled"
-                  :disabled="isBusy"
-                  :xRel="textBox.xRel"
-                  :yRel="textBox.yRel"
-                  :wRel="textBox.wRel"
-                  :hRel="textBox.hRel"
-                  :value="textBox.value"
-                  :opacity="textBox.opacity"
-                  :color="textBox.color"
-                  :font="textBox.font"
-                  :bold="textBox.bold"
-                  :italic="textBox.italic"
-                  :underline="textBox.underline"
-                  :align="textBox.align"
-                  :fontSize="textBox.fontSize"
-                  :autoFit="true"
-                  :minFontSize="8"
-                  :maxFontSize="120"
-                  @update:xRel="(v:number) => (textBox.xRel = v)"
-                  @update:yRel="(v:number) => (textBox.yRel = v)"
-                  @update:wRel="(v:number) => (textBox.wRel = v)"
-                  @update:hRel="(v:number) => (textBox.hRel = v)"
-                  @update:fontSize="(v:number) => (textBox.fontSize = v)"
-              />
+              <!-- Render only elements for current page -->
+              <template v-for="el in elements.filter((x) => x.page === page)" :key="el.id">
+                <TextOverlay
+                    v-if="el.type === 'text'"
+                    data-el-root="true"
+                    :selected="selectedId === el.id"
+                    :disabled="isBusy"
+                    :xRel="el.xRel"
+                    :yRel="el.yRel"
+                    :wRel="el.wRel"
+                    :hRel="el.hRel"
+                    :value="el.value"
+                    :opacity="el.opacity"
+                    :color="el.color"
+                    :font="el.font"
+                    :bold="el.bold"
+                    :italic="el.italic"
+                    :underline="el.underline"
+                    :align="el.align"
+                    :fontSize="el.fontSize"
+                    :autoFit="el.autoFit"
+                    :minFontSize="8"
+                    :maxFontSize="120"
+                    @pointerdown.stop="selectEl(el.id)"
+                    @update:xRel="(v:number) => (el.xRel = v)"
+                    @update:yRel="(v:number) => (el.yRel = v)"
+                    @update:wRel="(v:number) => (el.wRel = v)"
+                    @update:hRel="(v:number) => (el.hRel = v)"
+                    @update:fontSize="(v:number) => (el.fontSize = v)"
+                />
 
-              <SignatureOverlay
-                  v-if="signature.enabled"
-                  :xRel="signature.xRel"
-                  :yRel="signature.yRel"
-                  :wRel="signature.wRel"
-                  :hRel="signature.hRel"
-                  :strokes="signature.strokes"
-                  :strokeWidth="signature.strokeWidth"
-                  @update:xRel="(v: number) => (signature.xRel = v)"
-                  @update:yRel="(v: number) => (signature.yRel = v)"
-                  @update:wRel="(v: number) => (signature.wRel = v)"
-                  @update:hRel="(v: number) => (signature.hRel = v)"
-                  @update:strokes="(v: Array<Array<[number, number]>>) => (signature.strokes = v)"
-              />
+                <SignatureOverlay
+                    v-else
+                    data-el-root="true"
+                    :selected="selectedId === el.id"
+                    :disabled="isBusy"
+                    :xRel="el.xRel"
+                    :yRel="el.yRel"
+                    :wRel="el.wRel"
+                    :hRel="el.hRel"
+                    :strokes="el.strokes"
+                    :strokeWidth="el.strokeWidth"
+                    :opacity="el.opacity"
+                    :color="el.color"
+                    @pointerdown.stop="selectEl(el.id)"
+                    @update:xRel="(v: number) => (el.xRel = v)"
+                    @update:yRel="(v: number) => (el.yRel = v)"
+                    @update:wRel="(v: number) => (el.wRel = v)"
+                    @update:hRel="(v: number) => (el.hRel = v)"
+                    @update:strokes="(v: Array<Array<[number, number]>>) => (el.strokes = v)"
+                />
+              </template>
             </div>
           </div>
         </div>
@@ -589,6 +617,10 @@ onMounted(async () => {
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+.pdf__save-btn {
+  min-width: 190px;
 }
 
 .pdf__sep {
@@ -663,13 +695,19 @@ onMounted(async () => {
   color: rgba(21, 22, 42, 0.86);
 }
 
+.pdf__help {
+  font-size: 12px;
+  line-height: 1.35;
+}
+
 .pdf__style-row {
   display: inline-flex;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .pdf__chip {
-  width: 34px;
+  width: 38px;
   height: 34px;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -708,23 +746,7 @@ onMounted(async () => {
   width: 100%;
   height: auto;
   display: block;
-}
-
-.pdf__overlay-textbox {
-  position: absolute;
-  padding: 8px 10px;
-  border-radius: 14px;
-  background: rgba(0, 0, 0, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
   user-select: none;
-  max-width: 70%;
-  cursor: grab;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-.pdf__overlay-textbox:active {
-  cursor: grabbing;
+  pointer-events: none;
 }
 </style>
