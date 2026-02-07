@@ -3,6 +3,7 @@ import PageHeader from "~/components/common/PageHeader.vue";
 import CustomButton from "~/components/common/CustomButton.vue";
 import {computed, reactive, ref, watch, onMounted} from "vue";
 import SignatureOverlay from "~/components/pdfEditor/SignatureOverlay.vue";
+import TextOverlay from "~/components/pdfEditor/TextOverlay.vue";
 
 const config = useRuntimeConfig();
 const {t} = useI18n();
@@ -34,18 +35,25 @@ const textBox = reactive({
   opacity: 30,
   fontSize: 28,
   color: "#ffffff",
-
-  // ✅ фикс: отправляем на сервер только стандартные pdf-шрифты
-  font: "helvetica" as PdfFont,
-
+  font: "Inter",
   bold: false,
   italic: false,
   underline: false,
   align: "left" as TextAlign,
-
   xRel: 0.15,
   yRel: 0.15,
+  wRel: 0.35,
+  hRel: 0.12,
 });
+
+function mapUiFontToPdf(font: string) {
+  const f = (font || "").toLowerCase();
+  if (f.includes("inter")) return "Helvetica";
+  if (f.includes("arial")) return "Helvetica";
+  if (f.includes("times")) return "Times";
+  if (f.includes("courier")) return "Courier";
+  return "Helvetica";
+}
 
 const availableFonts: Array<{ label: string; value: PdfFont }> = [
   {label: "Helvetica", value: "helvetica"},
@@ -70,6 +78,21 @@ const signature = reactive({
   strokeWidth: 2.0,
   opacity: 100,
 });
+
+function approxTextWidthPx(text: string, fontSize: number) {
+  const len = (text || "").length;
+  return len * fontSize * 0.55;
+}
+
+function pickFontSizeToFit(text: string, targetWidthPx: number, initial: number) {
+  let fs = Math.max(8, Math.min(120, initial));
+  const min = 8;
+
+  while (fs > min && approxTextWidthPx(text, fs) > targetWidthPx) {
+    fs -= 1;
+  }
+  return fs;
+}
 
 const previewUrl = computed(() => {
   if (!jobId.value) return "";
@@ -122,28 +145,34 @@ async function applyText() {
   errorMsg.value = null;
 
   try {
+    const maxWidth = textBox.wRel * pageW.value;
+
+    // Подбираем fontSize исходя из ширины бокса на превью:
+    // превью в DOM — это не pdf-пункты, но нам нужно подобрать размер в pdf-пунктах.
+    // Поэтому берём ширину бокса в pdf-пунктах (maxWidth) и под него подгоняем.
+    const fittedSize = pickFontSizeToFit(textBox.value, maxWidth, textBox.fontSize);
+
     const options = {
       text: textBox.value,
       opacity: textBox.opacity,
       page: page.value,
       x: relToPdfX(textBox.xRel),
       y: relToPdfY(textBox.yRel),
-      fontSize: textBox.fontSize,
-
-      // расширенные поля (их должен поддерживать бэк; иначе вернёт 400 — это ок, просто увидишь ошибку)
+      fontSize: fittedSize,
       color: textBox.color,
-      font: textBox.font,
+      font: mapUiFontToPdf(textBox.font),
       bold: textBox.bold,
       italic: textBox.italic,
       underline: textBox.underline,
       align: textBox.align,
+      maxWidth,
     };
 
     const form = new FormData();
     form.append("tool", "watermark_text");
     form.append("options", JSON.stringify(options));
 
-    await $fetch(`${config.public.apiBase}/pdf/apply/${jobId.value}`, {method: "POST", body: form});
+    await $fetch(`${config.public.apiBase}/pdf/apply/${jobId.value}`, { method: "POST", body: form });
     await refreshInfo();
   } catch (e: any) {
     errorMsg.value = e?.data?.detail?.message || e?.message || "Apply text failed";
@@ -498,28 +527,31 @@ onMounted(async () => {
                  :class="{ pdf__stage_white: bgColor === 'white', pdf__stage_black: bgColor === 'black' }">
               <img :src="previewUrl" class="pdf__preview" alt=""/>
 
-              <div
-                  v-if="textBox.enabled"
-                  class="pdf__overlay-textbox"
-                  :style="{
-                  left: `${textBox.xRel * 100}%`,
-                  top: `${textBox.yRel * 100}%`,
-                  opacity: textBox.opacity / 100,
-                  color: textBox.color,
-                  fontSize: `${textBox.fontSize}px`,
-                  fontFamily: textBox.font === 'helvetica' ? 'Arial, Helvetica, sans-serif' : (textBox.font === 'times' ? 'Times New Roman, Times, serif' : 'Courier New, Courier, monospace'),
-                  fontWeight: textBox.bold ? '900' : '700',
-                  fontStyle: textBox.italic ? 'italic' : 'normal',
-                  textDecoration: textBox.underline ? 'underline' : 'none',
-                  textAlign: textBox.align,
-                }"
-                  @pointerdown="onTextDown"
-                  @pointermove="onTextMove"
-                  @pointerup="onTextUp"
-                  @pointercancel="onTextUp"
-              >
-                {{ textBox.value }}
-              </div>
+              <TextOverlay
+                  :enabled="textBox.enabled"
+                  :disabled="isBusy"
+                  :xRel="textBox.xRel"
+                  :yRel="textBox.yRel"
+                  :wRel="textBox.wRel"
+                  :hRel="textBox.hRel"
+                  :value="textBox.value"
+                  :opacity="textBox.opacity"
+                  :color="textBox.color"
+                  :font="textBox.font"
+                  :bold="textBox.bold"
+                  :italic="textBox.italic"
+                  :underline="textBox.underline"
+                  :align="textBox.align"
+                  :fontSize="textBox.fontSize"
+                  :autoFit="true"
+                  :minFontSize="8"
+                  :maxFontSize="120"
+                  @update:xRel="(v:number) => (textBox.xRel = v)"
+                  @update:yRel="(v:number) => (textBox.yRel = v)"
+                  @update:wRel="(v:number) => (textBox.wRel = v)"
+                  @update:hRel="(v:number) => (textBox.hRel = v)"
+                  @update:fontSize="(v:number) => (textBox.fontSize = v)"
+              />
 
               <SignatureOverlay
                   v-if="signature.enabled"
