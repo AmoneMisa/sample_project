@@ -6,15 +6,15 @@ import type {ServiceType} from "~/types/ServiceType";
 const {t} = useI18n();
 const config = useRuntimeConfig();
 
-const {data: rawServices} = await safeFetch(
+const {data: rawServicesData, error: servicesError} = await safeFetch<ServiceType[]>(
     `${config.public.apiBase}/services`
 );
-const {data: serviceCategories} = await safeFetch(
+const {data: serviceCategoriesData, error: categoriesError} = await safeFetch<any[]>(
     `${config.public.apiBase}/service-categories`
 );
 
-console.log(rawServices);
-
+const rawServices = computed(() => Array.isArray(rawServicesData) ? rawServicesData : []);
+const serviceCategories = computed(() => Array.isArray(serviceCategoriesData) ? serviceCategoriesData : []);
 const services = computed(() => {
   const raw = rawServices;
 
@@ -28,7 +28,7 @@ const services = computed(() => {
 });
 
 const query = ref('');
-const activeCategory = ref('all');
+const activeCategory = ref<'all' | string>('all');
 const normalizedQuery = computed(() => query.value.trim().toLowerCase());
 
 const filteredServices = computed(() => {
@@ -75,7 +75,7 @@ const howSteps = [
         />
       </div>
 
-      <div class="services__filters">
+      <div class="services__filters" v-if="serviceCategories">
         <button
             v-for="c in serviceCategories"
             :key="c.id"
@@ -89,7 +89,7 @@ const howSteps = [
       </div>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" v-if="filteredServices">
       <service-card
           v-for="s in filteredServices"
           :key="s.id"
