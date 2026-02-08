@@ -157,6 +157,69 @@
         "description": "We can add task queues, progress bar, auto-zip, and quality presets.",
         "cta": "Send feedback"
       }
+    },
+    "dockerSearch": {
+      "title": "Docker tags",
+      "headline": "Find the best tag and see aliases",
+      "subtitle": "Search Docker Hub tags by major version and (optionally) distro variant. We’ll try to pick the most general tag and show all tags pointing to the same image digest.",
+      "fields": {
+        "repo": "Repository",
+        "major": "Major version",
+        "variant": "Variant"
+      },
+      "placeholders": {
+        "repo": "Example: library/amazoncorretto",
+        "major": "Example: 17"
+      },
+      "hints": {
+        "repo": "Use format namespace/name (e.g. library/amazoncorretto or myorg/myimage)."
+      },
+      "variant": {
+        "any": "Any",
+        "alpine": "Alpine",
+        "al2": "Amazon Linux (al2)",
+        "debian": "Debian",
+        "ubuntu": "Ubuntu"
+      },
+      "actions": {
+        "search": "Search",
+        "reset": "Reset",
+        "aliases": "Show aliases"
+      },
+      "errors": {
+        "title": "Something went wrong",
+        "generic": "Failed to load data. Please try again."
+      },
+      "result": {
+        "title": "Results",
+        "matched": "Matched tags",
+        "reason": "Reason",
+        "bestTag": "Best tag",
+        "noBest": "No matching tag found",
+        "fallbacks": "Available tags",
+        "noFallbacks": "No tags found for this query.",
+        "selected": "Selected",
+        "aliasesTitle": "Aliases (same image)",
+        "aliasesHint": "Pick a tag and click “Show aliases”.",
+        "digest": "Digest",
+        "aliasCount": "Aliases",
+        "noAliases": "No aliases found for this digest."
+      },
+      "howTitle": "How it works",
+      "how": {
+        "step1": {
+          "title": "Enter repo and major version",
+          "text": "We request tags from Docker Hub and filter them by your major version."
+        },
+        "step2": {
+          "title": "Pick the best tag",
+          "text": "We prefer general aliases like “17-alpine” or “17”. If they don’t exist, we fall back to the closest available tag."
+        },
+        "step3": {
+          "title": "Check aliases by digest",
+          "text": "We fetch the manifest digest and show all tags that point to the same image."
+        }
+      }
     }
   },
   "menu": {

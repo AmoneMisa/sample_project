@@ -3,11 +3,14 @@ import PageHeader from "~/components/common/PageHeader.vue";
 import {safeFetch} from "~/utils/safeFetch";
 import type {ServiceType} from "~/types/ServiceType";
 
-const { t } = useI18n();
+const {t} = useI18n();
 const config = useRuntimeConfig();
 
-const { data: rawServices } = await safeFetch<ServiceType[]>(
+const {data: rawServices} = await safeFetch<ServiceType[]>(
     `${config.public.apiBase}/services`
+);
+const {data: serviceCategories} = await safeFetch(
+    `${config.public.apiBase}/service-categories`
 );
 
 console.log(rawServices);
@@ -24,33 +27,13 @@ const services = computed(() => {
   }));
 });
 
-
-type ServiceCategory = 'all' | 'popular' | 'automation' | 'dev' | 'content';
-type SortBy = 'popular' | 'new' | 'az';
-
 const query = ref('');
-const activeCategory = ref<ServiceCategory>('all');
-const sortBy = ref<SortBy>('popular');
-
-const categories = [
-  { id: 'all', labelKey: 'services.categories.all' },
-  { id: 'popular', labelKey: 'services.categories.popular' },
-  { id: 'automation', labelKey: 'services.categories.automation' },
-  { id: 'dev', labelKey: 'services.categories.dev' },
-  { id: 'content', labelKey: 'services.categories.content' }
-] as const;
-
-const sortOptions = [
-  { label: t('services.sort.popular'), value: 'popular' },
-  { label: t('services.sort.new'), value: 'new' },
-  { label: t('services.sort.az'), value: 'az' }
-];
-
+const activeCategory = ref('all');
 const normalizedQuery = computed(() => query.value.trim().toLowerCase());
 
 const filteredServices = computed(() => {
   const list = services.value
-      .filter(s => activeCategory.value === 'all' || s.category === activeCategory.value)
+      .filter(s => activeCategory.value === 'all' || s.categoryId === activeCategory.value)
       .filter(s => {
         if (!normalizedQuery.value) return true;
         return (
@@ -59,17 +42,13 @@ const filteredServices = computed(() => {
         );
       });
 
-  return [...list].sort((a, b) => {
-    if (sortBy.value === 'new') return b.createdAt > a.createdAt ? 1 : -1;
-    if (sortBy.value === 'az') return a.title.localeCompare(b.title);
-    return 0;
-  });
+  return [...list];
 });
 
 const howSteps = [
-  { icon: 'i-lucide-mouse-pointer-click', titleKey: 'services.how.step1.title', textKey: 'services.how.step1.text' },
-  { icon: 'i-lucide-sliders-horizontal', titleKey: 'services.how.step2.title', textKey: 'services.how.step2.text' },
-  { icon: 'i-lucide-check-circle', titleKey: 'services.how.step3.title', textKey: 'services.how.step3.text' }
+  {icon: 'i-lucide-mouse-pointer-click', titleKey: 'services.how.step1.title', textKey: 'services.how.step1.text'},
+  {icon: 'i-lucide-sliders-horizontal', titleKey: 'services.how.step2.title', textKey: 'services.how.step2.text'},
+  {icon: 'i-lucide-check-circle', titleKey: 'services.how.step3.title', textKey: 'services.how.step3.text'}
 ];
 </script>
 
@@ -98,19 +77,15 @@ const howSteps = [
 
       <div class="services__filters">
         <button
-            v-for="c in categories"
+            v-for="c in serviceCategories"
             :key="c.id"
             type="button"
             class="services__pill"
             :class="{ 'services__pill_active': activeCategory === c.id }"
             @click="activeCategory = c.id"
         >
-          {{ t(c.labelKey) }}
+          {{ t(c.titleKey) }}
         </button>
-      </div>
-
-      <div class="services__sort">
-        <u-select v-model="sortBy" :options="sortOptions" />
       </div>
     </div>
 
@@ -135,7 +110,7 @@ const howSteps = [
 
       <div class="services__how-grid">
         <div class="how-card" v-for="step in howSteps" :key="step.titleKey">
-          <u-icon :name="step.icon" class="how-card__icon" />
+          <u-icon :name="step.icon" class="how-card__icon"/>
           <div class="how-card__title">{{ t(step.titleKey) }}</div>
           <div class="how-card__text text-muted">{{ t(step.textKey) }}</div>
         </div>
@@ -202,9 +177,8 @@ const howSteps = [
 
 .services__pill:focus-visible {
   outline: none;
-  box-shadow:
-      0 0 0 2px rgba(128, 90, 245, 0.30),
-      0 0 0 6px rgba(128, 90, 245, 0.14);
+  box-shadow: 0 0 0 2px rgba(128, 90, 245, 0.30),
+  0 0 0 6px rgba(128, 90, 245, 0.14);
 }
 
 .services__pill_active {
