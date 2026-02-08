@@ -16,15 +16,11 @@ const {data: serviceCategoriesData, error: categoriesError} = await safeFetch<an
 const rawServices = computed(() => Array.isArray(rawServicesData) ? rawServicesData : []);
 const serviceCategories = computed(() => Array.isArray(serviceCategoriesData) ? serviceCategoriesData : []);
 const services = computed(() => {
-  const raw = rawServices;
+  const raw = rawServices.value;
 
-  if (!raw || !Array.isArray(raw)) return [];
+  if (!Array.isArray(raw)) return [];
 
-  return raw.map(s => ({
-    ...s,
-    title: t(s.titleKey),
-    description: t(s.descriptionKey)
-  }));
+  return raw;
 });
 
 const query = ref('');
@@ -80,7 +76,7 @@ const howSteps = [
       </div>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" v-if="services">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" v-if="filteredServices">
       <service-card
           v-for="s in filteredServices"
           :key="s.id"
