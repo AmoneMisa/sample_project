@@ -2,7 +2,12 @@
 import PageHeader from "~/components/common/PageHeader.vue";
 import CustomButton from "~/components/common/CustomButton.vue";
 import {computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch} from "vue";
-import {fabric} from "fabric";
+import {Canvas, Rect, Ellipse, Textbox, FabricImage, FabricObject, BaseFabricObject} from "fabric";
+
+(BaseFabricObject as any).ownDefaults.originX = "center";
+(BaseFabricObject as any).ownDefaults.originY = "center";
+(FabricObject as any).prototype.originX = "center";
+(FabricObject as any).prototype.originY = "center";
 
 const config = useRuntimeConfig();
 const {t} = useI18n();
@@ -15,7 +20,6 @@ const jobId = computed(() => String(route.params.jobId || ""));
 const pages = ref<number>(1);
 const pageW = ref<number>(595);
 const pageH = ref<number>(842);
-// activeVersion больше не нужен в новом флоу, но оставим, чтобы не рушить preview endpoint прямо сейчас
 const activeVersion = ref<number>(1);
 
 const page = ref<number>(1);
@@ -33,6 +37,18 @@ const bgColor = ref<string | null>(null);
 // --- editor tool state
 type Mode = "move" | "pen" | "highlighter" | "signature" | "rect" | "circle" | "text" | "image";
 type BrushShape = "round" | "square";
+
+function setByTopLeft(obj: any, left: number, top: number) {
+  // IMPORTANT: размеры должны быть уже известны (после width/height/scale)
+  const w = obj.getScaledWidth?.() ?? obj.width ?? 0;
+  const h = obj.getScaledHeight?.() ?? obj.height ?? 0;
+
+  obj.set({
+    left: left + w / 2,
+    top: top + h / 2,
+  });
+  obj.setCoords?.();
+}
 
 const editor = reactive({
   mode: "move" as Mode,
@@ -71,12 +87,11 @@ const history = reactive({
 });
 
 // fabric canvas instance
-let c: fabric.Canvas | null = null;
+let c: Canvas | null = null;
 
 // --- preview URL
 const previewUrl = computed(() => {
   if (!jobId.value) return "";
-  // пока оставляем v=activeVersion, чтобы работало с твоим текущим /preview
   return `${config.public.apiBase}/pdf/preview/${jobId.value}/${page.value}?dpi=${dpi.value}&v=${activeVersion.value}`;
 });
 
@@ -85,8 +100,8 @@ function clampInt(n: number, min: number, max: number) {
   return Math.max(min, Math.min(max, x));
 }
 
-watch(dpi, (v) => {
-  dpi.value = clampInt(v, 72, 220);
+watch(dpi, () => {
+  dpi.value = clampInt(dpi.value, 72, 220);
 });
 
 // --- API helpers
@@ -107,17 +122,18 @@ function scheduleSaveDraft() {
 async function saveDraftNow() {
   if (!jobId.value) return;
   try {
-    // save current page json too
     if (c) pageJson[page.value] = c.toJSON(["id", "tool", "opacityPct"]);
+
     const draft: PdfDraft = {
       v: 1,
       updatedAt: Date.now(),
       pages: {...pageJson},
       ui: {page: page.value},
     };
+
     await $fetch(api(`/pdf/draft/${jobId.value}`), {method: "PUT", body: {draft}});
   } catch {
-    // не мешаем пользователю работать
+    // ignore
   }
 }
 
@@ -139,6 +155,7 @@ async function loadDraft() {
 // =========================
 async function refreshInfo() {
   if (!jobId.value) return;
+
   const info = await $fetch<{ pages: number; pageW: number; pageH: number; activeVersion?: number }>(
       api(`/pdf/page-info/${jobId.value}`),
   );
@@ -174,22 +191,20 @@ function ensureFabric() {
     c = null;
   }
 
-  c = new fabric.Canvas(overlayCanvasRef.value, {
+  c = new Canvas(overlayCanvasRef.value, {
     selection: true,
     preserveObjectStacking: true,
     stopContextMenu: true,
   });
 
-  // slightly nicer corners
-  fabric.Object.prototype.transparentCorners = false;
-  fabric.Object.prototype.cornerStyle = "circle";
+  // nice corners (global defaults)
+  FabricObject.prototype.transparentCorners = false;
+  FabricObject.prototype.cornerStyle = "circle";
 
-  // History: пушим только на “значимые” события
   const pushHistory = () => {
     if (!c || history.lock) return;
 
     const snap = c.toJSON(["id", "tool", "opacityPct"]);
-    // truncate redo tail
     history.stack = history.stack.slice(0, history.idx + 1);
     history.stack.push(snap);
     history.idx = history.stack.length - 1;
@@ -200,7 +215,6 @@ function ensureFabric() {
 
   c.on("path:created", pushHistory);
   c.on("object:modified", pushHistory);
-  // object:added тоже будет срабатывать на loadFromJSON — поэтому блокируем history.lock в loadCanvasForPage()
   c.on("object:added", pushHistory);
   c.on("object:removed", pushHistory);
 
@@ -208,21 +222,16 @@ function ensureFabric() {
 }
 
 function resizeToPreview() {
-  if (!c || !overlayCanvasRef.value || !previewImgRef.value) return;
+  if (!c || !previewImgRef.value) return;
 
-  const img = previewImgRef.value;
-  const r = img.getBoundingClientRect();
-  const dpr = window.devicePixelRatio || 1;
+  const r = previewImgRef.value.getBoundingClientRect();
+  const w = Math.max(1, r.width);
+  const h = Math.max(1, r.height);
 
-  overlayCanvasRef.value.style.width = `${r.width}px`;
-  overlayCanvasRef.value.style.height = `${r.height}px`;
-  overlayCanvasRef.value.width = Math.max(1, Math.floor(r.width * dpr));
-  overlayCanvasRef.value.height = Math.max(1, Math.floor(r.height * dpr));
-
-  c.setWidth(r.width);
-  c.setHeight(r.height);
-  c.setZoom(1);
-  c.renderAll();
+  // ✅ Fabric manages DPR internally (retina scaling). Set CSS px size here.
+  c.setDimensions({width: w, height: h});
+  c.calcOffset();
+  c.requestRenderAll();
 }
 
 function loadCanvasForPage(p: number) {
@@ -235,10 +244,8 @@ function loadCanvasForPage(p: number) {
   if (json) {
     c.loadFromJSON(json, () => {
       history.lock = false;
-      c!.renderAll();
       resizeToPreview();
 
-      // init history baseline
       history.stack = [c!.toJSON(["id", "tool", "opacityPct"])];
       history.idx = 0;
     });
@@ -257,14 +264,12 @@ function applyMode() {
   const isMove = editor.mode === "move";
   const isDraw = editor.mode === "pen" || editor.mode === "highlighter" || editor.mode === "signature";
 
-  // select/move mode
   c.selection = isMove;
   c.forEachObject((o) => {
     o.selectable = isMove;
     o.evented = true;
   });
 
-  // drawing mode
   c.isDrawingMode = !isMove && isDraw;
 
   if (c.isDrawingMode) {
@@ -274,20 +279,14 @@ function applyMode() {
             ? rgbaFromHex(editor.color, alpha * 0.35)
             : rgbaFromHex(editor.color, alpha);
 
-    const brush = c.freeDrawingBrush as any;
+    const brush: any = c.freeDrawingBrush;
     brush.color = col;
-
-    // Pen vs Signature: signature uses its own thickness by default
-    if (editor.mode === "signature") brush.width = Math.max(1, editor.signatureSize);
-    else brush.width = Math.max(1, editor.size);
-
-    // square brush: Fabric doesn’t provide perfect square brush out of the box.
-    // We keep round here; square is used for shapes. (Can add custom brush later.)
+    brush.width = Math.max(1, editor.mode === "signature" ? editor.signatureSize : editor.size);
   }
 
   c.defaultCursor = isMove ? "default" : "crosshair";
   c.hoverCursor = isMove ? "move" : "crosshair";
-  c.renderAll();
+  c.requestRenderAll();
 }
 
 // =========================
@@ -300,9 +299,7 @@ function addRect() {
   const fill = rgbaFromHex(editor.color, alpha * 0.25);
   const stroke = rgbaFromHex(editor.color, alpha);
 
-  const rect = new fabric.Rect({
-    left: 80,
-    top: 80,
+  const rect = new Rect({
     width: 260,
     height: 140,
     fill,
@@ -312,9 +309,11 @@ function addRect() {
     ry: editor.brushShape === "round" ? 14 : 0,
   });
 
+  setByTopLeft(rect, 80, 80);
   c.add(rect);
   c.setActiveObject(rect);
   c.requestRenderAll();
+
   editor.mode = "move";
   applyMode();
 }
@@ -326,9 +325,7 @@ function addCircle() {
   const fill = rgbaFromHex(editor.color, alpha * 0.25);
   const stroke = rgbaFromHex(editor.color, alpha);
 
-  const circle = new fabric.Ellipse({
-    left: 90,
-    top: 90,
+  const circle = new Ellipse({
     rx: 120,
     ry: 80,
     fill,
@@ -336,9 +333,11 @@ function addCircle() {
     strokeWidth: 2,
   });
 
+  setByTopLeft(circle, 90, 90);
   c.add(circle);
   c.setActiveObject(circle);
   c.requestRenderAll();
+
   editor.mode = "move";
   applyMode();
 }
@@ -347,19 +346,17 @@ function addTextBox() {
   if (!c) return;
   const alpha = editor.opacity / 100;
 
-  const style: Partial<fabric.Textbox> = {
-    left: 80,
-    top: 80,
+  const txt = new Textbox(editor.textValue || "Text", {
     width: 320,
     fill: rgbaFromHex(editor.color, alpha),
     fontFamily: editor.textFont || "Helvetica",
     fontSize: clampInt(editor.textSize, 8, 120),
-    fontWeight: editor.textBold ? ("bold" as any) : ("normal" as any),
-    fontStyle: editor.textItalic ? ("italic" as any) : ("normal" as any),
+    fontWeight: editor.textBold ? "bold" : "normal",
+    fontStyle: editor.textItalic ? "italic" : "normal",
     underline: editor.textUnderline,
-  };
+  });
 
-  const txt = new fabric.Textbox(editor.textValue || "Text", style);
+  setByTopLeft(txt, 80, 80);
   c.add(txt);
   c.setActiveObject(txt);
   c.requestRenderAll();
@@ -382,21 +379,10 @@ async function onPickImage(e: Event) {
 
   const url = URL.createObjectURL(file);
   try {
-    const img = await new Promise<fabric.Image>((resolve, reject) => {
-      fabric.Image.fromURL(
-          url,
-          (o) => (o ? resolve(o) : reject(new Error("Image load failed"))),
-          {crossOrigin: "anonymous"},
-      );
-    });
+    const img = await FabricImage.fromURL(url, {crossOrigin: "anonymous"});
 
-    img.set({
-      left: 80,
-      top: 80,
-      opacity: editor.opacity / 100,
-    });
+    img.set({opacity: editor.opacity / 100});
 
-    // auto scale to something sane
     const maxW = 360;
     const maxH = 220;
     const iw = img.width || 1;
@@ -404,6 +390,7 @@ async function onPickImage(e: Event) {
     const s = Math.min(maxW / iw, maxH / ih, 1);
     img.scale(s);
 
+    setByTopLeft(img, 80, 80);
     c.add(img);
     c.setActiveObject(img);
     c.requestRenderAll();
@@ -419,6 +406,7 @@ function removeSelected() {
   if (!c) return;
   const obj = c.getActiveObject();
   if (!obj) return;
+
   c.remove(obj);
   c.discardActiveObject();
   c.requestRenderAll();
@@ -445,7 +433,7 @@ function undo() {
   history.lock = true;
   c.loadFromJSON(history.stack[history.idx], () => {
     history.lock = false;
-    c!.renderAll();
+    c!.requestRenderAll();
     pageJson[page.value] = history.stack[history.idx];
     scheduleSaveDraft();
   });
@@ -458,7 +446,7 @@ function redo() {
   history.lock = true;
   c.loadFromJSON(history.stack[history.idx], () => {
     history.lock = false;
-    c!.renderAll();
+    c!.requestRenderAll();
     pageJson[page.value] = history.stack[history.idx];
     scheduleSaveDraft();
   });
@@ -468,25 +456,20 @@ function redo() {
 // Page switching
 // =========================
 async function setPage(p: number) {
-  if (!jobId.value) return;
-  if (!c) return;
+  if (!jobId.value || !c) return;
 
   const nextP = clampInt(p, 1, pages.value);
   if (nextP === page.value) return;
 
-  // save current page json
   pageJson[page.value] = c.toJSON(["id", "tool", "opacityPct"]);
-
   page.value = nextP;
 
-  // let img update, then load json for that page
   await nextTick();
   loadCanvasForPage(page.value);
   scheduleSaveDraft();
 }
 
-watch(page, async () => {
-  // clamp
+watch(page, () => {
   if (page.value < 1) page.value = 1;
   if (page.value > pages.value) page.value = pages.value;
 });
@@ -495,8 +478,8 @@ watch(page, async () => {
 // Save flow: export PNG overlays per page -> backend save
 // =========================
 async function exportOverlaysPngByPage(): Promise<Record<number, string>> {
-  if (!c) return {};
-  // make sure current page saved
+  if (!c || !previewImgRef.value) return {};
+
   pageJson[page.value] = c.toJSON(["id", "tool", "opacityPct"]);
 
   const overlays: Record<number, string> = {};
@@ -504,7 +487,6 @@ async function exportOverlaysPngByPage(): Promise<Record<number, string>> {
   const curPage = page.value;
   const curJson = c.toJSON(["id", "tool", "opacityPct"]);
 
-  // render each page json -> dataURL
   for (let p = 1; p <= pages.value; p++) {
     const json = pageJson[p];
     if (!json) continue;
@@ -513,32 +495,27 @@ async function exportOverlaysPngByPage(): Promise<Record<number, string>> {
       history.lock = true;
       c!.loadFromJSON(json, () => {
         history.lock = false;
-        c!.renderAll();
         resizeToPreview();
 
-        // IMPORTANT:
-        // toDataURL produces overlay in preview pixel space.
-        // backend should paste overlay on full page.
         const r = previewImgRef.value!.getBoundingClientRect();
         const mult = previewImgRef.value!.naturalWidth / Math.max(1, r.width);
+
         overlays[p] = c!.toDataURL({format: "png", multiplier: mult});
         resolve();
       });
     });
   }
 
-  // restore current
   await new Promise<void>((resolve) => {
     history.lock = true;
     c!.loadFromJSON(curJson, () => {
       history.lock = false;
-      c!.renderAll();
       resizeToPreview();
       resolve();
     });
   });
-  page.value = curPage;
 
+  page.value = curPage;
   return overlays;
 }
 
@@ -554,17 +531,14 @@ async function saveDocument() {
 
     const res = await $fetch<{ downloadUrl: string; expiresAtResult?: number }>(api(`/pdf/save/${jobId.value}`), {
       method: "POST",
-      body: {
-        overlays,
-        dpi: dpi.value,
-      },
+      body: {overlays, dpi: dpi.value},
     });
 
-    // обновим инфо (если у тебя пока сохраняется в job/versions — можно убрать позже)
     await refreshInfo();
 
-    // открыть результат
-    if (res?.downloadUrl) window.open(api(res.downloadUrl.replace(config.public.apiBase, "")) as any, "_blank");
+    if (res?.downloadUrl) {
+      window.open(api(res.downloadUrl.replace(config.public.apiBase, "")) as any, "_blank");
+    }
   } catch (e: any) {
     errorMsg.value = e?.data?.detail?.message || e?.message || "Save failed";
   } finally {
@@ -592,7 +566,7 @@ function isTypingTarget(el: EventTarget | null) {
   if (!t) return false;
   const tag = (t.tagName || "").toLowerCase();
   if (tag === "input" || tag === "textarea") return true;
-  return t.isContentEditable === true;
+  return t.isContentEditable;
 }
 
 function onKeyDown(e: KeyboardEvent) {
@@ -625,6 +599,8 @@ watch(
 // =========================
 // Lifecycle
 // =========================
+let onResize: any = null;
+
 async function boot() {
   if (!jobId.value) return;
   isBusy.value = true;
@@ -634,32 +610,19 @@ async function boot() {
     await refreshInfo();
     await loadDraft();
 
-    // init fabric
     await nextTick();
     ensureFabric();
 
-    // wait preview load
     await nextTick();
     loadCanvasForPage(page.value);
 
-    // resize listeners
-    const onResize = () => resizeToPreview();
+    onResize = () => resizeToPreview();
     window.addEventListener("resize", onResize);
 
-    // when preview image loads -> resize overlay
     const img = previewImgRef.value;
-    if (img) {
-      img.addEventListener("load", resizeToPreview, {passive: true});
-    }
+    if (img) img.addEventListener("load", resizeToPreview, {passive: true});
 
-    // keyboard
     window.addEventListener("keydown", onKeyDown);
-
-    onBeforeUnmount(() => {
-      window.removeEventListener("resize", onResize);
-      window.removeEventListener("keydown", onKeyDown);
-      if (img) img.removeEventListener("load", resizeToPreview as any);
-    });
   } catch (e: any) {
     errorMsg.value = e?.data?.detail?.message || e?.message || "Init failed";
   } finally {
@@ -668,7 +631,6 @@ async function boot() {
 }
 
 watch(jobId, async () => {
-  // reset
   page.value = 1;
   Object.keys(pageJson).forEach((k) => delete pageJson[Number(k)]);
   history.stack = [];
@@ -683,8 +645,14 @@ onMounted(boot);
 
 onBeforeUnmount(() => {
   clearTimeout(saveDraftTimer);
+
+  window.removeEventListener("keydown", onKeyDown);
+  if (onResize) window.removeEventListener("resize", onResize);
+
+  const img = previewImgRef.value;
+  if (img) img.removeEventListener("load", resizeToPreview as any);
+
   if (c) {
-    // flush draft on exit
     pageJson[page.value] = c.toJSON(["id", "tool", "opacityPct"]);
     saveDraftNow();
     c.dispose();
@@ -768,46 +736,27 @@ onBeforeUnmount(() => {
 
           <!-- TOOLSTRIP -->
           <div class="pdf__toolstrip">
-            <button
-                type="button"
-                class="services__pill"
-                :class="{ services__pill_active: editor.mode === 'move' }"
-                @click="editor.mode = 'move'"
-                :disabled="isBusy"
-            >
+            <button type="button" class="services__pill" :class="{ services__pill_active: editor.mode === 'move' }"
+                    @click="editor.mode = 'move'" :disabled="isBusy">
               <u-icon name="i-lucide-move"/>
               Move
             </button>
 
-            <button
-                type="button"
-                class="services__pill"
-                :class="{ services__pill_active: editor.mode === 'pen' }"
-                @click="editor.mode = 'pen'"
-                :disabled="isBusy"
-            >
+            <button type="button" class="services__pill" :class="{ services__pill_active: editor.mode === 'pen' }"
+                    @click="editor.mode = 'pen'" :disabled="isBusy">
               <u-icon name="i-lucide-pencil"/>
               Pen
             </button>
 
-            <button
-                type="button"
-                class="services__pill"
-                :class="{ services__pill_active: editor.mode === 'highlighter' }"
-                @click="editor.mode = 'highlighter'"
-                :disabled="isBusy"
-            >
+            <button type="button" class="services__pill"
+                    :class="{ services__pill_active: editor.mode === 'highlighter' }"
+                    @click="editor.mode = 'highlighter'" :disabled="isBusy">
               <u-icon name="i-lucide-highlighter"/>
               Highlight
             </button>
 
-            <button
-                type="button"
-                class="services__pill"
-                :class="{ services__pill_active: editor.mode === 'signature' }"
-                @click="editor.mode = 'signature'"
-                :disabled="isBusy"
-            >
+            <button type="button" class="services__pill" :class="{ services__pill_active: editor.mode === 'signature' }"
+                    @click="editor.mode = 'signature'" :disabled="isBusy">
               <u-icon name="i-lucide-signature"/>
               Signature
             </button>
@@ -884,12 +833,12 @@ onBeforeUnmount(() => {
                     { label: 'Square', value: 'square' },
                   ]"
                 />
-                <div class="pdf__help text-muted" style="margin-top: 6px">
-                  Square is applied to shapes. Brush remains round.
+                <div class="pdf__help text-muted" style="margin-top: 6px">Square is applied to shapes. Brush remains
+                  round.
                 </div>
               </div>
 
-              <div class="pdf__field pdf__field_row" v-if="editor.mode === 'text' || true">
+              <div class="pdf__field pdf__field_row">
                 <div class="pdf__label">Text (defaults for new text objects)</div>
                 <div class="pdf__style-row">
                   <u-input v-model="editor.textValue" placeholder="Text..." style="min-width: 220px"/>
@@ -897,16 +846,13 @@ onBeforeUnmount(() => {
                   <u-input v-model="editor.textFont" placeholder="Font (e.g. Helvetica)" style="min-width: 200px"/>
 
                   <button type="button" class="pdf__chip" :class="{ pdf__chip_active: editor.textBold }"
-                          @click="editor.textBold = !editor.textBold">
-                    B
+                          @click="editor.textBold = !editor.textBold">B
                   </button>
                   <button type="button" class="pdf__chip" :class="{ pdf__chip_active: editor.textItalic }"
-                          @click="editor.textItalic = !editor.textItalic">
-                    I
+                          @click="editor.textItalic = !editor.textItalic">I
                   </button>
                   <button type="button" class="pdf__chip" :class="{ pdf__chip_active: editor.textUnderline }"
-                          @click="editor.textUnderline = !editor.textUnderline">
-                    U
+                          @click="editor.textUnderline = !editor.textUnderline">U
                   </button>
                 </div>
               </div>
@@ -928,11 +874,8 @@ onBeforeUnmount(() => {
 
           <!-- STAGE -->
           <div class="pdf__canvas-wrap">
-            <div
-                ref="stageRef"
-                class="pdf__stage"
-                :class="{ pdf__stage_white: bgColor === 'white', pdf__stage_black: bgColor === 'black' }"
-            >
+            <div ref="stageRef" class="pdf__stage"
+                 :class="{ pdf__stage_white: bgColor === 'white', pdf__stage_black: bgColor === 'black' }">
               <img ref="previewImgRef" :src="previewUrl" class="pdf__preview" alt=""/>
               <canvas ref="overlayCanvasRef" class="pdf__overlay"/>
             </div>
