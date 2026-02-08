@@ -10,8 +10,10 @@ const { data: rawServices } = await safeFetch<ServiceType[]>(
     `${config.public.apiBase}/services`
 );
 
+console.log(rawServices);
+
 const services = computed(() => {
-  const raw = rawServices.value;
+  const raw = rawServices;
 
   if (!raw || !Array.isArray(raw)) return [];
 
