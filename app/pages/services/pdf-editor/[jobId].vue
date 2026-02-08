@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import PageHeader from "~/components/common/PageHeader.vue";
 import CustomButton from "~/components/common/CustomButton.vue";
-import {computed, onMounted, ref, watch} from "vue";
-import SignatureOverlay from "~/components/pdfEditor/SignatureOverlay.vue";
-import TextOverlay from "~/components/pdfEditor/TextOverlay.vue";
-import {v4 as uuidv4} from "uuid";
+import {computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch} from "vue";
+import {fabric} from "fabric";
 
 const config = useRuntimeConfig();
 const {t} = useI18n();
@@ -13,12 +11,11 @@ const router = useRouter();
 
 const jobId = computed(() => String(route.params.jobId || ""));
 
-type TextAlign = "left" | "center" | "right" | "justify";
-type PdfFont = "helvetica" | "times" | "courier";
-
+// --- pdf meta
 const pages = ref<number>(1);
 const pageW = ref<number>(595);
 const pageH = ref<number>(842);
+// activeVersion больше не нужен в новом флоу, но оставим, чтобы не рушить preview endpoint прямо сейчас
 const activeVersion = ref<number>(1);
 
 const page = ref<number>(1);
@@ -28,307 +25,546 @@ const isBusy = ref(false);
 const errorMsg = ref<string | null>(null);
 
 const stageRef = ref<HTMLDivElement | null>(null);
+const previewImgRef = ref<HTMLImageElement | null>(null);
+const overlayCanvasRef = ref<HTMLCanvasElement | null>(null);
+
 const bgColor = ref<string | null>(null);
 
-/** ---------------------------
- *  Elements model (UI-only)
- *  --------------------------*/
-type BaseEl = {
-  id: string;
-  page: number;
-  xRel: number;
-  yRel: number;
-  wRel: number;
-  hRel: number;
-};
+// --- editor tool state
+type Mode = "move" | "pen" | "highlighter" | "signature" | "rect" | "circle" | "text" | "image";
+type BrushShape = "round" | "square";
 
-type TextEl = BaseEl & {
-  type: "text";
-  value: string;
-  opacity: number;
-  fontSize: number;
-  color: string;
-  font: PdfFont;
-  bold: boolean;
-  italic: boolean;
-  underline: boolean;
-  align: TextAlign;
-  autoFit: boolean;
-};
+const editor = reactive({
+  mode: "move" as Mode,
+  color: "#7c3aed",
+  opacity: 80, // 0..100
+  size: 6, // brush width
+  brushShape: "round" as BrushShape,
 
-type SigEl = BaseEl & {
-  type: "signature";
-  strokes: Array<Array<[number, number]>>;
-  strokeWidth: number;
-  opacity: number;
-  color: string;
-};
+  // text defaults
+  textValue: "Hello!",
+  textFont: "Helvetica",
+  textSize: 32,
+  textBold: false,
+  textItalic: false,
+  textUnderline: false,
 
-type PdfEl = TextEl | SigEl;
-
-const elements = ref<PdfEl[]>([]);
-const selectedId = ref<string | null>(null);
-
-/** ---------------------------
- *  UI tool panel state
- *  --------------------------*/
-const tool = ref<"none" | "text" | "signature">("none");
-
-const availableFonts: Array<{ label: string; value: PdfFont }> = [
-  {label: "Helvetica", value: "helvetica"},
-  {label: "Times", value: "times"},
-  {label: "Courier", value: "courier"},
-];
-
-const alignOptions: Array<{ label: string; value: TextAlign }> = [
-  {label: "Left", value: "left"},
-  {label: "Center", value: "center"},
-  {label: "Right", value: "right"},
-  {label: "Justify", value: "justify"},
-];
-
-const previewUrl = computed(() => {
-  if (!jobId.value) return "";
-  return `${config.public.apiBase}/pdf/preview/${jobId.value}/${page.value}?dpi=${dpi.value}&v=${activeVersion.value}`;
+  // signature defaults
+  signatureSize: 2.0,
 });
 
-function clamp01(n: number) {
-  return Math.max(0, Math.min(1, n));
-}
+// --- draft (per-page json)
+type PdfDraft = {
+  v: 1;
+  updatedAt: number;
+  pages: Record<number, any>; // fabric json per page
+  ui?: { page?: number; zoom?: number };
+};
+
+const pageJson = reactive<Record<number, any>>({});
+
+// --- history (per current page)
+const history = reactive({
+  stack: [] as any[],
+  idx: -1,
+  lock: false,
+});
+
+// fabric canvas instance
+let c: fabric.Canvas | null = null;
+
+// --- preview URL
+const previewUrl = computed(() => {
+  if (!jobId.value) return "";
+  // пока оставляем v=activeVersion, чтобы работало с твоим текущим /preview
+  return `${config.public.apiBase}/pdf/preview/${jobId.value}/${page.value}?dpi=${dpi.value}&v=${activeVersion.value}`;
+});
 
 function clampInt(n: number, min: number, max: number) {
   const x = Number.isFinite(n) ? n : min;
   return Math.max(min, Math.min(max, x));
 }
 
-// server clamps to 220, so do it in UI too
 watch(dpi, (v) => {
   dpi.value = clampInt(v, 72, 220);
 });
 
-/** ---------------------------
- *  Coordinate helpers
- *  --------------------------*/
-function relToPdfX(xRel: number) {
-  return xRel * pageW.value;
+// --- API helpers
+function api(path: string) {
+  return `${config.public.apiBase}${path}`;
 }
 
-// IMPORTANT: your backend assumes PDF origin is bottom-left.
-// Our UI yRel is top-based (0 = top).
-function relToPdfY(yRel: number) {
-  return pageH.value - yRel * pageH.value;
+// =========================
+// Draft: load/save Redis
+// =========================
+let saveDraftTimer: any = null;
+
+function scheduleSaveDraft() {
+  clearTimeout(saveDraftTimer);
+  saveDraftTimer = setTimeout(saveDraftNow, 650);
 }
 
-/** ---------------------------
- *  Load page info
- *  --------------------------*/
-async function refreshInfo() {
+async function saveDraftNow() {
   if (!jobId.value) return;
   try {
-    const info = await $fetch<{ pages: number; pageW: number; pageH: number; activeVersion: number }>(
-        `${config.public.apiBase}/pdf/page-info/${jobId.value}`,
-    );
-
-    pages.value = info.pages;
-    pageW.value = info.pageW;
-    pageH.value = info.pageH;
-    activeVersion.value = info.activeVersion;
-
-    if (page.value > pages.value) page.value = pages.value;
-    if (page.value < 1) page.value = 1;
-  } catch (e: any) {
-    try {
-      const st = await $fetch<{ activeVersion: number }>(`${config.public.apiBase}/pdf/status/${jobId.value}`);
-      activeVersion.value = st.activeVersion;
-    } catch {
-      // ignore
-    }
+    // save current page json too
+    if (c) pageJson[page.value] = c.toJSON(["id", "tool", "opacityPct"]);
+    const draft: PdfDraft = {
+      v: 1,
+      updatedAt: Date.now(),
+      pages: {...pageJson},
+      ui: {page: page.value},
+    };
+    await $fetch(api(`/pdf/draft/${jobId.value}`), {method: "PUT", body: {draft}});
+  } catch {
+    // не мешаем пользователю работать
   }
 }
 
-watch(jobId, async () => {
+async function loadDraft() {
   if (!jobId.value) return;
-  page.value = 1;
-  await refreshInfo();
-});
+  try {
+    const res = await $fetch<{ draft: PdfDraft }>(api(`/pdf/draft/${jobId.value}`));
+    if (res?.draft?.pages) {
+      Object.assign(pageJson, res.draft.pages);
+      if (res.draft.ui?.page) page.value = clampInt(res.draft.ui.page, 1, 9999);
+    }
+  } catch {
+    // 404 ok
+  }
+}
 
-watch(page, () => {
+// =========================
+// PDF info
+// =========================
+async function refreshInfo() {
   if (!jobId.value) return;
+  const info = await $fetch<{ pages: number; pageW: number; pageH: number; activeVersion?: number }>(
+      api(`/pdf/page-info/${jobId.value}`),
+  );
+
+  pages.value = info.pages;
+  pageW.value = info.pageW;
+  pageH.value = info.pageH;
+  if (typeof info.activeVersion === "number") activeVersion.value = info.activeVersion;
+
+  if (page.value > pages.value) page.value = pages.value;
+  if (page.value < 1) page.value = 1;
+}
+
+// =========================
+// Fabric helpers
+// =========================
+function rgbaFromHex(hex: string, alpha01: number) {
+  const v = (hex || "").replace("#", "").trim();
+  const s = v.length === 3 ? v.split("").map((x) => x + x).join("") : v;
+  const n = parseInt(s || "ffffff", 16);
+  const r = (n >> 16) & 255;
+  const g = (n >> 8) & 255;
+  const b = n & 255;
+  const a = Math.max(0, Math.min(1, alpha01));
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+function ensureFabric() {
+  if (!overlayCanvasRef.value) return;
+
+  if (c) {
+    c.dispose();
+    c = null;
+  }
+
+  c = new fabric.Canvas(overlayCanvasRef.value, {
+    selection: true,
+    preserveObjectStacking: true,
+    stopContextMenu: true,
+  });
+
+  // slightly nicer corners
+  fabric.Object.prototype.transparentCorners = false;
+  fabric.Object.prototype.cornerStyle = "circle";
+
+  // History: пушим только на “значимые” события
+  const pushHistory = () => {
+    if (!c || history.lock) return;
+
+    const snap = c.toJSON(["id", "tool", "opacityPct"]);
+    // truncate redo tail
+    history.stack = history.stack.slice(0, history.idx + 1);
+    history.stack.push(snap);
+    history.idx = history.stack.length - 1;
+
+    pageJson[page.value] = snap;
+    scheduleSaveDraft();
+  };
+
+  c.on("path:created", pushHistory);
+  c.on("object:modified", pushHistory);
+  // object:added тоже будет срабатывать на loadFromJSON — поэтому блокируем history.lock в loadCanvasForPage()
+  c.on("object:added", pushHistory);
+  c.on("object:removed", pushHistory);
+
+  applyMode();
+}
+
+function resizeToPreview() {
+  if (!c || !overlayCanvasRef.value || !previewImgRef.value) return;
+
+  const img = previewImgRef.value;
+  const r = img.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+
+  overlayCanvasRef.value.style.width = `${r.width}px`;
+  overlayCanvasRef.value.style.height = `${r.height}px`;
+  overlayCanvasRef.value.width = Math.max(1, Math.floor(r.width * dpr));
+  overlayCanvasRef.value.height = Math.max(1, Math.floor(r.height * dpr));
+
+  c.setWidth(r.width);
+  c.setHeight(r.height);
+  c.setZoom(1);
+  c.renderAll();
+}
+
+function loadCanvasForPage(p: number) {
+  if (!c) return;
+
+  history.lock = true;
+  c.clear();
+
+  const json = pageJson[p];
+  if (json) {
+    c.loadFromJSON(json, () => {
+      history.lock = false;
+      c!.renderAll();
+      resizeToPreview();
+
+      // init history baseline
+      history.stack = [c!.toJSON(["id", "tool", "opacityPct"])];
+      history.idx = 0;
+    });
+  } else {
+    history.lock = false;
+    resizeToPreview();
+
+    history.stack = [c.toJSON(["id", "tool", "opacityPct"])];
+    history.idx = 0;
+  }
+}
+
+function applyMode() {
+  if (!c) return;
+
+  const isMove = editor.mode === "move";
+  const isDraw = editor.mode === "pen" || editor.mode === "highlighter" || editor.mode === "signature";
+
+  // select/move mode
+  c.selection = isMove;
+  c.forEachObject((o) => {
+    o.selectable = isMove;
+    o.evented = true;
+  });
+
+  // drawing mode
+  c.isDrawingMode = !isMove && isDraw;
+
+  if (c.isDrawingMode) {
+    const alpha = editor.opacity / 100;
+    const col =
+        editor.mode === "highlighter"
+            ? rgbaFromHex(editor.color, alpha * 0.35)
+            : rgbaFromHex(editor.color, alpha);
+
+    const brush = c.freeDrawingBrush as any;
+    brush.color = col;
+
+    // Pen vs Signature: signature uses its own thickness by default
+    if (editor.mode === "signature") brush.width = Math.max(1, editor.signatureSize);
+    else brush.width = Math.max(1, editor.size);
+
+    // square brush: Fabric doesn’t provide perfect square brush out of the box.
+    // We keep round here; square is used for shapes. (Can add custom brush later.)
+  }
+
+  c.defaultCursor = isMove ? "default" : "crosshair";
+  c.hoverCursor = isMove ? "move" : "crosshair";
+  c.renderAll();
+}
+
+// =========================
+// Tools actions (add objects)
+// =========================
+function addRect() {
+  if (!c) return;
+  const alpha = editor.opacity / 100;
+
+  const fill = rgbaFromHex(editor.color, alpha * 0.25);
+  const stroke = rgbaFromHex(editor.color, alpha);
+
+  const rect = new fabric.Rect({
+    left: 80,
+    top: 80,
+    width: 260,
+    height: 140,
+    fill,
+    stroke,
+    strokeWidth: 2,
+    rx: editor.brushShape === "round" ? 14 : 0,
+    ry: editor.brushShape === "round" ? 14 : 0,
+  });
+
+  c.add(rect);
+  c.setActiveObject(rect);
+  c.requestRenderAll();
+  editor.mode = "move";
+  applyMode();
+}
+
+function addCircle() {
+  if (!c) return;
+  const alpha = editor.opacity / 100;
+
+  const fill = rgbaFromHex(editor.color, alpha * 0.25);
+  const stroke = rgbaFromHex(editor.color, alpha);
+
+  const circle = new fabric.Ellipse({
+    left: 90,
+    top: 90,
+    rx: 120,
+    ry: 80,
+    fill,
+    stroke,
+    strokeWidth: 2,
+  });
+
+  c.add(circle);
+  c.setActiveObject(circle);
+  c.requestRenderAll();
+  editor.mode = "move";
+  applyMode();
+}
+
+function addTextBox() {
+  if (!c) return;
+  const alpha = editor.opacity / 100;
+
+  const style: Partial<fabric.Textbox> = {
+    left: 80,
+    top: 80,
+    width: 320,
+    fill: rgbaFromHex(editor.color, alpha),
+    fontFamily: editor.textFont || "Helvetica",
+    fontSize: clampInt(editor.textSize, 8, 120),
+    fontWeight: editor.textBold ? ("bold" as any) : ("normal" as any),
+    fontStyle: editor.textItalic ? ("italic" as any) : ("normal" as any),
+    underline: editor.textUnderline,
+  };
+
+  const txt = new fabric.Textbox(editor.textValue || "Text", style);
+  c.add(txt);
+  c.setActiveObject(txt);
+  c.requestRenderAll();
+
+  editor.mode = "move";
+  applyMode();
+}
+
+const imageInput = ref<HTMLInputElement | null>(null);
+
+function openImagePicker() {
+  imageInput.value?.click();
+}
+
+async function onPickImage(e: Event) {
+  const input = e.target as HTMLInputElement;
+  const file = input.files?.[0];
+  input.value = "";
+  if (!file || !c) return;
+
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise<fabric.Image>((resolve, reject) => {
+      fabric.Image.fromURL(
+          url,
+          (o) => (o ? resolve(o) : reject(new Error("Image load failed"))),
+          {crossOrigin: "anonymous"},
+      );
+    });
+
+    img.set({
+      left: 80,
+      top: 80,
+      opacity: editor.opacity / 100,
+    });
+
+    // auto scale to something sane
+    const maxW = 360;
+    const maxH = 220;
+    const iw = img.width || 1;
+    const ih = img.height || 1;
+    const s = Math.min(maxW / iw, maxH / ih, 1);
+    img.scale(s);
+
+    c.add(img);
+    c.setActiveObject(img);
+    c.requestRenderAll();
+
+    editor.mode = "move";
+    applyMode();
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+function removeSelected() {
+  if (!c) return;
+  const obj = c.getActiveObject();
+  if (!obj) return;
+  c.remove(obj);
+  c.discardActiveObject();
+  c.requestRenderAll();
+}
+
+function clearPage() {
+  if (!c) return;
+  c.clear();
+  c.requestRenderAll();
+  pageJson[page.value] = c.toJSON(["id", "tool", "opacityPct"]);
+  scheduleSaveDraft();
+}
+
+// =========================
+// Undo/Redo (local)
+// =========================
+const canUndo = computed(() => history.idx > 0);
+const canRedo = computed(() => history.idx >= 0 && history.idx < history.stack.length - 1);
+
+function undo() {
+  if (!c || !canUndo.value) return;
+  history.idx -= 1;
+
+  history.lock = true;
+  c.loadFromJSON(history.stack[history.idx], () => {
+    history.lock = false;
+    c!.renderAll();
+    pageJson[page.value] = history.stack[history.idx];
+    scheduleSaveDraft();
+  });
+}
+
+function redo() {
+  if (!c || !canRedo.value) return;
+  history.idx += 1;
+
+  history.lock = true;
+  c.loadFromJSON(history.stack[history.idx], () => {
+    history.lock = false;
+    c!.renderAll();
+    pageJson[page.value] = history.stack[history.idx];
+    scheduleSaveDraft();
+  });
+}
+
+// =========================
+// Page switching
+// =========================
+async function setPage(p: number) {
+  if (!jobId.value) return;
+  if (!c) return;
+
+  const nextP = clampInt(p, 1, pages.value);
+  if (nextP === page.value) return;
+
+  // save current page json
+  pageJson[page.value] = c.toJSON(["id", "tool", "opacityPct"]);
+
+  page.value = nextP;
+
+  // let img update, then load json for that page
+  await nextTick();
+  loadCanvasForPage(page.value);
+  scheduleSaveDraft();
+}
+
+watch(page, async () => {
+  // clamp
   if (page.value < 1) page.value = 1;
   if (page.value > pages.value) page.value = pages.value;
 });
 
-/** ---------------------------
- *  Selection / focus
- *  --------------------------*/
-function onStageDown(e: PointerEvent) {
-  const t = e.target as HTMLElement;
-  // overlays should mark their root with data-el-root="true"
-  if (!t.closest("[data-el-root='true']")) selectedId.value = null;
-}
+// =========================
+// Save flow: export PNG overlays per page -> backend save
+// =========================
+async function exportOverlaysPngByPage(): Promise<Record<number, string>> {
+  if (!c) return {};
+  // make sure current page saved
+  pageJson[page.value] = c.toJSON(["id", "tool", "opacityPct"]);
 
-const selectedEl = computed(() => elements.value.find((x) => x.id === selectedId.value) ?? null);
+  const overlays: Record<number, string> = {};
 
-function selectEl(id: string) {
-  selectedId.value = id;
-}
+  const curPage = page.value;
+  const curJson = c.toJSON(["id", "tool", "opacityPct"]);
 
-/** ---------------------------
- *  Create elements
- *  --------------------------*/
-function addText() {
-  const el: TextEl = {
-    id: uuidv4(),
-    type: "text",
-    page: page.value,
-    xRel: 0.15,
-    yRel: 0.15,
-    wRel: 0.35,
-    hRel: 0.12,
-    value: "Hello!",
-    opacity: 80,
-    fontSize: 28,
-    color: "#ffffff",
-    font: "helvetica",
-    bold: false,
-    italic: false,
-    underline: false,
-    align: "left",
-    autoFit: true,
-  };
-  elements.value.push(el);
-  selectedId.value = el.id;
-  tool.value = "text";
-}
+  // render each page json -> dataURL
+  for (let p = 1; p <= pages.value; p++) {
+    const json = pageJson[p];
+    if (!json) continue;
 
-function addSignature() {
-  const el: SigEl = {
-    id: uuidv4(),
-    type: "signature",
-    page: page.value,
-    xRel: 0.15,
-    yRel: 0.65,
-    wRel: 0.45,
-    hRel: 0.18,
-    strokes: [],
-    strokeWidth: 2.0,
-    opacity: 100,
-    color: "#ffffff",
-  };
-  elements.value.push(el);
-  selectedId.value = el.id;
-  tool.value = "signature";
-}
+    await new Promise<void>((resolve) => {
+      history.lock = true;
+      c!.loadFromJSON(json, () => {
+        history.lock = false;
+        c!.renderAll();
+        resizeToPreview();
 
-function removeSelected() {
-  if (!selectedId.value) return;
-  elements.value = elements.value.filter((x) => x.id !== selectedId.value);
-  selectedId.value = null;
-}
+        // IMPORTANT:
+        // toDataURL produces overlay in preview pixel space.
+        // backend should paste overlay on full page.
+        const r = previewImgRef.value!.getBoundingClientRect();
+        const mult = previewImgRef.value!.naturalWidth / Math.max(1, r.width);
+        overlays[p] = c!.toDataURL({format: "png", multiplier: mult});
+        resolve();
+      });
+    });
+  }
 
-/** ---------------------------
- *  Job actions
- *  --------------------------*/
-function uploadNew() {
-  router.push("/services/pdf-editor");
-}
+  // restore current
+  await new Promise<void>((resolve) => {
+    history.lock = true;
+    c!.loadFromJSON(curJson, () => {
+      history.lock = false;
+      c!.renderAll();
+      resizeToPreview();
+      resolve();
+    });
+  });
+  page.value = curPage;
 
-function download() {
-  if (!jobId.value) return;
-  window.open(`${config.public.apiBase}/pdf/download/${jobId.value}`, "_blank");
-}
-
-/** ---------------------------
- *  SAVE FLOW
- *  One click -> apply all overlays.
- *  (For now uses multiple /apply calls; later swap to /apply-batch.)
- *  --------------------------*/
-function uiFontToPdf(font: PdfFont) {
-  // backend _pick_font supports Helvetica/Times/Courier variants
-  if (font === "times") return "Times";
-  if (font === "courier") return "Courier";
-  return "Helvetica";
-}
-
-function approxTextWidthPts(text: string, fontSize: number) {
-  // rough but ok for "fit to maxWidth" before going to backend
-  return (text || "").length * fontSize * 0.55;
-}
-
-function pickFontSizeToFit(text: string, maxWidthPts: number, initial: number) {
-  let fs = Math.max(8, Math.min(120, initial));
-  while (fs > 8 && approxTextWidthPts(text, fs) > maxWidthPts) fs -= 1;
-  return fs;
+  return overlays;
 }
 
 async function saveDocument() {
   if (!jobId.value) return;
+  if (isBusy.value) return;
+
   errorMsg.value = null;
-
-  // apply all elements on ALL pages (or you can limit to current page)
-  const items = elements.value.slice().sort((a, b) => a.page - b.page);
-
-  if (!items.length) return;
-
   isBusy.value = true;
+
   try {
-    for (const el of items) {
-      if (el.type === "text") {
-        if (!el.value.trim()) continue;
+    const overlays = await exportOverlaysPngByPage();
 
-        const maxWidth = el.wRel * pageW.value;
-        const fittedSize = el.autoFit ? pickFontSizeToFit(el.value, maxWidth, el.fontSize) : el.fontSize;
+    const res = await $fetch<{ downloadUrl: string; expiresAtResult?: number }>(api(`/pdf/save/${jobId.value}`), {
+      method: "POST",
+      body: {
+        overlays,
+        dpi: dpi.value,
+      },
+    });
 
-        const options = {
-          text: el.value,
-          opacity: el.opacity,
-          page: el.page,
-          x: relToPdfX(el.xRel),
-          y: relToPdfY(el.yRel),
-          fontSize: fittedSize,
-          color: el.color,
-          font: uiFontToPdf(el.font),
-          bold: el.bold,
-          italic: el.italic,
-          underline: el.underline,
-          align: el.align,
-          maxWidth,
-        };
-
-        const form = new FormData();
-        form.append("tool", "watermark_text");
-        form.append("options", JSON.stringify(options));
-        await $fetch(`${config.public.apiBase}/pdf/apply/${jobId.value}`, {method: "POST", body: form});
-      }
-
-      if (el.type === "signature") {
-        if (!el.strokes.length) continue;
-
-        const options = {
-          page: el.page,
-          x: relToPdfX(el.xRel),
-          // IMPORTANT: signature tool expects y as "bottom of box" in PDF coords
-          y: relToPdfY(el.yRel) - el.hRel * pageH.value,
-          w: el.wRel * pageW.value,
-          h: el.hRel * pageH.value,
-          strokes: el.strokes.map((stroke) => stroke.map(([x, y]) => [x, 1 - y])),
-          strokeWidth: el.strokeWidth,
-          opacity: el.opacity,
-          // color for signature: backend currently uses white.
-          // When backend adds 'color', include it here.
-        };
-
-        const form = new FormData();
-        form.append("tool", "draw_signature");
-        form.append("options", JSON.stringify(options));
-        await $fetch(`${config.public.apiBase}/pdf/apply/${jobId.value}`, {method: "POST", body: form});
-      }
-    }
-
+    // обновим инфо (если у тебя пока сохраняется в job/versions — можно убрать позже)
     await refreshInfo();
-    // after save you may want to keep UI elements (for continuing) or clear them:
-    // elements.value = [];
-    // selectedId.value = null;
+
+    // открыть результат
+    if (res?.downloadUrl) window.open(api(res.downloadUrl.replace(config.public.apiBase, "")) as any, "_blank");
   } catch (e: any) {
     errorMsg.value = e?.data?.detail?.message || e?.message || "Save failed";
   } finally {
@@ -336,9 +572,124 @@ async function saveDocument() {
   }
 }
 
-onMounted(async () => {
+// =========================
+// Other actions
+// =========================
+function uploadNew() {
+  router.push("/services/pdf-editor");
+}
+
+function downloadSource() {
   if (!jobId.value) return;
-  await refreshInfo();
+  window.open(`${config.public.apiBase}/pdf/download/${jobId.value}`, "_blank");
+}
+
+// =========================
+// Keyboard shortcuts
+// =========================
+function isTypingTarget(el: EventTarget | null) {
+  const t = el as HTMLElement | null;
+  if (!t) return false;
+  const tag = (t.tagName || "").toLowerCase();
+  if (tag === "input" || tag === "textarea") return true;
+  return t.isContentEditable === true;
+}
+
+function onKeyDown(e: KeyboardEvent) {
+  if (isBusy.value) return;
+  if (isTypingTarget(e.target)) return;
+
+  if ((e.key === "Delete" || e.key === "Backspace") && c?.getActiveObject()) {
+    e.preventDefault();
+    removeSelected();
+    return;
+  }
+
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
+    e.preventDefault();
+    undo();
+    return;
+  }
+  if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === "y" || (e.shiftKey && e.key.toLowerCase() === "z"))) {
+    e.preventDefault();
+    redo();
+    return;
+  }
+}
+
+watch(
+    () => [editor.mode, editor.color, editor.opacity, editor.size, editor.signatureSize, editor.brushShape],
+    () => applyMode(),
+);
+
+// =========================
+// Lifecycle
+// =========================
+async function boot() {
+  if (!jobId.value) return;
+  isBusy.value = true;
+  errorMsg.value = null;
+
+  try {
+    await refreshInfo();
+    await loadDraft();
+
+    // init fabric
+    await nextTick();
+    ensureFabric();
+
+    // wait preview load
+    await nextTick();
+    loadCanvasForPage(page.value);
+
+    // resize listeners
+    const onResize = () => resizeToPreview();
+    window.addEventListener("resize", onResize);
+
+    // when preview image loads -> resize overlay
+    const img = previewImgRef.value;
+    if (img) {
+      img.addEventListener("load", resizeToPreview, {passive: true});
+    }
+
+    // keyboard
+    window.addEventListener("keydown", onKeyDown);
+
+    onBeforeUnmount(() => {
+      window.removeEventListener("resize", onResize);
+      window.removeEventListener("keydown", onKeyDown);
+      if (img) img.removeEventListener("load", resizeToPreview as any);
+    });
+  } catch (e: any) {
+    errorMsg.value = e?.data?.detail?.message || e?.message || "Init failed";
+  } finally {
+    isBusy.value = false;
+  }
+}
+
+watch(jobId, async () => {
+  // reset
+  page.value = 1;
+  Object.keys(pageJson).forEach((k) => delete pageJson[Number(k)]);
+  history.stack = [];
+  history.idx = -1;
+  errorMsg.value = null;
+
+  await nextTick();
+  await boot();
+});
+
+onMounted(boot);
+
+onBeforeUnmount(() => {
+  clearTimeout(saveDraftTimer);
+  if (c) {
+    // flush draft on exit
+    pageJson[page.value] = c.toJSON(["id", "tool", "opacityPct"]);
+    saveDraftNow();
+    c.dispose();
+    c = null;
+  }
 });
 </script>
 
@@ -380,13 +731,14 @@ onMounted(async () => {
 
               <div class="pdf__sep"/>
 
-              <button type="button" class="pdf__icon-btn" :disabled="isBusy || page <= 1" @click="page--">
+              <button type="button" class="pdf__icon-btn" :disabled="isBusy || page <= 1" @click="setPage(page - 1)">
                 <u-icon name="i-lucide-chevron-left"/>
               </button>
 
               <div class="pdf__page-chip">{{ t("services.pdfEditor.page") }} {{ page }} / {{ pages }}</div>
 
-              <button type="button" class="pdf__icon-btn" :disabled="isBusy || page >= pages" @click="page++">
+              <button type="button" class="pdf__icon-btn" :disabled="isBusy || page >= pages"
+                      @click="setPage(page + 1)">
                 <u-icon name="i-lucide-chevron-right"/>
               </button>
 
@@ -399,7 +751,7 @@ onMounted(async () => {
 
               <div class="pdf__sep"/>
 
-              <button type="button" class="pdf__icon-btn" @click="download" :disabled="isBusy">
+              <button type="button" class="pdf__icon-btn" @click="downloadSource" :disabled="isBusy">
                 <u-icon name="i-lucide-download"/>
               </button>
 
@@ -414,189 +766,175 @@ onMounted(async () => {
             </div>
           </div>
 
-          <!-- Toolstrip: creates new elements -->
+          <!-- TOOLSTRIP -->
           <div class="pdf__toolstrip">
-            <button type="button" class="services__pill" :class="{ services__pill_active: tool === 'text' }"
-                    @click="addText">
-              <u-icon name="i-lucide-type"/>
-              {{ t("services.pdfEditor.tools.text") }}
+            <button
+                type="button"
+                class="services__pill"
+                :class="{ services__pill_active: editor.mode === 'move' }"
+                @click="editor.mode = 'move'"
+                :disabled="isBusy"
+            >
+              <u-icon name="i-lucide-move"/>
+              Move
             </button>
 
             <button
                 type="button"
                 class="services__pill"
-                :class="{ services__pill_active: tool === 'signature' }"
-                @click="addSignature"
+                :class="{ services__pill_active: editor.mode === 'pen' }"
+                @click="editor.mode = 'pen'"
+                :disabled="isBusy"
             >
-              <u-icon name="i-lucide-pen-tool"/>
-              {{ t("services.pdfEditor.tools.signature") }}
+              <u-icon name="i-lucide-pencil"/>
+              Pen
             </button>
 
-            <button type="button" class="services__pill" :disabled="!selectedId" @click="removeSelected">
+            <button
+                type="button"
+                class="services__pill"
+                :class="{ services__pill_active: editor.mode === 'highlighter' }"
+                @click="editor.mode = 'highlighter'"
+                :disabled="isBusy"
+            >
+              <u-icon name="i-lucide-highlighter"/>
+              Highlight
+            </button>
+
+            <button
+                type="button"
+                class="services__pill"
+                :class="{ services__pill_active: editor.mode === 'signature' }"
+                @click="editor.mode = 'signature'"
+                :disabled="isBusy"
+            >
+              <u-icon name="i-lucide-signature"/>
+              Signature
+            </button>
+
+            <button type="button" class="services__pill" @click="addRect" :disabled="isBusy">
+              <u-icon name="i-lucide-square"/>
+              Rect
+            </button>
+
+            <button type="button" class="services__pill" @click="addCircle" :disabled="isBusy">
+              <u-icon name="i-lucide-circle"/>
+              Circle
+            </button>
+
+            <button type="button" class="services__pill" @click="addTextBox" :disabled="isBusy">
+              <u-icon name="i-lucide-type"/>
+              Text
+            </button>
+
+            <button type="button" class="services__pill" @click="openImagePicker" :disabled="isBusy">
+              <u-icon name="i-lucide-image"/>
+              Image
+            </button>
+            <input ref="imageInput" type="file" accept="image/*" class="hidden" @change="onPickImage"/>
+
+            <div class="pdf__sep pdf__sep_small"/>
+
+            <button type="button" class="services__pill" :disabled="isBusy || !canUndo" @click="undo">
+              <u-icon name="i-lucide-undo-2"/>
+              Undo
+            </button>
+            <button type="button" class="services__pill" :disabled="isBusy || !canRedo" @click="redo">
+              <u-icon name="i-lucide-redo-2"/>
+              Redo
+            </button>
+
+            <button type="button" class="services__pill" :disabled="isBusy" @click="removeSelected">
               <u-icon name="i-lucide-trash-2"/>
-              {{ t("services.pdfEditor.removeElement") || "Remove" }}
+              Remove
+            </button>
+
+            <button type="button" class="services__pill" :disabled="isBusy" @click="clearPage">
+              <u-icon name="i-lucide-eraser"/>
+              Clear page
             </button>
           </div>
 
-          <div v-if="selectedEl && selectedEl.type === 'text'" class="pdf__tool-section">
-            <div class="pdf__tool-title">{{ t("services.pdfEditor.text.title") }}</div>
+          <!-- PROPS -->
+          <div class="pdf__tool-section">
+            <div class="pdf__tool-title">Tool settings</div>
 
             <div class="pdf__tool-grid4">
               <div class="pdf__field">
-                <div class="pdf__label">{{ t("services.pdfEditor.text.valueLabel") }}</div>
-                <u-input v-model="selectedEl.value" :placeholder="t('services.pdfEditor.text.valuePlaceholder')"/>
+                <div class="pdf__label">Color</div>
+                <u-input v-model="editor.color" type="color"/>
               </div>
 
               <div class="pdf__field">
-                <div class="pdf__label">{{ t("services.pdfEditor.text.fontLabel") }}</div>
-                <u-select v-model="selectedEl.font" :items="availableFonts"/>
+                <div class="pdf__label">Opacity</div>
+                <u-input v-model.number="editor.opacity" type="number" min="5" max="100"/>
               </div>
 
               <div class="pdf__field">
-                <div class="pdf__label">{{ t("services.pdfEditor.text.fontSizeLabel") }}</div>
-                <u-input v-model.number="selectedEl.fontSize" type="number" min="8" max="120"/>
+                <div class="pdf__label">Size</div>
+                <u-input v-model.number="editor.size" type="number" min="1" max="40"/>
               </div>
 
               <div class="pdf__field">
-                <div class="pdf__label">{{ t("services.pdfEditor.text.colorLabel") }}</div>
-                <u-input v-model="selectedEl.color" type="color"/>
+                <div class="pdf__label">Shape</div>
+                <u-select
+                    v-model="editor.brushShape"
+                    :items="[
+                    { label: 'Round', value: 'round' },
+                    { label: 'Square', value: 'square' },
+                  ]"
+                />
+                <div class="pdf__help text-muted" style="margin-top: 6px">
+                  Square is applied to shapes. Brush remains round.
+                </div>
               </div>
 
-              <div class="pdf__field">
-                <div class="pdf__label">{{ t("services.pdfEditor.text.opacityLabel") }}</div>
-                <u-input v-model.number="selectedEl.opacity" type="number" min="5" max="100"/>
-              </div>
-
-              <div class="pdf__field">
-                <div class="pdf__label">{{ t("services.pdfEditor.text.alignLabel") }}</div>
-                <u-select v-model="selectedEl.align" :items="alignOptions"/>
-              </div>
-
-              <div class="pdf__field pdf__field_row">
-                <div class="pdf__label">{{ t("services.pdfEditor.text.styleLabel") }}</div>
+              <div class="pdf__field pdf__field_row" v-if="editor.mode === 'text' || true">
+                <div class="pdf__label">Text (defaults for new text objects)</div>
                 <div class="pdf__style-row">
-                  <button type="button" class="pdf__chip" :class="{ pdf__chip_active: selectedEl.bold }"
-                          @click="selectedEl.bold = !selectedEl.bold">
+                  <u-input v-model="editor.textValue" placeholder="Text..." style="min-width: 220px"/>
+                  <u-input v-model.number="editor.textSize" type="number" min="8" max="120" style="width: 120px"/>
+                  <u-input v-model="editor.textFont" placeholder="Font (e.g. Helvetica)" style="min-width: 200px"/>
+
+                  <button type="button" class="pdf__chip" :class="{ pdf__chip_active: editor.textBold }"
+                          @click="editor.textBold = !editor.textBold">
                     B
                   </button>
-                  <button type="button" class="pdf__chip" :class="{ pdf__chip_active: selectedEl.italic }"
-                          @click="selectedEl.italic = !selectedEl.italic">
+                  <button type="button" class="pdf__chip" :class="{ pdf__chip_active: editor.textItalic }"
+                          @click="editor.textItalic = !editor.textItalic">
                     I
                   </button>
-                  <button
-                      type="button"
-                      class="pdf__chip"
-                      :class="{ pdf__chip_active: selectedEl.underline }"
-                      @click="selectedEl.underline = !selectedEl.underline"
-                  >
+                  <button type="button" class="pdf__chip" :class="{ pdf__chip_active: editor.textUnderline }"
+                          @click="editor.textUnderline = !editor.textUnderline">
                     U
                   </button>
-
-                  <button type="button" class="pdf__chip" :class="{ pdf__chip_active: selectedEl.autoFit }"
-                          @click="selectedEl.autoFit = !selectedEl.autoFit">
-                    AF
-                  </button>
                 </div>
-                <div class="pdf__help text-muted" style="margin-top:6px">
-                  {{ t("services.pdfEditor.text.autoFitHelp") || "AF = auto-fit font size to box width" }}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div v-else-if="selectedEl && selectedEl.type === 'signature'" class="pdf__tool-section">
-            <div class="pdf__tool-title">{{ t("services.pdfEditor.signature.title") }}</div>
-
-            <div class="pdf__tool-grid4">
-              <div class="pdf__field">
-                <div class="pdf__label">{{ t("services.pdfEditor.signature.strokeWidthLabel") }}</div>
-                <u-input v-model.number="selectedEl.strokeWidth" type="number" min="0.5" max="8"/>
-              </div>
-
-              <div class="pdf__field">
-                <div class="pdf__label">{{ t("services.pdfEditor.signature.opacityLabel") }}</div>
-                <u-input v-model.number="selectedEl.opacity" type="number" min="10" max="100"/>
-              </div>
-
-              <div class="pdf__field">
-                <div class="pdf__label">{{ t("services.pdfEditor.signature.colorLabel") || "Color" }}</div>
-                <u-input v-model="selectedEl.color" type="color"/>
               </div>
 
               <div class="pdf__field pdf__field_row">
-                <div class="pdf__label">{{ t("services.pdfEditor.signature.actionsLabel") }}</div>
-                <button type="button" class="services__pill" :disabled="isBusy" @click="selectedEl.strokes = []">
-                  <u-icon name="i-lucide-eraser"/>
-                  {{ t("services.pdfEditor.signature.clear") }}
-                </button>
+                <div class="pdf__label">Signature thickness</div>
+                <u-input v-model.number="editor.signatureSize" type="number" min="1" max="12" style="width: 140px"/>
               </div>
+            </div>
+
+            <div class="pdf__help text-muted">
+              Move mode lets you drag / rotate / resize selected objects. Drawing modes paint directly on the overlay
+              canvas.
+              Draft autosaves to Redis and restores when you reopen.
             </div>
           </div>
 
           <div v-if="errorMsg" class="pdf__error">{{ errorMsg }}</div>
 
-          <!-- Canvas -->
+          <!-- STAGE -->
           <div class="pdf__canvas-wrap">
             <div
                 ref="stageRef"
                 class="pdf__stage"
                 :class="{ pdf__stage_white: bgColor === 'white', pdf__stage_black: bgColor === 'black' }"
-                @pointerdown="onStageDown"
             >
-              <img :src="previewUrl" class="pdf__preview" alt=""/>
-
-              <!-- Render only elements for current page -->
-              <template v-for="el in elements.filter((x) => x.page === page)" :key="el.id">
-                <TextOverlay
-                    v-if="el.type === 'text'"
-                    data-el-root="true"
-                    :selected="selectedId === el.id"
-                    :disabled="isBusy"
-                    :xRel="el.xRel"
-                    :yRel="el.yRel"
-                    :wRel="el.wRel"
-                    :hRel="el.hRel"
-                    :value="el.value"
-                    :opacity="el.opacity"
-                    :color="el.color"
-                    :font="el.font"
-                    :bold="el.bold"
-                    :italic="el.italic"
-                    :underline="el.underline"
-                    :align="el.align"
-                    :fontSize="el.fontSize"
-                    :autoFit="el.autoFit"
-                    :minFontSize="8"
-                    :maxFontSize="120"
-                    @pointerdown.stop="selectEl(el.id)"
-                    @update:xRel="(v:number) => (el.xRel = v)"
-                    @update:yRel="(v:number) => (el.yRel = v)"
-                    @update:wRel="(v:number) => (el.wRel = v)"
-                    @update:hRel="(v:number) => (el.hRel = v)"
-                    @update:fontSize="(v:number) => (el.fontSize = v)"
-                />
-
-                <SignatureOverlay
-                    v-else
-                    data-el-root="true"
-                    :selected="selectedId === el.id"
-                    :disabled="isBusy"
-                    :xRel="el.xRel"
-                    :yRel="el.yRel"
-                    :wRel="el.wRel"
-                    :hRel="el.hRel"
-                    :strokes="el.strokes"
-                    :strokeWidth="el.strokeWidth"
-                    :opacity="el.opacity"
-                    :color="el.color"
-                    @pointerdown.stop="selectEl(el.id)"
-                    @update:xRel="(v: number) => (el.xRel = v)"
-                    @update:yRel="(v: number) => (el.yRel = v)"
-                    @update:wRel="(v: number) => (el.wRel = v)"
-                    @update:hRel="(v: number) => (el.hRel = v)"
-                    @update:strokes="(v: Array<Array<[number, number]>>) => (el.strokes = v)"
-                />
-              </template>
+              <img ref="previewImgRef" :src="previewUrl" class="pdf__preview" alt=""/>
+              <canvas ref="overlayCanvasRef" class="pdf__overlay"/>
             </div>
           </div>
         </div>
@@ -630,6 +968,12 @@ onMounted(async () => {
   height: 30px;
   background: rgba(255, 255, 255, 0.08);
   margin: 0 6px;
+
+  &_small {
+    height: 22px;
+    margin: 0 2px;
+    opacity: 0.7;
+  }
 }
 
 .pdf__toolbar-mini {
@@ -706,6 +1050,7 @@ onMounted(async () => {
   display: inline-flex;
   gap: 8px;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .pdf__chip {
@@ -750,5 +1095,13 @@ onMounted(async () => {
   display: block;
   user-select: none;
   pointer-events: none;
+}
+
+.pdf__overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
 }
 </style>

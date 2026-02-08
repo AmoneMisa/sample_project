@@ -1,17 +1,24 @@
 <script setup lang="ts">
 import PageHeader from "~/components/common/PageHeader.vue";
 import CustomButton from "~/components/common/CustomButton.vue";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 
 const config = useRuntimeConfig();
 const { t } = useI18n();
 const router = useRouter();
 
 const fileInput = ref<HTMLInputElement | null>(null);
-const selectedFiles = ref<File[]>([]);
+const selectedFile = ref<File | null>(null);
 
 const isBusy = ref(false);
 const errorMsg = ref<string | null>(null);
+
+const fileLabel = computed(() => selectedFile.value?.name ?? "");
+const fileSizeMb = computed(() => {
+  const f = selectedFile.value;
+  if (!f) return "";
+  return `${Math.max(0.1, Math.round((f.size / 1024 / 1024) * 10) / 10)} MB`;
+});
 
 function openPicker() {
   fileInput.value?.click();
@@ -19,44 +26,48 @@ function openPicker() {
 
 function onPick(e: Event) {
   const input = e.target as HTMLInputElement;
-  const list = Array.from(input.files ?? []);
-  if (!list.length) return;
-  addFiles(list);
+  const f = input.files?.[0] ?? null;
+  if (!f) return;
+
+  // accept only pdf
+  const isPdf = f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf");
+  if (!isPdf) {
+    errorMsg.value = t("services.pdfEditor.upload.onlyPdf") || "Only PDF files are allowed";
+    input.value = "";
+    return;
+  }
+
+  selectedFile.value = f;
+  errorMsg.value = null;
   input.value = "";
 }
 
-function addFiles(files: File[]) {
-  const pdfs = files.filter((f) => f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf"));
-  if (!pdfs.length) return;
-  selectedFiles.value = [...selectedFiles.value, ...pdfs];
-}
-
-function clearAll() {
-  selectedFiles.value = [];
+function clear() {
+  selectedFile.value = null;
   errorMsg.value = null;
 }
 
-function removeFile(i: number) {
-  selectedFiles.value = selectedFiles.value.filter((_, idx) => idx !== i);
-}
-
-async function createJob() {
+async function createDoc() {
   errorMsg.value = null;
-  if (!selectedFiles.value.length) return;
+  const f = selectedFile.value;
+  if (!f) return;
 
   isBusy.value = true;
   try {
     const form = new FormData();
-    for (const f of selectedFiles.value) form.append("files", f);
+    // backend expects list[UploadFile] = File(...)
+    // even if it is a single file - send as "files"
+    form.append("files", f);
 
-    const res = await $fetch<{ jobId: string }>(`${config.public.apiBase}/pdf/create`, {
+    const res = await $fetch<{ docId: string; expiresAtDraft: number }>(`${config.public.apiBase}/pdf/create`, {
       method: "POST",
       body: form,
     });
 
-    await router.push(`/services/pdf-editor/${res.jobId}`);
+    // go to editor page
+    await router.push(`/services/pdf-editor/${res.docId}`);
   } catch (e: any) {
-    errorMsg.value = e?.data?.detail?.message || e?.message || "Create failed";
+    errorMsg.value = e?.data?.detail?.message || e?.data?.message || e?.message || "Create failed";
   } finally {
     isBusy.value = false;
   }
@@ -86,25 +97,37 @@ async function createJob() {
               </span>
             </button>
 
-            <input ref="fileInput" type="file" accept="application/pdf,.pdf" multiple class="hidden" @change="onPick" />
+            <!-- IMPORTANT: single file -->
+            <input
+                ref="fileInput"
+                type="file"
+                accept="application/pdf,.pdf"
+                class="hidden"
+                @change="onPick"
+            />
           </div>
 
-          <div v-if="selectedFiles.length" class="pdf__files">
+          <!-- Selected file card -->
+          <div v-if="selectedFile" class="pdf__files">
             <ul class="pdf__file-list">
-              <li v-for="(f, i) in selectedFiles" :key="f.name + i" class="pdf__file">
+              <li class="pdf__file">
                 <div class="pdf__file-left">
                   <div class="pdf__file-ico">
                     <u-icon name="i-lucide-file-text" />
                   </div>
+
                   <div class="pdf__file-meta">
-                    <div class="pdf__file-name">{{ f.name }}</div>
-                    <div class="pdf__file-size text-muted">
-                      {{ Math.max(1, Math.round((f.size / 1024 / 1024) * 10) / 10) }} MB
-                    </div>
+                    <div class="pdf__file-name">{{ fileLabel }}</div>
+                    <div class="pdf__file-size text-muted">{{ fileSizeMb }}</div>
                   </div>
                 </div>
 
-                <button type="button" class="pdf__icon-btn pdf__icon-btn_danger" @click="removeFile(i)" :disabled="isBusy">
+                <button
+                    type="button"
+                    class="pdf__icon-btn pdf__icon-btn_danger"
+                    @click="clear"
+                    :disabled="isBusy"
+                >
                   <u-icon name="i-lucide-x" />
                 </button>
               </li>
@@ -115,17 +138,21 @@ async function createJob() {
                   variant="full"
                   class="pdf__run-btn"
                   :class="{ 'opacity-60 pointer-events-none': isBusy }"
-                  @click="createJob"
+                  @click="createDoc"
               >
                 {{ t("services.pdfEditor.upload.start") }}
               </custom-button>
 
-              <button type="button" class="ui-pill-btn" @click="clearAll" :disabled="isBusy">
+              <button type="button" class="ui-pill-btn" @click="clear" :disabled="isBusy">
                 <span class="ui-pill-btn__inner">
                   <u-icon name="i-lucide-trash-2" />
                   {{ t("services.pdfEditor.upload.clear") }}
                 </span>
               </button>
+            </div>
+
+            <div class="pdf__help text-muted">
+              {{ t("services.pdfEditor.upload.singleHelp") || "You can upload only one PDF for editing." }}
             </div>
           </div>
 
@@ -290,5 +317,11 @@ async function createJob() {
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.pdf__help {
+  margin-top: 10px;
+  font-size: 12px;
+  line-height: 1.35;
 }
 </style>
