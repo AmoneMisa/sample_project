@@ -688,7 +688,11 @@ onBeforeUnmount(() => {
 <template>
   <u-container class="pdf">
     <div class="pdf__header text-center space-y-3">
-      <page-header title="services.pdfEditor.title" headline="services.pdfEditor.headline" class="mb-6" />
+      <page-header
+          title="services.pdfEditor.title"
+          headline="services.pdfEditor.headline"
+          class="mb-6"
+      />
       <p class="pdf__subtitle text-muted mx-auto">{{ t("services.pdfEditor.subtitle") }}</p>
     </div>
 
@@ -715,28 +719,40 @@ onBeforeUnmount(() => {
                   :disabled="isBusy"
                   v-model="bgColor"
                   :items="[
-                  { label: t('services.pdfEditor.bg.white'), value: 'white' },
-                  { label: t('services.pdfEditor.bg.black'), value: 'black' },
-                  { label: t('services.pdfEditor.bg.transparent'), value: null },
+                  { label: t('services.pdfEditor.background.white'), value: 'white' },
+                  { label: t('services.pdfEditor.background.black'), value: 'black' },
+                  { label: t('services.pdfEditor.background.transparent'), value: null }
                 ]"
               />
 
               <div class="pdf__sep" />
 
-              <button type="button" class="pdf__icon-btn" :disabled="isBusy || page <= 1" @click="setPage(page - 1)">
+              <button
+                  type="button"
+                  class="pdf__icon-btn"
+                  :disabled="isBusy || page <= 1"
+                  @click="setPage(page - 1)"
+              >
                 <u-icon name="i-lucide-chevron-left" />
               </button>
 
-              <div class="pdf__page-chip">{{ t("services.pdfEditor.page") }} {{ page }} / {{ pages }}</div>
+              <div class="pdf__page-chip">
+                {{ t("services.pdfEditor.page") }} {{ page }} / {{ pages }}
+              </div>
 
-              <button type="button" class="pdf__icon-btn" :disabled="isBusy || page >= pages" @click="setPage(page + 1)">
+              <button
+                  type="button"
+                  class="pdf__icon-btn"
+                  :disabled="isBusy || page >= pages"
+                  @click="setPage(page + 1)"
+              >
                 <u-icon name="i-lucide-chevron-right" />
               </button>
 
               <div class="pdf__sep" />
 
               <div class="pdf__toolbar-mini">
-                <span class="text-muted">DPI</span>
+                <span class="text-muted">{{ t("services.pdfEditor.toolbar.dpiLabel") }}</span>
                 <u-input v-model.number="dpi" type="number" min="72" max="220" class="pdf__dpi" />
               </div>
 
@@ -752,51 +768,74 @@ onBeforeUnmount(() => {
                   :class="{ 'opacity-60 pointer-events-none': isBusy }"
                   @click="saveDocument"
               >
-                {{ t("services.pdfEditor.saveDocument") || "Save document" }}
+                {{ t("services.pdfEditor.editor.saveDocument") }}
               </custom-button>
             </div>
           </div>
 
-          <!-- TOOLSTRIP -->
           <div class="pdf__toolstrip">
-            <button type="button" class="services__pill" :class="{ services__pill_active: editor.mode === 'move' }" @click="editor.mode = 'move'" :disabled="isBusy">
+            <button
+                type="button"
+                class="services__pill"
+                :class="{ services__pill_active: editor.mode === 'move' }"
+                @click="editor.mode = 'move'"
+                :disabled="isBusy"
+            >
               <u-icon name="i-lucide-move" />
-              Move
+              {{ t("services.pdfEditor.toolstrip.move") }}
             </button>
 
-            <button type="button" class="services__pill" :class="{ services__pill_active: editor.mode === 'pen' }" @click="editor.mode = 'pen'" :disabled="isBusy">
+            <button
+                type="button"
+                class="services__pill"
+                :class="{ services__pill_active: editor.mode === 'pen' }"
+                @click="editor.mode = 'pen'"
+                :disabled="isBusy"
+            >
               <u-icon name="i-lucide-pencil" />
-              Pen
+              {{ t("services.pdfEditor.toolstrip.pen") }}
             </button>
 
-            <button type="button" class="services__pill" :class="{ services__pill_active: editor.mode === 'highlighter' }" @click="editor.mode = 'highlighter'" :disabled="isBusy">
+            <button
+                type="button"
+                class="services__pill"
+                :class="{ services__pill_active: editor.mode === 'highlighter' }"
+                @click="editor.mode = 'highlighter'"
+                :disabled="isBusy"
+            >
               <u-icon name="i-lucide-highlighter" />
-              Highlight
+              {{ t("services.pdfEditor.toolstrip.highlighter") }}
             </button>
 
-            <button type="button" class="services__pill" :class="{ services__pill_active: editor.mode === 'signature' }" @click="editor.mode = 'signature'" :disabled="isBusy">
+            <button
+                type="button"
+                class="services__pill"
+                :class="{ services__pill_active: editor.mode === 'signature' }"
+                @click="editor.mode = 'signature'"
+                :disabled="isBusy"
+            >
               <u-icon name="i-lucide-signature" />
-              Signature
+              {{ t("services.pdfEditor.toolstrip.signature") }}
             </button>
 
             <button type="button" class="services__pill" @click="addRect" :disabled="isBusy">
               <u-icon name="i-lucide-square" />
-              Rect
+              {{ t("services.pdfEditor.toolstrip.rect") }}
             </button>
 
             <button type="button" class="services__pill" @click="addCircle" :disabled="isBusy">
               <u-icon name="i-lucide-circle" />
-              Circle
+              {{ t("services.pdfEditor.toolstrip.circle") }}
             </button>
 
             <button type="button" class="services__pill" @click="addTextBox" :disabled="isBusy">
               <u-icon name="i-lucide-type" />
-              Text
+              {{ t("services.pdfEditor.toolstrip.text") }}
             </button>
 
             <button type="button" class="services__pill" @click="openImagePicker" :disabled="isBusy">
               <u-icon name="i-lucide-image" />
-              Image
+              {{ t("services.pdfEditor.toolstrip.image") }}
             </button>
             <input ref="imageInput" type="file" accept="image/*" class="hidden" @change="onPickImage" />
 
@@ -804,64 +843,65 @@ onBeforeUnmount(() => {
 
             <button type="button" class="services__pill" :disabled="isBusy || !canUndo" @click="undo">
               <u-icon name="i-lucide-undo-2" />
-              Undo
+              {{ t("services.pdfEditor.toolstrip.undo") }}
             </button>
+
             <button type="button" class="services__pill" :disabled="isBusy || !canRedo" @click="redo">
               <u-icon name="i-lucide-redo-2" />
-              Redo
+              {{ t("services.pdfEditor.toolstrip.redo") }}
             </button>
 
             <button type="button" class="services__pill" :disabled="isBusy" @click="removeSelected">
               <u-icon name="i-lucide-trash-2" />
-              Remove
+              {{ t("services.pdfEditor.toolstrip.remove") }}
             </button>
 
             <button type="button" class="services__pill" :disabled="isBusy" @click="clearPage">
               <u-icon name="i-lucide-eraser" />
-              Clear page
+              {{ t("services.pdfEditor.toolstrip.clearPage") }}
             </button>
           </div>
 
           <!-- PROPS -->
           <div class="pdf__tool-section">
-            <div class="pdf__tool-title">Tool settings</div>
+            <div class="pdf__tool-title">{{ t("services.pdfEditor.editor.toolSettings") }}</div>
 
             <div class="pdf__tool-grid4">
               <div class="pdf__field">
-                <div class="pdf__label">Color</div>
+                <div class="pdf__label">{{ t("services.pdfEditor.fields.color") }}</div>
                 <u-input v-model="editor.color" type="color" />
               </div>
 
               <div class="pdf__field">
-                <div class="pdf__label">Opacity</div>
+                <div class="pdf__label">{{ t("services.pdfEditor.fields.opacity") }}</div>
                 <u-input v-model.number="editor.opacity" type="number" min="5" max="100" />
               </div>
 
               <div class="pdf__field">
-                <div class="pdf__label">Size</div>
+                <div class="pdf__label">{{ t("services.pdfEditor.fields.size") }}</div>
                 <u-input v-model.number="editor.size" type="number" min="1" max="40" />
               </div>
 
               <div class="pdf__field">
-                <div class="pdf__label">Shape</div>
+                <div class="pdf__label">{{ t("services.pdfEditor.fields.shape") }}</div>
                 <u-select
                     v-model="editor.brushShape"
                     :items="[
-                    { label: 'Round', value: 'round' },
-                    { label: 'Square', value: 'square' },
+                    { label: t('services.pdfEditor.fields.shapeRound'), value: 'round' },
+                    { label: t('services.pdfEditor.fields.shapeSquare'), value: 'square' }
                   ]"
                 />
                 <div class="pdf__help text-muted" style="margin-top: 6px">
-                  Square is applied to shapes. Brush remains round.
+                  {{ t("services.pdfEditor.fields.shapeHelp") }}
                 </div>
               </div>
 
               <div class="pdf__field pdf__field_row">
-                <div class="pdf__label">Text (defaults for new text objects)</div>
+                <div class="pdf__label">{{ t("services.pdfEditor.fields.textDefaults") }}</div>
                 <div class="pdf__style-row">
-                  <u-input v-model="editor.textValue" placeholder="Text..." style="min-width: 220px" />
+                  <u-input v-model="editor.textValue" :placeholder="t('services.pdfEditor.fields.textPlaceholder')" style="min-width: 220px" />
                   <u-input v-model.number="editor.textSize" type="number" min="8" max="120" style="width: 120px" />
-                  <u-input v-model="editor.textFont" placeholder="Font (e.g. Helvetica)" style="min-width: 200px" />
+                  <u-input v-model="editor.textFont" :placeholder="t('services.pdfEditor.fields.fontPlaceholder')" style="min-width: 200px" />
 
                   <button type="button" class="pdf__chip" :class="{ pdf__chip_active: editor.textBold }" @click="editor.textBold = !editor.textBold">B</button>
                   <button type="button" class="pdf__chip" :class="{ pdf__chip_active: editor.textItalic }" @click="editor.textItalic = !editor.textItalic">I</button>
@@ -870,21 +910,24 @@ onBeforeUnmount(() => {
               </div>
 
               <div class="pdf__field pdf__field_row">
-                <div class="pdf__label">Signature thickness</div>
+                <div class="pdf__label">{{ t("services.pdfEditor.fields.signatureThickness") }}</div>
                 <u-input v-model.number="editor.signatureSize" type="number" min="1" max="12" style="width: 140px" />
               </div>
             </div>
 
             <div class="pdf__help text-muted">
-              Move mode lets you drag / rotate / resize selected objects. Drawing modes paint directly on the overlay canvas.
-              Draft autosaves to Redis and restores when you reopen.
+              {{ t("services.pdfEditor.editor.moveModeHelp") }}
             </div>
           </div>
 
           <div v-if="errorMsg" class="pdf__error">{{ errorMsg }}</div>
 
           <div class="pdf__canvas-wrap">
-            <div ref="stageRef" class="pdf__stage" :class="{ pdf__stage_white: bgColor === 'white', pdf__stage_black: bgColor === 'black' }">
+            <div
+                ref="stageRef"
+                class="pdf__stage"
+                :class="{ pdf__stage_white: bgColor === 'white', pdf__stage_black: bgColor === 'black' }"
+            >
               <img ref="previewImgRef" :src="previewUrl" class="pdf__preview" alt="" />
               <canvas ref="overlayCanvasRef" class="pdf__overlay" />
             </div>
