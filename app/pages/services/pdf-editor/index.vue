@@ -55,8 +55,6 @@ async function createDoc() {
   isBusy.value = true;
   try {
     const form = new FormData();
-    // backend expects list[UploadFile] = File(...)
-    // even if it is a single file - send as "files"
     form.append("files", f);
 
     const res = await $fetch<{ docId: string; expiresAtDraft: number }>(`${config.public.apiBase}/pdf/create`, {
@@ -64,7 +62,6 @@ async function createDoc() {
       body: form,
     });
 
-    // go to editor page
     await router.push(`/services/pdf-editor/${res.docId}`);
   } catch (e: any) {
     errorMsg.value = e?.data?.detail?.message || e?.data?.message || e?.message || "Create failed";
@@ -96,8 +93,6 @@ async function createDoc() {
                 {{ t("services.pdfEditor.upload.add") }}
               </span>
             </button>
-
-            <!-- IMPORTANT: single file -->
             <input
                 ref="fileInput"
                 type="file"
@@ -106,8 +101,6 @@ async function createDoc() {
                 @change="onPick"
             />
           </div>
-
-          <!-- Selected file card -->
           <div v-if="selectedFile" class="pdf__files">
             <ul class="pdf__file-list">
               <li class="pdf__file">
@@ -115,7 +108,6 @@ async function createDoc() {
                   <div class="pdf__file-ico">
                     <u-icon name="i-lucide-file-text" />
                   </div>
-
                   <div class="pdf__file-meta">
                     <div class="pdf__file-name">{{ fileLabel }}</div>
                     <div class="pdf__file-size text-muted">{{ fileSizeMb }}</div>

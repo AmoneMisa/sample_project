@@ -6,21 +6,18 @@ import {Canvas, Rect, Ellipse, Textbox, FabricImage, FabricObject, BaseFabricObj
 
 (BaseFabricObject as any).ownDefaults.originX = "center";
 (BaseFabricObject as any).ownDefaults.originY = "center";
-(FabricObject as any).prototype.originX = "center";
-(FabricObject as any).prototype.originY = "center";
 
 const config = useRuntimeConfig();
 const {t} = useI18n();
 const route = useRoute();
 const router = useRouter();
 
-const jobId = computed(() => String(route.params.jobId || ""));
+const docId = computed(() => String(route.params.docId || ""));
 
 // --- pdf meta
 const pages = ref<number>(1);
 const pageW = ref<number>(595);
 const pageH = ref<number>(842);
-const activeVersion = ref<number>(1);
 
 const page = ref<number>(1);
 const dpi = ref<number>(144);
@@ -91,8 +88,8 @@ let c: Canvas | null = null;
 
 // --- preview URL
 const previewUrl = computed(() => {
-  if (!jobId.value) return "";
-  return `${config.public.apiBase}/pdf/preview/${jobId.value}/${page.value}?dpi=${dpi.value}&v=${activeVersion.value}`;
+  if (!docId.value) return "";
+  return `${config.public.apiBase}/pdf/preview/${docId.value}/${page.value}?dpi=${dpi.value}`;
 });
 
 function clampInt(n: number, min: number, max: number) {
@@ -120,7 +117,7 @@ function scheduleSaveDraft() {
 }
 
 async function saveDraftNow() {
-  if (!jobId.value) return;
+  if (!docId.value) return;
   try {
     if (c) pageJson[page.value] = c.toJSON(["id", "tool", "opacityPct"]);
 
@@ -131,16 +128,16 @@ async function saveDraftNow() {
       ui: {page: page.value},
     };
 
-    await $fetch(api(`/pdf/draft/${jobId.value}`), {method: "PUT", body: {draft}});
+    await $fetch(api(`/pdf/draft/${docId.value}`), {method: "PUT", body: {draft}});
   } catch {
     // ignore
   }
 }
 
 async function loadDraft() {
-  if (!jobId.value) return;
+  if (!docId.value) return;
   try {
-    const res = await $fetch<{ draft: PdfDraft }>(api(`/pdf/draft/${jobId.value}`));
+    const res = await $fetch<{ draft: PdfDraft }>(api(`/pdf/draft/${docId.value}`));
     if (res?.draft?.pages) {
       Object.assign(pageJson, res.draft.pages);
       if (res.draft.ui?.page) page.value = clampInt(res.draft.ui.page, 1, 9999);
@@ -154,16 +151,15 @@ async function loadDraft() {
 // PDF info
 // =========================
 async function refreshInfo() {
-  if (!jobId.value) return;
+  if (!docId.value) return;
 
-  const info = await $fetch<{ pages: number; pageW: number; pageH: number; activeVersion?: number }>(
-      api(`/pdf/page-info/${jobId.value}`),
+  const info = await $fetch<{ pages: number; pageW: number; pageH: number; }>(
+      api(`/pdf/page-info/${docId.value}`),
   );
 
   pages.value = info.pages;
   pageW.value = info.pageW;
   pageH.value = info.pageH;
-  if (typeof info.activeVersion === "number") activeVersion.value = info.activeVersion;
 
   if (page.value > pages.value) page.value = pages.value;
   if (page.value < 1) page.value = 1;
@@ -215,7 +211,6 @@ function ensureFabric() {
 
   c.on("path:created", pushHistory);
   c.on("object:modified", pushHistory);
-  c.on("object:added", pushHistory);
   c.on("object:removed", pushHistory);
 
   applyMode();
@@ -456,7 +451,7 @@ function redo() {
 // Page switching
 // =========================
 async function setPage(p: number) {
-  if (!jobId.value || !c) return;
+  if (!docId.value || !c) return;
 
   const nextP = clampInt(p, 1, pages.value);
   if (nextP === page.value) return;
@@ -520,7 +515,7 @@ async function exportOverlaysPngByPage(): Promise<Record<number, string>> {
 }
 
 async function saveDocument() {
-  if (!jobId.value) return;
+  if (!docId.value) return;
   if (isBusy.value) return;
 
   errorMsg.value = null;
@@ -529,7 +524,7 @@ async function saveDocument() {
   try {
     const overlays = await exportOverlaysPngByPage();
 
-    const res = await $fetch<{ downloadUrl: string; expiresAtResult?: number }>(api(`/pdf/save/${jobId.value}`), {
+    const res = await $fetch<{ downloadUrl: string; expiresAtResult?: number }>(api(`/pdf/save/${docId.value}`), {
       method: "POST",
       body: {overlays, dpi: dpi.value},
     });
@@ -554,8 +549,8 @@ function uploadNew() {
 }
 
 function downloadSource() {
-  if (!jobId.value) return;
-  window.open(`${config.public.apiBase}/pdf/download/${jobId.value}`, "_blank");
+  if (!docId.value) return;
+  window.open(`${config.public.apiBase}/pdf/download/${docId.value}`, "_blank");
 }
 
 // =========================
@@ -602,7 +597,7 @@ watch(
 let onResize: any = null;
 
 async function boot() {
-  if (!jobId.value) return;
+  if (!docId.value) return;
   isBusy.value = true;
   errorMsg.value = null;
 
@@ -630,7 +625,7 @@ async function boot() {
   }
 }
 
-watch(jobId, async () => {
+watch(docId, async () => {
   page.value = 1;
   Object.keys(pageJson).forEach((k) => delete pageJson[Number(k)]);
   history.stack = [];
