@@ -21,14 +21,14 @@ type AliasesResponse = {
   reason: string;
 };
 
-type VariantPreset = { labelKey: string; value: string };
+type VariantPreset = { labelKey: string; value: string | null };
 
 const repo = ref("library/amazoncorretto");
 const major = ref<number | null>(17);
 const variant = ref<string>("alpine");
 
 const variantPresets: VariantPreset[] = [
-  {labelKey: "services.dockerSearch.variant.any", value: ""},
+  {labelKey: "services.dockerSearch.variant.any", value: null},
   {labelKey: "services.dockerSearch.variant.alpine", value: "alpine"},
   {labelKey: "services.dockerSearch.variant.al2", value: "al2"},
   {labelKey: "services.dockerSearch.variant.debian", value: "debian"},
@@ -88,11 +88,9 @@ async function loadAliases(tag: string) {
   aliasesError.value = null;
 
   try {
-    const data = await $fetch<AliasesResponse>("/api/dockerhub/tags/aliases", {
+    aliasesResult.value = await $fetch<AliasesResponse>("/api/dockerhub/tags/aliases", {
       params: {repo: repo.value.trim(), tag}
     });
-
-    aliasesResult.value = data;
   } catch (e: any) {
     aliasesError.value = e?.data?.message || e?.message || "Fetch failed";
   } finally {
@@ -129,7 +127,7 @@ function chooseTag(tag: string) {
         <u-input
             icon="i-lucide-box"
             v-model="repo"
-            :placeholder="t('dockerSearch.placeholders.repo')"
+            :placeholder="t('services.dockerSearch.placeholders.repo')"
             @keydown.enter="runSearch"
         />
         <div class="docker-search__hint text-muted">
@@ -143,7 +141,7 @@ function chooseTag(tag: string) {
             icon="i-lucide-hash"
             type="number"
             v-model="major"
-            :placeholder="t('dockerSearch.placeholders.major')"
+            :placeholder="t('services.dockerSearch.placeholders.major')"
             @keydown.enter="runSearch"
         />
       </div>
