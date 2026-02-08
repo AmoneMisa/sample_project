@@ -2,7 +2,7 @@
 import PageHeader from "~/components/common/PageHeader.vue";
 import CustomButton from "~/components/common/CustomButton.vue";
 import {computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch} from "vue";
-import {Canvas, Rect, Ellipse, Textbox, FabricImage, FabricObject, BaseFabricObject} from "fabric";
+import {BaseFabricObject, Canvas, Ellipse, FabricImage, FabricObject, PencilBrush, Rect, Textbox} from "fabric";
 
 (BaseFabricObject as any).ownDefaults.originX = "center";
 (BaseFabricObject as any).ownDefaults.originY = "center";
@@ -193,7 +193,10 @@ function ensureFabric() {
     stopContextMenu: true,
   });
 
-  // nice corners (global defaults)
+  if (!c.freeDrawingBrush) {
+    c.freeDrawingBrush = new PencilBrush(c);
+  }
+
   FabricObject.prototype.transparentCorners = false;
   FabricObject.prototype.cornerStyle = "circle";
 
@@ -268,15 +271,18 @@ function applyMode() {
   c.isDrawingMode = !isMove && isDraw;
 
   if (c.isDrawingMode) {
-    const alpha = editor.opacity / 100;
-    const col =
-        editor.mode === "highlighter"
-            ? rgbaFromHex(editor.color, alpha * 0.35)
-            : rgbaFromHex(editor.color, alpha);
+    if (!c.freeDrawingBrush) {
+      c.freeDrawingBrush = new PencilBrush(c);
+    }
 
-    const brush: any = c.freeDrawingBrush;
-    brush.color = col;
-    brush.width = Math.max(1, editor.mode === "signature" ? editor.signatureSize : editor.size);
+    const alpha = editor.opacity / 100;
+    c.freeDrawingBrush.color = editor.mode === "highlighter"
+        ? rgbaFromHex(editor.color, alpha * 0.35)
+        : rgbaFromHex(editor.color, alpha);
+    c.freeDrawingBrush.width = Math.max(
+        1,
+        editor.mode === "signature" ? editor.signatureSize : editor.size
+    );
   }
 
   c.defaultCursor = isMove ? "default" : "crosshair";
@@ -866,13 +872,11 @@ onBeforeUnmount(() => {
           </div>
 
           <div v-if="errorMsg" class="pdf__error">{{ errorMsg }}</div>
-
-          <!-- STAGE -->
           <div class="pdf__canvas-wrap">
             <div ref="stageRef" class="pdf__stage"
                  :class="{ pdf__stage_white: bgColor === 'white', pdf__stage_black: bgColor === 'black' }">
               <img ref="previewImgRef" :src="previewUrl" class="pdf__preview" alt=""/>
-              <canvas ref="overlayCanvasRef" class="pdf__overlay"/>
+              <canvas ref="overlayCanvasRef" class="pdf__overlay"></canvas>
             </div>
           </div>
         </div>
@@ -1025,6 +1029,19 @@ onBeforeUnmount(() => {
   &_black {
     background-color: black !important;
   }
+}
+
+.pdf__stage :deep(.canvas-container) {
+  position: absolute !important;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.pdf__stage :deep(.lower-canvas),
+.pdf__stage :deep(.upper-canvas) {
+  position: absolute;
+  inset: 0;
 }
 
 .pdf__preview {
