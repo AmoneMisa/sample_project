@@ -47,6 +47,18 @@ function setByTopLeft(obj: any, left: number, top: number) {
   obj.setCoords?.();
 }
 
+async function uploadAsset(file: File): Promise<string> {
+  const form = new FormData();
+  form.append("file", file);
+
+  const res = await $fetch<{ url: string }>(api(`/pdf/assets/${docId.value}`), {
+    method: "POST",
+    body: form,
+  });
+
+  return res.url; // "/api/pdf/assets/{docId}/{assetId}"
+}
+
 const editor = reactive({
   mode: "move" as Mode,
   color: "#7c3aed",
@@ -378,40 +390,51 @@ async function onPickImage(e: Event) {
   input.value = "";
   if (!file || !c) return;
 
-  const url = URL.createObjectURL(file);
-  try {
-    const img = await FabricImage.fromURL(url, {crossOrigin: "anonymous"});
+  const assetUrl = await uploadAsset(file);
 
-    img.set({opacity: editor.opacity / 100});
+  // важно: абсолютный URL через apiBase
+  const fullUrl = `${config.public.apiBase}${assetUrl}`;
 
-    const maxW = 360;
-    const maxH = 220;
-    const iw = img.width || 1;
-    const ih = img.height || 1;
-    const s = Math.min(maxW / iw, maxH / ih, 1);
-    img.scale(s);
+  const img = await FabricImage.fromURL(fullUrl, { crossOrigin: "anonymous" });
+  img.set({ opacity: editor.opacity / 100 });
 
-    setByTopLeft(img, 80, 80);
-    c.add(img);
-    c.setActiveObject(img);
-    c.requestRenderAll();
+  // масштаб + позиция как раньше
+  const maxW = 360, maxH = 220;
+  const iw = img.width || 1, ih = img.height || 1;
+  img.scale(Math.min(maxW / iw, maxH / ih, 1));
+  setByTopLeft(img, 80, 80);
 
-    editor.mode = "move";
-    applyMode();
-  } finally {
-    URL.revokeObjectURL(url);
-  }
+  // ✅ чтобы потом можно было (опционально) удалить asset при удалении объекта
+  (img as any).assetUrl = assetUrl;
+
+  c.add(img);
+  c.setActiveObject(img);
+  c.requestRenderAll();
+
+  editor.mode = "move";
+  applyMode();
 }
 
 function removeSelected() {
   if (!c) return;
-  const obj = c.getActiveObject();
+  const obj: any = c.getActiveObject();
   if (!obj) return;
+
+  const assetUrl = obj.assetUrl as string | undefined;
 
   c.remove(obj);
   c.discardActiveObject();
   c.requestRenderAll();
+
+  if (assetUrl) {
+    // assetUrl = "/api/pdf/assets/{docId}/{assetId}"
+    // сделаем DELETE на "/pdf/assets/{docId}/{assetId}"
+    const parts = assetUrl.split("/").filter(Boolean);
+    const assetId = parts[parts.length - 1];
+    $fetch(api(`/pdf/assets/${docId.value}/${assetId}`), { method: "DELETE" }).catch(() => {});
+  }
 }
+
 
 function clearPage() {
   if (!c) return;
