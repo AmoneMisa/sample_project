@@ -4,8 +4,8 @@ export type ServiceType = {
     descriptionKey: string;
     link: string | null;
     image: string | null;
-    category: string;
-    order: number;
+    categoryId: string;
+    order: number | 0;
     isVisible: boolean;
     createdAt: string;
 }
