@@ -45,7 +45,8 @@
         "start": "Start editing",
         "replace": "Replace file",
         "clear": "Clear list",
-        "hint": "Upload one or more PDF files to begin editing."
+        "hint": "Upload one or more PDF files to begin editing.",
+        "singleHelp": "You can upload only one PDF for editing."
       },
       "pages": "Pages",
       "page": "Page",
