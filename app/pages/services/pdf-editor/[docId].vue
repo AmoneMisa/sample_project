@@ -610,10 +610,9 @@ async function boot() {
   try {
     await refreshInfo();
     await loadDraft();
-
     await nextTick();
     ensureFabric();
-
+    resizeToPreview();
     await nextTick();
     loadCanvasForPage(page.value);
 
@@ -621,7 +620,11 @@ async function boot() {
     window.addEventListener("resize", onResize);
 
     const img = previewImgRef.value;
-    if (img) img.addEventListener("load", resizeToPreview, {passive: true});
+    if (img) {
+      img.addEventListener("load", resizeToPreview, {passive: true});
+
+      if (img.complete) resizeToPreview();
+    }
 
     window.addEventListener("keydown", onKeyDown);
   } catch (e: any) {
