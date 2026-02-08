@@ -72,6 +72,73 @@
       },
       "dpi": "DPI",
       "version": "Version"
+    },
+    "converter": {
+      "title": "File Converter",
+      "subtitle": "fast, clean, and without unnecessary magic ✨",
+      "description": "Upload a file, choose a format, and get the result. Images can be uploaded in batches of up to 20.",
+      "modes": {
+        "media": {
+          "title": "Images",
+          "description": "PNG/JPEG/WEBP → single format. Up to 20 files, returns ZIP."
+        },
+        "data": {
+          "title": "Data",
+          "description": "CSV/JSON/XML → CSV/JSON/XML/XLSX. Single file."
+        },
+        "document": {
+          "title": "Documents",
+          "description": "DOCX ↔ PDF (best effort for PDF→DOCX). Single file."
+        }
+      },
+      "panel": {
+        "images": {
+          "title": "Images",
+          "description": "Supported: png, jpg/jpeg, webp. If more than one file — ZIP."
+        },
+        "data": {
+          "title": "Data",
+          "description": "Supported: csv, json, xml. Targets: csv/json/xml/xlsx."
+        },
+        "documents": {
+          "title": "Documents",
+          "description": "Supported: docx and pdf. DOCX→PDF stable, PDF→DOCX best effort."
+        }
+      },
+      "controls": {
+        "formatLabel": "Output format",
+        "convert": "Convert",
+        "converting": "Converting…"
+      },
+      "dropzone": {
+        "title": "Drag file here",
+        "manual": "or choose manually",
+        "support": "Supported",
+        "limit": "Limit",
+        "upload": "Upload",
+        "clear": "Clear"
+      },
+      "messages": {
+        "noFiles": "Please add file(s) to convert.",
+        "singleOnly": "Only one file is allowed in this mode.",
+        "maxFiles": "Maximum 20 images allowed.",
+        "unsupported": "Unsupported file",
+        "success": "Done! Your file has been downloaded 👌",
+        "error": "Conversion failed."
+      },
+      "files": {
+        "title": "Files",
+        "zipHint": "If more than one file is uploaded, the result will be a ZIP."
+      },
+      "tips": {
+        "imageAlpha": "PNG → JPEG: transparency will be replaced with white background.",
+        "pdfDocx": "PDF → DOCX: layout may differ from the original."
+      },
+      "promo": {
+        "title": "Need more formats?",
+        "description": "We can add task queues, progress bar, auto-zip, and quality presets.",
+        "cta": "Send feedback"
+      }
     }
   },
   "menu": {
