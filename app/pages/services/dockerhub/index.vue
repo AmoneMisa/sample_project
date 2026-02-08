@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import PageHeader from "~/components/common/PageHeader.vue";
-import { safeFetch } from "~/utils/safeFetch";
 
-const { t } = useI18n();
-const config = useRuntimeConfig();
+const {t} = useI18n();
 
 type ResolveResponse = {
   repo: string;
@@ -30,11 +28,11 @@ const major = ref<number | null>(17);
 const variant = ref<string>("alpine");
 
 const variantPresets: VariantPreset[] = [
-  { labelKey: "services.dockerSearch.variant.any", value: "" },
-  { labelKey: "services.dockerSearch.variant.alpine", value: "alpine" },
-  { labelKey: "services.dockerSearch.variant.al2", value: "al2" },
-  { labelKey: "services.dockerSearch.variant.debian", value: "debian" },
-  { labelKey: "services.dockerSearch.variant.ubuntu", value: "ubuntu" }
+  {labelKey: "services.dockerSearch.variant.any", value: ""},
+  {labelKey: "services.dockerSearch.variant.alpine", value: "alpine"},
+  {labelKey: "services.dockerSearch.variant.al2", value: "al2"},
+  {labelKey: "services.dockerSearch.variant.debian", value: "debian"},
+  {labelKey: "services.dockerSearch.variant.ubuntu", value: "ubuntu"}
 ];
 
 const loading = ref(false);
@@ -66,25 +64,20 @@ async function runSearch() {
 
   loading.value = true;
   error.value = null;
-  aliasesError.value = null;
-  aliasesResult.value = null;
-  selectedTag.value = null;
 
   try {
-    const params = new URLSearchParams();
-    params.set("repo", repo.value.trim());
-    params.set("major", String(major.value));
-    if (variant.value) params.set("variant", variant.value);
+    const data = await $fetch<ResolveResponse>("/api/dockerhub/tags/resolve", {
+      params: {
+        repo: repo.value.trim(),
+        major: major.value,
+        variant: variant.value || undefined
+      }
+    });
 
-    const data = await safeFetch<ResolveResponse>(
-        `${config.public.apiBase}/dockerhub/tags/resolve?${params.toString()}`
-    );
-
-    resolveResult.value = data ?? null;
-    selectedTag.value = data?.best_tag ?? null;
+    resolveResult.value = data;
+    selectedTag.value = data.best_tag ?? null;
   } catch (e: any) {
-    error.value = e?.message ?? t("services.dockerSearch.errors.generic");
-    resolveResult.value = null;
+    error.value = e?.data?.message || e?.message || "Fetch failed";
   } finally {
     loading.value = false;
   }
@@ -93,20 +86,15 @@ async function runSearch() {
 async function loadAliases(tag: string) {
   loadingAliases.value = true;
   aliasesError.value = null;
-  aliasesResult.value = null;
 
   try {
-    const params = new URLSearchParams();
-    params.set("repo", repo.value.trim());
-    params.set("tag", tag);
+    const data = await $fetch<AliasesResponse>("/api/dockerhub/tags/aliases", {
+      params: {repo: repo.value.trim(), tag}
+    });
 
-    const data = await safeFetch<AliasesResponse>(
-        `${config.public.apiBase}/dockerhub/tags/aliases?${params.toString()}`
-    );
-
-    aliasesResult.value = data ?? null;
+    aliasesResult.value = data;
   } catch (e: any) {
-    aliasesError.value = e?.message ?? t("services.dockerSearch.errors.generic");
+    aliasesError.value = e?.data?.message || e?.message || "Fetch failed";
   } finally {
     loadingAliases.value = false;
   }
@@ -135,7 +123,6 @@ function chooseTag(tag: string) {
       </p>
     </div>
 
-    <!-- Controls -->
     <div class="docker-search__controls">
       <div class="docker-search__field">
         <div class="docker-search__label">{{ t("services.dockerSearch.fields.repo") }}</div>
@@ -161,12 +148,16 @@ function chooseTag(tag: string) {
         />
       </div>
 
-      <div class="docker-search__field docker-search__field_small">
-        <div class="docker-search__label">{{ t("services.dockerSearch.fields.variant") }}</div>
-        <u-select
-            v-model="variant"
-            :options="variantPresets.map(v => ({ label: t(v.labelKey), value: v.value }))"
-        />
+      <div class="docker-search__field docker-search__field_small ui-pill-btn ui-pill-btn_animated">
+        <div class="ui-pill-btn__inner">
+          <div class="docker-search__label">{{ t("services.dockerSearch.fields.variant") }}</div>
+          <u-select
+              v-model="variant"
+              :items="variantPresets.map(v => ({ label: t(v.labelKey), value: v.value }))"
+              :ui="{ base: 'w-fill-available p-0 bg-transparent rounded-none ring-0 border-0' }"
+              class="ui-locale"
+          />
+        </div>
       </div>
 
       <div class="docker-search__actions">
@@ -176,8 +167,8 @@ function chooseTag(tag: string) {
             :disabled="!canSearch || loading"
             @click="runSearch"
         >
-          <u-icon v-if="loading" name="i-lucide-loader-circle" class="docker-search__btn-icon docker-search__spin" />
-          <u-icon v-else name="i-lucide-search" class="docker-search__btn-icon" />
+          <u-icon v-if="loading" name="i-lucide-loader-circle" class="docker-search__btn-icon docker-search__spin"/>
+          <u-icon v-else name="i-lucide-search" class="docker-search__btn-icon"/>
           {{ t("services.dockerSearch.actions.search") }}
         </button>
 
@@ -187,19 +178,17 @@ function chooseTag(tag: string) {
             :disabled="loading"
             @click="resetResults"
         >
-          <u-icon name="i-lucide-eraser" class="docker-search__btn-icon" />
+          <u-icon name="i-lucide-eraser" class="docker-search__btn-icon"/>
           {{ t("services.dockerSearch.actions.reset") }}
         </button>
       </div>
     </div>
 
-    <!-- Error -->
     <div v-if="error" class="docker-search__empty">
       <div class="docker-search__empty-title">{{ t("services.dockerSearch.errors.title") }}</div>
       <div class="text-muted">{{ error }}</div>
     </div>
 
-    <!-- Results -->
     <div v-if="resolveResult" class="docker-search__result">
       <div class="docker-search__result-head">
         <div class="docker-search__result-title">
@@ -320,19 +309,19 @@ function chooseTag(tag: string) {
 
       <div class="docker-search__how-grid">
         <div class="how-card">
-          <u-icon name="i-lucide-search" class="how-card__icon" />
+          <u-icon name="i-lucide-search" class="how-card__icon"/>
           <div class="how-card__title">{{ t("services.dockerSearch.how.step1.title") }}</div>
           <div class="how-card__text text-muted">{{ t("services.dockerSearch.how.step1.text") }}</div>
         </div>
 
         <div class="how-card">
-          <u-icon name="i-lucide-tags" class="how-card__icon" />
+          <u-icon name="i-lucide-tags" class="how-card__icon"/>
           <div class="how-card__title">{{ t("services.dockerSearch.how.step2.title") }}</div>
           <div class="how-card__text text-muted">{{ t("services.dockerSearch.how.step2.text") }}</div>
         </div>
 
         <div class="how-card">
-          <u-icon name="i-lucide-link-2" class="how-card__icon" />
+          <u-icon name="i-lucide-link-2" class="how-card__icon"/>
           <div class="how-card__title">{{ t("services.dockerSearch.how.step3.title") }}</div>
           <div class="how-card__text text-muted">{{ t("services.dockerSearch.how.step3.text") }}</div>
         </div>
@@ -438,7 +427,9 @@ function chooseTag(tag: string) {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Result */
