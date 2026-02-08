@@ -29,18 +29,9 @@ const services = computed(() => {
 
 const query = ref('');
 const activeCategory = ref<'all' | string>('all');
-const normalizedQuery = computed(() => query.value.trim().toLowerCase());
 
 const filteredServices = computed(() => {
-  const list = services.value
-      .filter(s => activeCategory.value === 'all' || s.categoryId === activeCategory.value)
-      .filter(s => {
-        if (!normalizedQuery.value) return true;
-        return (
-            s.title.toLowerCase().includes(normalizedQuery.value) ||
-            s.description.toLowerCase().includes(normalizedQuery.value)
-        );
-      });
+  const list = services.value.filter(s => activeCategory.value === 'all' || s.categoryId === activeCategory.value);
 
   return [...list];
 });
@@ -89,14 +80,14 @@ const howSteps = [
       </div>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" v-if="filteredServices">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" v-if="services">
       <service-card
           v-for="s in filteredServices"
           :key="s.id"
           :image="s.image"
-          :title="s.title"
-          :description="s.description"
-          :link="{ name: 'services-slug', params: { slug: s.slug } }"
+          :title="s.titleKey"
+          :description="s.descriptionKey"
+          :link="s.link"
       />
     </div>
 
@@ -182,12 +173,11 @@ const howSteps = [
 }
 
 .services__pill_active {
-  color: var(--ui-text-inverted);
+  color: var(--text-white);
   border-color: rgba(128, 90, 245, 0.40);
   background: rgba(128, 90, 245, 0.18);
 }
 
-/* Empty */
 .services__empty {
   margin-top: 18px;
   text-align: center;
@@ -202,7 +192,6 @@ const howSteps = [
   margin-bottom: 6px;
 }
 
-/* How */
 .services__how {
   margin-top: 84px;
   text-align: center;

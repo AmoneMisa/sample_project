@@ -220,6 +220,29 @@
           "text": "We fetch the manifest digest and show all tags that point to the same image."
         }
       }
+    },
+    "title": "Services",
+    "headline": "Find the right service in just a few clicks",
+    "subtitle": "Pick a category, use search, and open the service that gets the job done faster and easier.",
+    "searchPlaceholder": "Search services…",
+    "empty": {
+      "title": "No results found",
+      "text": "Try changing the category or refining your search."
+    },
+    "howTitle": "How it works",
+    "how": {
+      "step1": {
+        "title": "Choose a service",
+        "text": "Browse a category or find what you need using search."
+      },
+      "step2": {
+        "title": "Set it up",
+        "text": "Enter your data and pick options — everything is guided and clear."
+      },
+      "step3": {
+        "title": "Get the result",
+        "text": "Run the service and get a ready result in seconds."
+      }
     }
   },
   "menu": {
