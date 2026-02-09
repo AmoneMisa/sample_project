@@ -21,6 +21,8 @@ const config = useRuntimeConfig();
 const {data: contacts} = await safeFetch<[]>(
     `${config.public.apiBase}/contacts`
 );
+
+console.log(contacts);
 //
 // const {data: footerMenus} = await safeFetch(
 //     `${config.public.apiBase}/footer/menu/blocks`
