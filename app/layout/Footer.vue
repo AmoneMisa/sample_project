@@ -24,8 +24,6 @@ const {data: contactsRow} = await safeFetch<[]>(
 );
 
 const contacts = computed(() => contactsRow?.contacts ?? []);
-console.log(contacts.value.contacts);
-console.log(contacts.value);
 //
 // const {data: footerMenus} = await safeFetch(
 //     `${config.public.apiBase}/footer/menu/blocks`
@@ -78,12 +76,12 @@ const {t} = useI18n();
         </div>
       </div>
 
-      <div class="footer__column" v-if="contacts && contacts?.contacts?.length">
+      <div class="footer__column" v-if="contacts && contacts?.length">
         <div class="footer__col-item">
           <h4 class="footer__title">{{ t('footer.contactTitle') }}</h4>
 
           <u-page-list class="footer__list footer__contact">
-            <contact-item :contacts="contacts?.contacts.filter((contact) => contact.type !== 'social' && contact.type !== 'other') || []" />
+            <contact-item :contacts="contacts.filter((contact) => contact.type !== 'social' && contact.type !== 'other') || []" />
           </u-page-list>
         </div>
       </div>
