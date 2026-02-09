@@ -12,6 +12,7 @@
   "dependencies": {
     "@nuxt/ui": "^4.3.0",
     "@nuxtjs/i18n": "^10.2.1",
+    "emoji-picker-element": "^1.29.0",
     "fabric": "^7.1.0",
     "ioredis": "^5.9.2",
     "mariadb": "^3.4.5",
