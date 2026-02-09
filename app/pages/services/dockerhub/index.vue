@@ -3,6 +3,28 @@ import {nextTick, onBeforeUnmount, onMounted, ref} from "vue";
 import type {TabsItem} from "#ui/components/Tabs.vue";
 import PageHeader from "~/components/common/PageHeader.vue";
 
+type SimpleSort = "len_asc" | "len_desc";
+
+const simpleSort = ref<SimpleSort>("len_asc");
+const simpleSortOptions = computed(() => ([
+  {label: t("services.dockerSearch.simple.sort.lenAsc"), value: "len_asc"},
+  {label: t("services.dockerSearch.simple.sort.lenDesc"), value: "len_desc"}
+]));
+
+const simpleResultsSorted = computed(() => {
+  const list = [...(simpleResults.value || [])];
+
+  list.sort((a, b) => {
+    const la = (a.tag || "").length;
+    const lb = (b.tag || "").length;
+
+    if (la !== lb) return simpleSort.value === "len_asc" ? la - lb : lb - la;
+    return (a.tag || "").localeCompare(b.tag || "");
+  });
+
+  return list;
+});
+
 const {t} = useI18n();
 
 type ResolveResponse = {
@@ -282,6 +304,21 @@ function chooseAdvancedTag(tag: string) {
                     </div>
                   </div>
 
+                  <div class="docker-search__field docker-search__field_small ui-pill-btn ui-pill-btn_animated">
+                    <div class="ui-pill-btn__inner">
+                      <div class="docker-search__label">
+                        {{ t("services.dockerSearch.simple.sort.label") }}
+                      </div>
+
+                      <u-select
+                          v-model="simpleSort"
+                          :items="simpleSortOptions"
+                          :ui="{ base: 'w-fill-available p-0 bg-transparent rounded-none ring-0 border-0' }"
+                          class="ui-locale"
+                      />
+                    </div>
+                  </div>
+
                   <div class="docker-search__actions">
                     <button
                         type="button"
@@ -328,7 +365,7 @@ function chooseAdvancedTag(tag: string) {
 
                       <div class="docker-search__tags">
                         <button
-                            v-for="item2 in simpleResults"
+                            v-for="item2 in simpleResultsSorted"
                             :key="item2.base"
                             type="button"
                             class="docker-search__tag"

@@ -181,7 +181,12 @@
         "resultsTitle": "Main tags",
         "resultsCount": "Found",
         "mainTags": "Select a tag",
-        "emptyHint": "Enter a query and click “Search”"
+        "emptyHint": "Enter a query and click “Search”",
+        "sort": {
+          "label": "Sort",
+          "lenAsc": "By length (short → long)",
+          "lenDesc": "By length (long → short)"
+        }
       },
       "title": "Docker tags",
       "headline": "Find the best tag and see aliases",
