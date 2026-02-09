@@ -28,6 +28,7 @@ const contacts = computed(() => contactsRow?.contacts ?? []);
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 10px;
 }
 
 .under-footer__list {

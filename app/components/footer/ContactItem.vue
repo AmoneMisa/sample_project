@@ -1,4 +1,14 @@
-<script setup>
+<script setup lang="ts">
+const icons = {
+  telegram: () => import('~/assets/icons/telegram.svg'),
+  whatsapp: () => import('~/assets/icons/whatsapp.svg'),
+  github: () => import('~/assets/icons/github.svg'),
+};
+
+function iconComponent(name: string) {
+  return icons[name] || null;
+}
+
 const {t} = useI18n();
 
 const props = defineProps({
@@ -6,17 +16,7 @@ const props = defineProps({
     type: Array,
     required: true
   }
-})
-
-const iconComponent = (type) => {
-  const map = {
-    instagram: 'IconInstagram',
-    telegram: 'IconTelegram',
-    facebook: 'IconFacebook',
-    twitter: 'IconTwitter'
-  }
-  return map[type] || 'IconDefault'
-}
+});
 </script>
 
 <template>
@@ -48,33 +48,40 @@ const iconComponent = (type) => {
       {{ contact.value }}
     </a>
 
-    <a
-        v-else-if="contact.type === 'social'"
-        :href="contact.value"
-        class="footer__contact-social"
-        target="_blank"
-        rel="noopener noreferrer"
-        :title="contact?.labelKey ? t(contact.labelKey) : contact.value"
+    <a v-else-if="contact.type === 'social'"
+       :href="contact.value"
+       class="footer__contact-social"
+       target="_blank"
+       rel="noopener noreferrer"
+       :title="contact?.labelKey ? t(contact.labelKey) : contact.value"
     >
       <component :is="iconComponent(contact.socialType.toLowerCase())" class="footer__social-icon"/>
     </a>
+
+    <span v-else-if="contact.type === 'other'" class="footer__contact-link">
+      {{ contact.value }} {{ t(contact.labelKey) }}
+    </span>
   </template>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .footer__contact-social {
   display: inline-flex;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   align-items: center;
   justify-content: center;
-  background: #eee;
   text-decoration: none;
+  border: var(--color-primary-alt);
+
+  &:hover {
+    border: var(--color-primary);
+  }
 }
 
 .footer__social-icon {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
 }
 </style>

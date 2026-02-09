@@ -1,8 +1,11 @@
+import svgLoader from 'vite-svg-loader';
+
 export default defineNuxtConfig({
     compatibilityDate: '2025-07-15',
     devtools: {enabled: true},
     modules: ['@nuxt/ui', '@nuxtjs/i18n', '@nuxt/icon'],
     css: ['~/assets/css/main.css'],
+    vite: { plugins: [svgLoader()] },
     i18n: {
         defaultLocale: 'ru',
         langDir: null,

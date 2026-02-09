@@ -80,7 +80,7 @@ const {t} = useI18n();
         <div class="footer__col-item">
           <h4 class="footer__title">{{ t('footer.contactTitle') }}</h4>
 
-          <u-page-list class="footer__list footer__contact">
+          <u-page-list class="footer__list footer__contact" :ui="{list: 'flex-row'}">
             <contact-item :contacts="contacts.filter((contact) => contact.type !== 'social' && contact.type !== 'other') || []" />
           </u-page-list>
         </div>
