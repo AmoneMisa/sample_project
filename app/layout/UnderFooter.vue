@@ -35,5 +35,6 @@ const contacts = computed(() => contactsRow?.contacts ?? []);
   display: flex;
   gap: 8px;
   align-items: center;
+  flex-direction: row !important;
 }
 </style>

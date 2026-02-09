@@ -1,12 +1,10 @@
 <script setup lang="ts">
-const icons = {
-  telegram: () => import('~/assets/icons/telegram.svg'),
-  whatsapp: () => import('~/assets/icons/whatsapp.svg'),
-  github: () => import('~/assets/icons/github.svg'),
-};
+const iconModules = import.meta.glob('~/assets/icons/*.svg')
 
 function iconComponent(name: string) {
-  return icons[name] || null;
+  const key = Object.keys(iconModules).find((path) => path.endsWith(`${name}.svg`));
+  if (!key) return null;
+  return defineAsyncComponent(iconModules[key]);
 }
 
 const {t} = useI18n();
