@@ -1,5 +1,84 @@
 {
   "services": {
+    "markdownEditor": {
+      "title": "Редактор Markdown",
+      "headline": "Форматирование текста для мессенджеров",
+      "subtitle": "Подготовьте текст для Telegram, WhatsApp и TikTok с предпросмотром",
+      "editor": {
+        "placeholder": "Введите текст здесь...",
+        "hotkeysHint": "Используйте Ctrl / Cmd + сочетания для форматирования"
+      },
+      "actions": {
+        "emoji": "Эмодзи",
+        "spellcheck": "Проверка орфографии",
+        "clearAll": "Очистить всё",
+        "copy": "Скопировать",
+        "copied": "Скопировано!",
+        "cancel": "Отмена",
+        "insert": "Вставить"
+      },
+      "format": {
+        "bold": "Жирный",
+        "italic": "Курсив",
+        "underline": "Подчёркнутый",
+        "strike": "Зачёркнутый",
+        "spoiler": "Спойлер",
+        "inlineCode": "Код",
+        "codeBlock": "Блок кода",
+        "quote": "Цитата",
+        "link": "Ссылка"
+      },
+      "lists": {
+        "ul": "Маркированный список",
+        "ol": "Нумерованный список",
+        "format": "Выровнять список"
+      },
+      "right": {
+        "title": "Результат",
+        "modeMarkdown": "Markdown",
+        "modePreview": "Предпросмотр"
+      },
+      "platforms": {
+        "telegram": "Telegram",
+        "whatsapp": "WhatsApp",
+        "tiktok": "TikTok"
+      },
+      "platformHints": {
+        "telegram": "Telegram поддерживает Markdown-разметку",
+        "whatsapp": "WhatsApp использует собственный формат",
+        "tiktok": "TikTok поддерживает только обычный текст"
+      },
+      "link": {
+        "title": "Вставить ссылку",
+        "text": "Текст ссылки",
+        "textPh": "Введите текст ссылки",
+        "url": "URL ссылки",
+        "urlPh": "https://example.com"
+      },
+      "limit": {
+        "exceeded": "Текст превышает допустимую длину"
+      },
+      "preview": {
+        "empty": "Пока нечего показывать"
+      },
+      "storage": {
+        "restored": "Черновик восстановлен"
+      },
+      "hotkeys": {
+        "title": "Горячие клавиши",
+        "bold": "Жирный — Ctrl/Cmd + B",
+        "italic": "Курсив — Ctrl/Cmd + I",
+        "underline": "Подчёркнутый — Ctrl/Cmd + U",
+        "link": "Вставить ссылку — Ctrl/Cmd + K",
+        "spoiler": "Спойлер — Ctrl/Cmd + Shift + S",
+        "code": "Блок кода — Ctrl/Cmd + Shift + C",
+        "quote": "Цитата — Ctrl/Cmd + Shift + Q",
+        "ul": "Маркированный список — Ctrl/Cmd + Shift + 8",
+        "ol": "Нумерованный список — Ctrl/Cmd + Shift + 7",
+        "formatList": "Выровнять список — Ctrl/Cmd + Shift + L",
+        "emoji": "Эмодзи — Ctrl/Cmd + Shift + E"
+      }
+    },
     "pdfEditor": {
       "text": {
         "title": "Добавить текст",

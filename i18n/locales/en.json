@@ -23,6 +23,97 @@
     }
   },
   "services": {
+    "markdownEditor": {
+      "title": "Markdown Editor",
+      "headline": "Text formatting for messengers",
+      "subtitle": "Prepare text for Telegram, WhatsApp, and TikTok with preview",
+
+      "editor": {
+        "placeholder": "Enter your text here...",
+        "hotkeysHint": "Use Ctrl / Cmd shortcuts for formatting"
+      },
+
+      "actions": {
+        "emoji": "Emoji",
+        "spellcheck": "Spellcheck",
+        "clearAll": "Clear all",
+        "copy": "Copy",
+        "copied": "Copied!",
+        "cancel": "Cancel",
+        "insert": "Insert"
+      },
+
+      "format": {
+        "bold": "Bold",
+        "italic": "Italic",
+        "underline": "Underline",
+        "strike": "Strikethrough",
+        "spoiler": "Spoiler",
+        "inlineCode": "Inline code",
+        "codeBlock": "Code block",
+        "quote": "Quote",
+        "link": "Link"
+      },
+
+      "lists": {
+        "ul": "Bullet list",
+        "ol": "Numbered list",
+        "format": "Format list"
+      },
+
+      "right": {
+        "title": "Result",
+        "modeMarkdown": "Markdown",
+        "modePreview": "Preview"
+      },
+
+      "platforms": {
+        "telegram": "Telegram",
+        "whatsapp": "WhatsApp",
+        "tiktok": "TikTok"
+      },
+
+      "platformHints": {
+        "telegram": "Telegram supports Markdown formatting",
+        "whatsapp": "WhatsApp uses its own formatting rules",
+        "tiktok": "TikTok supports plain text only"
+      },
+
+      "link": {
+        "title": "Insert link",
+        "text": "Link text",
+        "textPh": "Enter link text",
+        "url": "Link URL",
+        "urlPh": "https://example.com"
+      },
+
+      "limit": {
+        "exceeded": "Text exceeds the maximum length"
+      },
+
+      "preview": {
+        "empty": "Nothing to preview yet"
+      },
+
+      "storage": {
+        "restored": "Draft restored"
+      },
+
+      "hotkeys": {
+        "title": "Keyboard shortcuts",
+        "bold": "Bold — Ctrl/Cmd + B",
+        "italic": "Italic — Ctrl/Cmd + I",
+        "underline": "Underline — Ctrl/Cmd + U",
+        "link": "Insert link — Ctrl/Cmd + K",
+        "spoiler": "Spoiler — Ctrl/Cmd + Shift + S",
+        "code": "Code block — Ctrl/Cmd + Shift + C",
+        "quote": "Quote — Ctrl/Cmd + Shift + Q",
+        "ul": "Bullet list — Ctrl/Cmd + Shift + 8",
+        "ol": "Numbered list — Ctrl/Cmd + Shift + 7",
+        "formatList": "Format list — Ctrl/Cmd + Shift + L",
+        "emoji": "Emoji picker — Ctrl/Cmd + Shift + E"
+      }
+    },
     "pdfEditor": {
       "text": {
         "title": "Add text",

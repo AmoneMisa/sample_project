@@ -23,6 +23,85 @@
     }
   },
   "services": {
+    "markdownEditor": {
+      "title": "Markdown редакторы",
+      "headline": "Мессенджерлерге арналған мәтін пішімдеу",
+      "subtitle": "Telegram, WhatsApp және TikTok үшін мәтінді алдын ала қарап дайындаңыз",
+      "editor": {
+        "placeholder": "Мәтінді осы жерге енгізіңіз...",
+        "hotkeysHint": "Пішімдеу үшін Ctrl / Cmd тіркесімдерін қолданыңыз"
+      },
+      "actions": {
+        "emoji": "Эмодзи",
+        "spellcheck": "Орфографияны тексеру",
+        "clearAll": "Барлығын тазалау",
+        "copy": "Көшіру",
+        "copied": "Көшірілді!",
+        "cancel": "Бас тарту",
+        "insert": "Қосу"
+      },
+      "format": {
+        "bold": "Қалың",
+        "italic": "Көлбеу",
+        "underline": "Асты сызылған",
+        "strike": "Сызылған",
+        "spoiler": "Спойлер",
+        "inlineCode": "Код",
+        "codeBlock": "Код блогы",
+        "quote": "Дәйексөз",
+        "link": "Сілтеме"
+      },
+      "lists": {
+        "ul": "Маркерленген тізім",
+        "ol": "Нөмірленген тізім",
+        "format": "Тізімді реттеу"
+      },
+      "right": {
+        "title": "Нәтиже",
+        "modeMarkdown": "Markdown",
+        "modePreview": "Алдын ала қарау"
+      },
+      "platforms": {
+        "telegram": "Telegram",
+        "whatsapp": "WhatsApp",
+        "tiktok": "TikTok"
+      },
+      "platformHints": {
+        "telegram": "Telegram Markdown пішімдеуін қолдайды",
+        "whatsapp": "WhatsApp өз пішімдеу ережелерін қолданады",
+        "tiktok": "TikTok тек қарапайым мәтінді қолдайды"
+      },
+      "link": {
+        "title": "Сілтеме қосу",
+        "text": "Сілтеме мәтіні",
+        "textPh": "Сілтеме мәтінін енгізіңіз",
+        "url": "Сілтеме URL",
+        "urlPh": "https://example.com"
+      },
+      "limit": {
+        "exceeded": "Мәтін рұқсат етілген ұзындықтан асты"
+      },
+      "preview": {
+        "empty": "Қарау үшін мәтін жоқ"
+      },
+      "storage": {
+        "restored": "Жоба қалпына келтірілді"
+      },
+      "hotkeys": {
+        "title": "Пернетақта тіркесімдері",
+        "bold": "Қалың — Ctrl/Cmd + B",
+        "italic": "Көлбеу — Ctrl/Cmd + I",
+        "underline": "Асты сызу — Ctrl/Cmd + U",
+        "link": "Сілтеме қосу — Ctrl/Cmd + K",
+        "spoiler": "Спойлер — Ctrl/Cmd + Shift + S",
+        "code": "Код блогы — Ctrl/Cmd + Shift + C",
+        "quote": "Дәйексөз — Ctrl/Cmd + Shift + Q",
+        "ul": "Маркерлі тізім — Ctrl/Cmd + Shift + 8",
+        "ol": "Нөмірлі тізім — Ctrl/Cmd + Shift + 7",
+        "formatList": "Тізімді реттеу — Ctrl/Cmd + Shift + L",
+        "emoji": "Эмодзи — Ctrl/Cmd + Shift + E"
+      }
+    },
     "pdfEditor": {
       "text": {
         "title": "Мәтін қосу",
