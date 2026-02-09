@@ -255,7 +255,7 @@ function chooseAdvancedTag(tag: string) {
 
             <template #content="{ item, index }">
               <section v-if="index === 0">
-                <div class="docker-search__controls">
+                <div class="docker-search__controls docker-search__controls_simple">
                   <div class="docker-search__field">
                     <div class="docker-search__label">{{ t("services.dockerSearch.fields.repo") }}</div>
                     <u-input
@@ -400,7 +400,7 @@ function chooseAdvancedTag(tag: string) {
               </section>
 
               <section v-else>
-                <div class="docker-search__controls">
+                <div class="docker-search__controls docker-search__controls_advanced">
                   <div class="docker-search__field">
                     <div class="docker-search__label">{{ t("services.dockerSearch.fields.repo") }}</div>
                     <u-input
@@ -567,10 +567,6 @@ function chooseAdvancedTag(tag: string) {
               </section>
             </template>
           </u-tabs>
-
-          <div class="tabs-line-wrap">
-            <div ref="tabLineElement" class="tabs-line"/>
-          </div>
         </div>
       </div>
     </div>
@@ -617,10 +613,60 @@ function chooseAdvancedTag(tag: string) {
   display: grid;
   grid-template-columns: 1fr;
   gap: 12px;
+}
+
+.docker-search__controls_simple {
+  @media (min-width: 900px) {
+    grid-template-columns: 1fr 2fr;
+    grid-template-areas:
+      "repo  query"
+      "actions actions";
+    align-items: end;
+  }
 
   @media (min-width: 900px) {
-    grid-template-columns: 1fr 180px 220px auto;
+    .docker-search__field:nth-child(1) {
+      grid-area: repo;
+    }
+
+    .docker-search__field:nth-child(2) {
+      grid-area: query;
+    }
+
+    .docker-search__actions {
+      grid-area: actions;
+    }
+  }
+}
+
+.docker-search__controls_advanced {
+  @media (min-width: 900px) {
+    grid-template-columns: 180px 1fr;
+    grid-template-rows: auto auto;
+
+    grid-template-areas:
+      "repo   repo   repo"
+      "major  variant actions";
+
     align-items: end;
+  }
+
+  @media (min-width: 900px) {
+    .docker-search__field:nth-child(1) {
+      grid-area: repo;
+    }
+
+    .docker-search__field:nth-child(2) {
+      grid-area: major;
+    }
+
+    .docker-search__field:nth-child(3) {
+      grid-area: variant;
+    }
+
+    .docker-search__actions {
+      grid-area: actions;
+    }
   }
 }
 
