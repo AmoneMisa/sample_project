@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import {safeFetch} from "~/utils/safeFetch";
+
 const quickLinks = [
   {name: 'footer.quickLinks.pages', to: '/pages'},
   {name: 'footer.quickLinks.blog', to: '/blog'},
@@ -14,6 +16,16 @@ const services = [
   {name: 'footer.services.codeGenerator', to: '/tools/code'},
   {name: 'footer.services.educationFeedback', to: '/tools/education'}
 ];
+const config = useRuntimeConfig();
+const {data: contacts} = await safeFetch(
+    `${config.public.apiBase}/contacts`
+);
+//
+// const {data: footerMenus} = await safeFetch(
+//     `${config.public.apiBase}/footer`
+// );
+
+console.log(contacts);
 
 const {t} = useI18n();
 </script>
