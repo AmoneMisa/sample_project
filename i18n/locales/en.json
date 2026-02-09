@@ -243,6 +243,9 @@
         "title": "Get the result",
         "text": "Run the service and get a ready result in seconds."
       }
+    },
+    "filters": {
+      "all": "All"
     }
   },
   "menu": {

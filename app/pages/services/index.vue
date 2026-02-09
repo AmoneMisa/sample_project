@@ -64,6 +64,14 @@ const howSteps = [
 
       <div class="services__filters" v-if="serviceCategories">
         <button
+            type="button"
+            class="services__pill"
+            :class="{ 'services__pill_active': activeCategory === 'all' }"
+            @click="activeCategory = 'all'"
+        >
+          {{ t("services.filters.all") }}
+        </button>
+        <button
             v-for="c in serviceCategories"
             :key="c.id"
             type="button"

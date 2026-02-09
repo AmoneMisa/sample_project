@@ -285,7 +285,6 @@ const targetItems = computed(() =>
     </div>
 
     <u-page-body class="mt-4 pb-0 gap-16 flex flex-col justify-center">
-      <!-- Mode picker -->
       <u-container class="max-w-6xl mx-auto mb-0">
         <div class="mode-grid">
           <button
@@ -296,11 +295,11 @@ const targetItems = computed(() =>
               type="button"
               @click="mode = c.key"
           >
-            <div class="mode-card__top">
-              <span class="mode-card__icon" :class="c.icon"/>
+            <span class="mode-card__top">
+              <icon class="mode-card__icon" :name="c.icon"/>
               <span class="mode-card__title">{{ c.title }}</span>
-            </div>
-            <p class="mode-card__desc">{{ c.desc }}</p>
+            </span>
+            <span class="mode-card__desc">{{ c.desc }}</span>
           </button>
         </div>
       </u-container>
@@ -338,9 +337,8 @@ const targetItems = computed(() =>
                   </div>
                 </div>
               </div>
-
               <custom-button
-                  :variant="'full'"
+                  variant="primary"
                   class="control__btn"
                   :disabled="isLoading"
                   @click="convert"
@@ -360,7 +358,7 @@ const targetItems = computed(() =>
           >
             <div class="dropzone__inner">
               <div class="dropzone__badge">
-                <span class="i-lucide-upload dropzone__badge-icon"/>
+                <icon name="i-lucide-upload" class="dropzone__badge-icon"/>
               </div>
 
               <div class="dropzone__text">
@@ -406,11 +404,11 @@ const targetItems = computed(() =>
           </div>
 
           <div v-if="errorMessage" class="msg msg--error">
-            <span class="i-lucide-alert-triangle msg__icon"/>
+            <icon name="i-lucide-alert-triangle" class="msg__icon"/>
             <span>{{ errorMessage }}</span>
           </div>
           <div v-if="successMessage" class="msg msg--ok">
-            <span class="i-lucide-check-circle-2 msg__icon"/>
+            <icon name="i-lucide-check-circle-2" class="msg__icon"/>
             <span>{{ successMessage }}</span>
           </div>
 
@@ -428,7 +426,7 @@ const targetItems = computed(() =>
                 </div>
 
                 <button class="file__remove" type="button" @click="removeFile(idx)" :disabled="isLoading">
-                  <span class="i-lucide-x"/>
+                  <icon name="i-lucide-x"/>
                 </button>
               </div>
             </div>
@@ -436,11 +434,11 @@ const targetItems = computed(() =>
 
           <div class="tips">
             <div class="tip">
-              <span class="i-lucide-sparkles tip__icon"/>
+              <icon name="i-lucide-sparkles" class="tip__icon"/>
               <span>PNG → JPEG: прозрачность заменится белым фоном.</span>
             </div>
             <div class="tip">
-              <span class="i-lucide-info tip__icon"/>
+              <icon name="i-lucide-info" class="tip__icon"/>
               <span>PDF → DOCX: может отличаться от оригинала — это нормально.</span>
             </div>
           </div>
