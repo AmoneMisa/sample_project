@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import {safeFetch} from "~/utils/safeFetch";
 import ContactItem from "~/components/footer/ContactItem.vue";
+import {computed} from "vue";
 
 const config = useRuntimeConfig();
-const {data: contacts} = await safeFetch<[]>(
+const {data: contactsRow} = await safeFetch<[]>(
     `${config.public.apiBase}/contacts`
 );
+
+const contacts = computed(() => contactsRow?.contacts ?? []);
 </script>
 
 <template>
