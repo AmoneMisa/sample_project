@@ -14,8 +14,7 @@ export async function loadInitialDataSSR(api: string, lang: string) {
         $fetch(`${api}/testimonials`),
         $fetch(`${api}/offer-cards`),
         $fetch(`${api}/feature-cards`),
-        $fetch(`${api}/contacts`),
-        $fetch(`${api}/footer`),
+        $fetch(`${api}/contacts`)
     ]);
 
     return { translations, menu, testi };
