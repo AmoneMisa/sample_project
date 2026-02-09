@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {safeFetch} from "~/utils/safeFetch";
 import ContactItem from "~/components/footer/ContactItem.vue";
+import {computed} from "vue";
 
 const quickLinks = [
   {name: 'footer.quickLinks.pages', to: '/pages'},
@@ -18,11 +19,13 @@ const services = [
   {name: 'footer.services.educationFeedback', to: '/tools/education'}
 ];
 const config = useRuntimeConfig();
-const {data: contacts} = await safeFetch<[]>(
+const {data: contactsRow} = await safeFetch<[]>(
     `${config.public.apiBase}/contacts`
 );
 
-console.log(contacts);
+const contacts = computed(() => contactsRow?.contacts ?? []);
+console.log(contacts.value.contacts);
+console.log(contacts.value);
 //
 // const {data: footerMenus} = await safeFetch(
 //     `${config.public.apiBase}/footer/menu/blocks`
