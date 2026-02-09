@@ -10,7 +10,7 @@ type ViewMode = "md" | "preview";
 
 const {t} = useI18n();
 
-const MAX = 2000;
+const MAX = 8000;
 const STORAGE_KEY = "services:markdown-editor:v3";
 
 const input = ref<string>("");

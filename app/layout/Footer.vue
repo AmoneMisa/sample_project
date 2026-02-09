@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {safeFetch} from "~/utils/safeFetch";
+import ContactItem from "~/components/footer/ContactItem.vue";
 
 const quickLinks = [
   {name: 'footer.quickLinks.pages', to: '/pages'},
@@ -17,15 +18,13 @@ const services = [
   {name: 'footer.services.educationFeedback', to: '/tools/education'}
 ];
 const config = useRuntimeConfig();
-const {data: contacts} = await safeFetch(
+const {data: contacts} = await safeFetch<[]>(
     `${config.public.apiBase}/contacts`
 );
 //
 // const {data: footerMenus} = await safeFetch(
-//     `${config.public.apiBase}/footer`
+//     `${config.public.apiBase}/footer/menu/blocks`
 // );
-
-console.log(contacts);
 
 const {t} = useI18n();
 </script>
@@ -74,22 +73,12 @@ const {t} = useI18n();
         </div>
       </div>
 
-      <div class="footer__column">
+      <div class="footer__column" v-if="contacts">
         <div class="footer__col-item">
           <h4 class="footer__title">{{ t('footer.contactTitle') }}</h4>
 
           <u-page-list class="footer__list footer__contact">
-            <a href="#" class="footer__contact-link">
-              {{ t('footer.contact.address') }}
-            </a>
-
-            <a href="mailto:example@domain.com" class="footer__contact-link">
-              example@domain.com
-            </a>
-
-            <a href="tel:+13866883295" class="footer__contact-link">
-              {{ t('footer.contact.phone') }}
-            </a>
+            <contact-item :contacts="contacts.filter(contact => contact.type !== 'social' && contact.type !== 'other') || []" />
           </u-page-list>
         </div>
       </div>
