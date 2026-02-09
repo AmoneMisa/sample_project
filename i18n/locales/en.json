@@ -1,4 +1,27 @@
 {
+  "errors": {
+    "kicker": {
+      "notFound": "Page not found",
+      "server": "Server error"
+    },
+    "404": {
+      "title": "Page not found",
+      "text": "It looks like this page doesn’t exist or has been removed."
+    },
+    "500": {
+      "title": "Something went wrong",
+      "text": "A server error occurred. We are already working on fixing it."
+    },
+    "actions": {
+      "home": "Go to home",
+      "retry": "Try again"
+    },
+    "details": "Technical details",
+    "links": {
+      "main": "Home",
+      "services": "Services"
+    }
+  },
   "services": {
     "pdfEditor": {
       "text": {
@@ -92,73 +115,74 @@
       }
     },
     "converter": {
-      "title": "File Converter",
-      "subtitle": "fast, clean, and without unnecessary magic ✨",
-      "description": "Upload a file, choose a format, and get the result. Images can be uploaded in batches of up to 20.",
+      "hero": {
+        "titleLine1": "File Converter",
+        "titleLine2": "fast, clean, and without unnecessary magic ✨",
+        "description": "Upload a file, choose a format — and get the result. For images, you can upload up to 20 files at once."
+      },
       "modes": {
         "media": {
           "title": "Images",
-          "description": "PNG/JPEG/WEBP → single format. Up to 20 files, returns ZIP."
+          "desc": "Convert PNG/JPG/WebP. Up to 20 files."
         },
         "data": {
           "title": "Data",
-          "description": "CSV/JSON/XML → CSV/JSON/XML/XLSX. Single file."
+          "desc": "CSV/JSON/XML → CSV/JSON/XML/XLSX. One file at a time."
         },
-        "document": {
+        "docs": {
           "title": "Documents",
-          "description": "DOCX ↔ PDF (best effort for PDF→DOCX). Single file."
+          "desc": "DOCX ↔ PDF. PDF→DOCX is best effort."
         }
       },
       "panel": {
-        "images": {
-          "title": "Images",
-          "description": "Supported: png, jpg/jpeg, webp. If more than one file — ZIP."
+        "title": {
+          "media": "Images",
+          "data": "Data",
+          "docs": "Documents"
         },
-        "data": {
-          "title": "Data",
-          "description": "Supported: csv, json, xml. Targets: csv/json/xml/xlsx."
-        },
-        "documents": {
-          "title": "Documents",
-          "description": "Supported: docx and pdf. DOCX→PDF stable, PDF→DOCX best effort."
+        "description": {
+          "media": "Supported: png, jpg/jpeg, webp. Up to 20 files. If more than one — ZIP output.",
+          "data": "Supported: csv, json, xml. Targets: csv/json/xml/xlsx. Single file.",
+          "docs": "Supported: docx and pdf. DOCX→PDF via LibreOffice, PDF→DOCX best effort."
         }
       },
       "controls": {
-        "formatLabel": "Output format",
+        "targetFormat": "Output format",
         "convert": "Convert",
         "converting": "Converting…"
       },
       "dropzone": {
-        "title": "Drag file here",
-        "manual": "or choose manually",
-        "support": "Supported",
-        "limit": "Limit",
-        "upload": "Upload",
+        "title": "Drop file here",
+        "orPick": "or select manually",
+        "support": "Supported:",
+        "limit": "Limit:",
+        "filesWord": "file(s)",
+        "pick": "Upload",
         "clear": "Clear"
-      },
-      "messages": {
-        "noFiles": "Please add file(s) to convert.",
-        "singleOnly": "Only one file is allowed in this mode.",
-        "maxFiles": "Maximum 20 images allowed.",
-        "unsupported": "Unsupported file",
-        "success": "Done! Your file has been downloaded 👌",
-        "error": "Conversion failed."
       },
       "files": {
         "title": "Files",
-        "zipHint": "If more than one file is uploaded, the result will be a ZIP."
+        "zipHintMedia": "If more than one file — result will be ZIP."
       },
       "tips": {
-        "imageAlpha": "PNG → JPEG: transparency will be replaced with white background.",
-        "pdfDocx": "PDF → DOCX: layout may differ from the original."
-      },
-      "promo": {
-        "title": "Need more formats?",
-        "description": "We can add task queues, progress bar, auto-zip, and quality presets.",
-        "cta": "Send feedback"
+        "pngToJpeg": "PNG → JPEG: transparency will be replaced with white background.",
+        "pdfToDocx": "PDF → DOCX: layout may differ from the original — this is normal."
       }
     },
     "dockerSearch": {
+      "tabs": {
+        "simple": "Simple search",
+        "advanced": "Advanced search"
+      },
+      "simple": {
+        "queryLabel": "Query",
+        "queryPlaceholder": "For example: alpine, slim, debian…",
+        "queryHint": "We will show main tags like “alpine”, “17-alpine”, “18-alpine”…",
+        "resultsTitle": "Main tags",
+        "resultsCount": "Found",
+        "mainTags": "Select a tag",
+        "emptyHint": "Enter a query and click “Search”"
+      },
       "title": "Docker tags",
       "headline": "Find the best tag and see aliases",
       "subtitle": "Search Docker Hub tags by major version and (optionally) distro variant. We’ll try to pick the most general tag and show all tags pointing to the same image digest.",

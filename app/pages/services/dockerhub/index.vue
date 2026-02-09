@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { nextTick, onBeforeUnmount, onMounted, ref } from "vue";
+import type { TabsItem } from "#ui/components/Tabs.vue";
 import PageHeader from "~/components/common/PageHeader.vue";
 
-const {t} = useI18n();
+const { t } = useI18n();
 
 type ResolveResponse = {
   repo: string;
@@ -21,57 +23,192 @@ type AliasesResponse = {
   reason: string;
 };
 
+type SimpleSearchItem = {
+  base: string;
+  tag: string;
+  examples: string[];
+};
+
 type VariantPreset = { labelKey: string; value: string | null };
 
+// -----------------------------
+// Tabs (your styling logic)
+// -----------------------------
+const tabsScroll = useTemplateRef<HTMLElement>("tabsScroll");
+const tabLine = useTemplateRef<HTMLElement>("tabLineElement");
+const currentIndex = ref(0);
+
+function moveTabLine(index: number) {
+  const wrap = tabsScroll.value;
+  const line = tabLine.value;
+  if (!wrap || !line) return;
+
+  const triggers = wrap.querySelectorAll<HTMLElement>(".tabs__trigger");
+  const active = triggers[index];
+  if (!active) return;
+
+  const center = active.offsetLeft + active.offsetWidth / 2;
+  const w = 12;
+  line.style.width = `${w}px`;
+  line.style.transform = `translateX(${Math.round(center - w / 2)}px)`;
+}
+
+function ensureTabVisible(index: number) {
+  const wrap = tabsScroll.value;
+  if (!wrap) return;
+
+  const triggers = wrap.querySelectorAll<HTMLElement>(".tabs__trigger");
+  const active = triggers[index];
+  if (!active) return;
+
+  const left = active.offsetLeft;
+  const right = left + active.offsetWidth;
+  const viewLeft = wrap.scrollLeft;
+  const viewRight = wrap.scrollLeft + wrap.clientWidth;
+
+  if (left < viewLeft) wrap.scrollTo({ left: left - 16, behavior: "smooth" });
+  else if (right > viewRight) wrap.scrollTo({ left: right - wrap.clientWidth + 16, behavior: "smooth" });
+}
+
+async function onTabChange(index: number) {
+  currentIndex.value = index;
+  await nextTick();
+  moveTabLine(index);
+  ensureTabVisible(index);
+}
+
+function handleResize() {
+  nextTick(() => moveTabLine(currentIndex.value));
+}
+
+onMounted(async () => {
+  await nextTick();
+  moveTabLine(0);
+  window.addEventListener("resize", handleResize, { passive: true });
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener("resize", handleResize);
+});
+
+const tabs: TabsItem[] = [
+  { label: "services.dockerSearch.tabs.simple" },
+  { label: "services.dockerSearch.tabs.advanced" },
+];
+
+// -----------------------------
+// Shared state (repo + aliases)
+// -----------------------------
 const repo = ref("library/amazoncorretto");
+
+// Aliases (shared)
+const loadingAliases = ref(false);
+const aliasesError = ref<string | null>(null);
+const aliasesResult = ref<AliasesResponse | null>(null);
+const selectedTag = ref<string | null>(null);
+
+function resetAliases() {
+  aliasesResult.value = null;
+  aliasesError.value = null;
+}
+
+async function loadAliases(tag: string) {
+  loadingAliases.value = true;
+  aliasesError.value = null;
+
+  try {
+    aliasesResult.value = await $fetch<AliasesResponse>("/api/dockerhub/tags/aliases", {
+      params: { repo: repo.value.trim(), tag },
+    });
+  } catch (e: any) {
+    aliasesError.value = e?.data?.message || e?.message || "Fetch failed";
+  } finally {
+    loadingAliases.value = false;
+  }
+}
+
+// -----------------------------
+// Tab 1: Simple search
+// -----------------------------
+const simpleQuery = ref("");
+const simpleLoading = ref(false);
+const simpleError = ref<string | null>(null);
+const simpleResults = ref<SimpleSearchItem[]>([]);
+
+const canSimpleSearch = computed(() => repo.value.trim().length > 3 && simpleQuery.value.trim().length > 1);
+
+async function runSimpleSearch() {
+  if (!canSimpleSearch.value) return;
+
+  simpleLoading.value = true;
+  simpleError.value = null;
+  resetAliases();
+
+  try {
+    const data = await $fetch<SimpleSearchItem[]>("/api/dockerhub/tags/search", {
+      params: { repo: repo.value.trim(), q: simpleQuery.value.trim() },
+    });
+
+    simpleResults.value = Array.isArray(data) ? data : [];
+    selectedTag.value = simpleResults.value[0]?.tag ?? null;
+  } catch (e: any) {
+    simpleError.value = e?.data?.message || e?.message || "Fetch failed";
+    simpleResults.value = [];
+    selectedTag.value = null;
+  } finally {
+    simpleLoading.value = false;
+  }
+}
+
+function chooseSimpleTag(tag: string) {
+  selectedTag.value = tag;
+  resetAliases();
+}
+
+// -----------------------------
+// Tab 2: Advanced search (your current)
+// -----------------------------
 const major = ref<number | null>(17);
-const variant = ref<string>("alpine");
+const variant = ref<string | null>("alpine");
 
 const variantPresets: VariantPreset[] = [
-  {labelKey: "services.dockerSearch.variant.any", value: null},
-  {labelKey: "services.dockerSearch.variant.alpine", value: "alpine"},
-  {labelKey: "services.dockerSearch.variant.al2", value: "al2"},
-  {labelKey: "services.dockerSearch.variant.debian", value: "debian"},
-  {labelKey: "services.dockerSearch.variant.ubuntu", value: "ubuntu"}
+  { labelKey: "services.dockerSearch.variant.any", value: null },
+  { labelKey: "services.dockerSearch.variant.alpine", value: "alpine" },
+  { labelKey: "services.dockerSearch.variant.al2", value: "al2" },
+  { labelKey: "services.dockerSearch.variant.debian", value: "debian" },
+  { labelKey: "services.dockerSearch.variant.ubuntu", value: "ubuntu" },
 ];
 
 const loading = ref(false);
-const loadingAliases = ref(false);
-
 const error = ref<string | null>(null);
-const aliasesError = ref<string | null>(null);
-
 const resolveResult = ref<ResolveResponse | null>(null);
-const aliasesResult = ref<AliasesResponse | null>(null);
 
-const selectedTag = ref<string | null>(null);
-
-const canSearch = computed(() => {
+const canAdvancedSearch = computed(() => {
   const r = repo.value.trim();
   return r.length > 3 && !!major.value && major.value > 0;
 });
 
-function resetResults() {
+function resetAdvanced() {
   resolveResult.value = null;
-  aliasesResult.value = null;
-  selectedTag.value = null;
   error.value = null;
-  aliasesError.value = null;
+  selectedTag.value = null;
+  resetAliases();
 }
 
-async function runSearch() {
-  if (!canSearch.value) return;
+async function runAdvancedSearch() {
+  if (!canAdvancedSearch.value) return;
 
   loading.value = true;
   error.value = null;
+  resetAliases();
 
   try {
     const data = await $fetch<ResolveResponse>("/api/dockerhub/tags/resolve", {
       params: {
         repo: repo.value.trim(),
         major: major.value,
-        variant: variant.value || undefined
-      }
+        ...(variant.value ? { variant: variant.value } : {}),
+      },
     });
 
     resolveResult.value = data;
@@ -83,33 +220,17 @@ async function runSearch() {
   }
 }
 
-async function loadAliases(tag: string) {
-  loadingAliases.value = true;
-  aliasesError.value = null;
-
-  try {
-    aliasesResult.value = await $fetch<AliasesResponse>("/api/dockerhub/tags/aliases", {
-      params: {repo: repo.value.trim(), tag}
-    });
-  } catch (e: any) {
-    aliasesError.value = e?.data?.message || e?.message || "Fetch failed";
-  } finally {
-    loadingAliases.value = false;
-  }
-}
-
 const tagsToShow = computed(() => resolveResult.value?.fallbacks ?? []);
 
-function chooseTag(tag: string) {
+function chooseAdvancedTag(tag: string) {
   selectedTag.value = tag;
-  aliasesResult.value = null;
-  aliasesError.value = null;
+  resetAliases();
 }
 </script>
 
 <template>
   <u-container class="docker-search">
-    <div class="docker-search__header text-center space-y-3">
+    <div class="background-hero docker-search__header text-center space-y-3">
       <page-header
           title="services.dockerSearch.title"
           headline="services.dockerSearch.headline"
@@ -121,205 +242,357 @@ function chooseTag(tag: string) {
       </p>
     </div>
 
-    <div class="docker-search__controls">
-      <div class="docker-search__field">
-        <div class="docker-search__label">{{ t("services.dockerSearch.fields.repo") }}</div>
-        <u-input
-            icon="i-lucide-box"
-            v-model="repo"
-            :placeholder="t('services.dockerSearch.placeholders.repo')"
-            @keydown.enter="runSearch"
-        />
-        <div class="docker-search__hint text-muted">
-          {{ t("services.dockerSearch.hints.repo") }}
-        </div>
-      </div>
-
-      <div class="docker-search__field docker-search__field_small">
-        <div class="docker-search__label">{{ t("services.dockerSearch.fields.major") }}</div>
-        <u-input
-            icon="i-lucide-hash"
-            type="number"
-            v-model="major"
-            :placeholder="t('services.dockerSearch.placeholders.major')"
-            @keydown.enter="runSearch"
-        />
-      </div>
-
-      <div class="docker-search__field docker-search__field_small ui-pill-btn ui-pill-btn_animated">
-        <div class="ui-pill-btn__inner">
-          <div class="docker-search__label">{{ t("services.dockerSearch.fields.variant") }}</div>
-          <u-select
-              v-model="variant"
-              :items="variantPresets.map(v => ({ label: t(v.labelKey), value: v.value }))"
-              :ui="{ base: 'w-fill-available p-0 bg-transparent rounded-none ring-0 border-0' }"
-              class="ui-locale"
-          />
-        </div>
-      </div>
-
-      <div class="docker-search__actions">
-        <button
-            type="button"
-            class="docker-search__btn"
-            :disabled="!canSearch || loading"
-            @click="runSearch"
-        >
-          <u-icon v-if="loading" name="i-lucide-loader-circle" class="docker-search__btn-icon docker-search__spin"/>
-          <u-icon v-else name="i-lucide-search" class="docker-search__btn-icon"/>
-          {{ t("services.dockerSearch.actions.search") }}
-        </button>
-
-        <button
-            type="button"
-            class="docker-search__btn docker-search__btn_ghost"
-            :disabled="loading"
-            @click="resetResults"
-        >
-          <u-icon name="i-lucide-eraser" class="docker-search__btn-icon"/>
-          {{ t("services.dockerSearch.actions.reset") }}
-        </button>
-      </div>
-    </div>
-
-    <div v-if="error" class="docker-search__empty">
-      <div class="docker-search__empty-title">{{ t("services.dockerSearch.errors.title") }}</div>
-      <div class="text-muted">{{ error }}</div>
-    </div>
-
-    <div v-if="resolveResult" class="docker-search__result">
-      <div class="docker-search__result-head">
-        <div class="docker-search__result-title">
-          {{ t("services.dockerSearch.result.title") }}
-        </div>
-        <div class="docker-search__result-meta text-muted">
-          {{ t("services.dockerSearch.result.matched") }}: {{ resolveResult.total_matched }}
-          <span class="docker-search__dot">•</span>
-          {{ t("services.dockerSearch.result.reason") }}: {{ resolveResult.reason }}
-        </div>
-      </div>
-
-      <div class="docker-search__best">
-        <div class="docker-search__best-left">
-          <div class="docker-search__chip">{{ t("services.dockerSearch.result.bestTag") }}</div>
-          <div class="docker-search__best-tag">
-            <span v-if="resolveResult.best_tag">{{ resolveResult.best_tag }}</span>
-            <span v-else class="text-muted">{{ t("services.dockerSearch.result.noBest") }}</span>
-          </div>
-          <div class="docker-search__best-repo text-muted">
-            {{ resolveResult.repo }}
-          </div>
-        </div>
-
-        <div class="docker-search__best-actions">
-          <button
-              type="button"
-              class="docker-search__btn"
-              :disabled="!selectedTag || loadingAliases"
-              @click="selectedTag && loadAliases(selectedTag)"
+    <!-- Tabs -->
+    <div class="tabs-row">
+      <div ref="tabsScroll" class="tabs-scroll">
+        <div class="tabs-head">
+          <u-tabs
+              :items="tabs"
+              @update:modelValue="onTabChange"
+              :ui="{ trigger: 'tabs__trigger', list: 'tabs__list mt-4', indicator: 'hidden' }"
           >
-            <u-icon
-                v-if="loadingAliases"
-                name="i-lucide-loader-circle"
-                class="docker-search__btn-icon docker-search__spin"
-            />
-            <u-icon
-                v-else
-                name="i-lucide-link-2"
-                class="docker-search__btn-icon"
-            />
-            {{ t("services.dockerSearch.actions.aliases") }}
-          </button>
-        </div>
-      </div>
+            <template #default="{ item }">
+              {{ t(item.label) }}
+            </template>
 
-      <div class="docker-search__grid">
-        <div class="docker-search__panel">
-          <div class="docker-search__panel-title">
-            {{ t("services.dockerSearch.result.fallbacks") }}
-          </div>
+            <template #content="{ item, index }">
+              <!-- TAB 1: SIMPLE -->
+              <section v-if="index === 0">
+                <div class="docker-search__controls">
+                  <div class="docker-search__field">
+                    <div class="docker-search__label">{{ t("services.dockerSearch.fields.repo") }}</div>
+                    <u-input
+                        icon="i-lucide-box"
+                        v-model="repo"
+                        :placeholder="t('services.dockerSearch.placeholders.repo')"
+                        @keydown.enter="runSimpleSearch"
+                    />
+                    <div class="docker-search__hint text-muted">
+                      {{ t("services.dockerSearch.hints.repo") }}
+                    </div>
+                  </div>
 
-          <div v-if="tagsToShow.length" class="docker-search__tags">
-            <button
-                v-for="tag in tagsToShow"
-                :key="tag"
-                type="button"
-                class="docker-search__tag"
-                :class="{ 'docker-search__tag_active': selectedTag === tag }"
-                @click="chooseTag(tag)"
-            >
-              <span class="docker-search__tag-text">{{ tag }}</span>
-              <span v-if="selectedTag === tag" class="docker-search__tag-badge">
-                {{ t("services.dockerSearch.result.selected") }}
-              </span>
-            </button>
-          </div>
+                  <div class="docker-search__field">
+                    <div class="docker-search__label">{{ t("services.dockerSearch.simple.queryLabel") }}</div>
+                    <u-input
+                        icon="i-lucide-search"
+                        v-model="simpleQuery"
+                        :placeholder="t('services.dockerSearch.simple.queryPlaceholder')"
+                        @keydown.enter="runSimpleSearch"
+                    />
+                    <div class="docker-search__hint text-muted">
+                      {{ t("services.dockerSearch.simple.queryHint") }}
+                    </div>
+                  </div>
 
-          <div v-else class="docker-search__hint text-muted">
-            {{ t("services.dockerSearch.result.noFallbacks") }}
-          </div>
-        </div>
+                  <div class="docker-search__actions">
+                    <button
+                        type="button"
+                        class="docker-search__btn"
+                        :disabled="!canSimpleSearch || simpleLoading"
+                        @click="runSimpleSearch"
+                    >
+                      <u-icon v-if="simpleLoading" name="i-lucide-loader-circle" class="docker-search__btn-icon docker-search__spin" />
+                      <u-icon v-else name="i-lucide-search" class="docker-search__btn-icon" />
+                      {{ t("services.dockerSearch.actions.search") }}
+                    </button>
 
-        <div class="docker-search__panel">
-          <div class="docker-search__panel-title">
-            {{ t("services.dockerSearch.result.aliasesTitle") }}
-          </div>
+                    <button
+                        type="button"
+                        class="docker-search__btn docker-search__btn_ghost"
+                        :disabled="simpleLoading"
+                        @click="() => { simpleQuery=''; simpleResults=[]; simpleError=null; selectedTag=null; resetAliases(); }"
+                    >
+                      <u-icon name="i-lucide-eraser" class="docker-search__btn-icon" />
+                      {{ t("services.dockerSearch.actions.reset") }}
+                    </button>
+                  </div>
+                </div>
 
-          <div v-if="aliasesError" class="docker-search__hint text-muted">
-            {{ aliasesError }}
-          </div>
+                <div v-if="simpleError" class="docker-search__empty">
+                  <div class="docker-search__empty-title">{{ t("services.dockerSearch.errors.title") }}</div>
+                  <div class="text-muted">{{ simpleError }}</div>
+                </div>
 
-          <div v-else-if="aliasesResult" class="docker-search__aliases">
-            <div class="docker-search__aliases-meta text-muted">
-              <div>
-                {{ t("services.dockerSearch.result.digest") }}:
-                <span class="docker-search__mono">{{ aliasesResult.digest || "—" }}</span>
-              </div>
-              <div>
-                {{ t("services.dockerSearch.result.aliasCount") }}: {{ aliasesResult.aliases.length }}
-              </div>
-            </div>
+                <div v-if="simpleResults.length" class="docker-search__result">
+                  <div class="docker-search__result-head">
+                    <div class="docker-search__result-title">{{ t("services.dockerSearch.simple.resultsTitle") }}</div>
+                    <div class="docker-search__result-meta text-muted">
+                      {{ t("services.dockerSearch.simple.resultsCount") }}: {{ simpleResults.length }}
+                    </div>
+                  </div>
 
-            <div v-if="aliasesResult.aliases.length" class="docker-search__aliases-list">
-              <div
-                  v-for="a in aliasesResult.aliases"
-                  :key="a"
-                  class="docker-search__alias"
-              >
-                <span class="docker-search__mono">{{ a }}</span>
-              </div>
-            </div>
+                  <div class="docker-search__grid">
+                    <div class="docker-search__panel">
+                      <div class="docker-search__panel-title">
+                        {{ t("services.dockerSearch.simple.mainTags") }}
+                      </div>
 
-            <div v-else class="docker-search__hint text-muted">
-              {{ t("services.dockerSearch.result.noAliases") }}
-            </div>
-          </div>
+                      <div class="docker-search__tags">
+                        <button
+                            v-for="item2 in simpleResults"
+                            :key="item2.base"
+                            type="button"
+                            class="docker-search__tag"
+                            :class="{ 'docker-search__tag_active': selectedTag === item2.tag }"
+                            @click="chooseSimpleTag(item2.tag)"
+                        >
+                          <span class="docker-search__tag-text">{{ item2.tag }}</span>
+                          <span v-if="selectedTag === item2.tag" class="docker-search__tag-badge">
+                            {{ t("services.dockerSearch.result.selected") }}
+                          </span>
+                        </button>
+                      </div>
+                    </div>
 
-          <div v-else class="docker-search__hint text-muted">
-            {{ t("services.dockerSearch.result.aliasesHint") }}
+                    <div class="docker-search__panel">
+                      <div class="docker-search__panel-title">
+                        {{ t("services.dockerSearch.result.aliasesTitle") }}
+                      </div>
+
+                      <div class="docker-search__best-actions" style="margin-bottom: 10px;">
+                        <button
+                            type="button"
+                            class="docker-search__btn"
+                            :disabled="!selectedTag || loadingAliases"
+                            @click="selectedTag && loadAliases(selectedTag)"
+                        >
+                          <u-icon v-if="loadingAliases" name="i-lucide-loader-circle" class="docker-search__btn-icon docker-search__spin" />
+                          <u-icon v-else name="i-lucide-link-2" class="docker-search__btn-icon" />
+                          {{ t("services.dockerSearch.actions.aliases") }}
+                        </button>
+                      </div>
+
+                      <div v-if="aliasesError" class="docker-search__hint text-muted">{{ aliasesError }}</div>
+
+                      <div v-else-if="aliasesResult" class="docker-search__aliases">
+                        <div class="docker-search__aliases-meta text-muted">
+                          <div>
+                            {{ t("services.dockerSearch.result.digest") }}:
+                            <span class="docker-search__mono">{{ aliasesResult.digest || "—" }}</span>
+                          </div>
+                          <div>
+                            {{ t("services.dockerSearch.result.aliasCount") }}: {{ aliasesResult.aliases.length }}
+                          </div>
+                        </div>
+
+                        <div v-if="aliasesResult.aliases.length" class="docker-search__aliases-list">
+                          <div v-for="a in aliasesResult.aliases" :key="a" class="docker-search__alias">
+                            <span class="docker-search__mono">{{ a }}</span>
+                          </div>
+                        </div>
+
+                        <div v-else class="docker-search__hint text-muted">
+                          {{ t("services.dockerSearch.result.noAliases") }}
+                        </div>
+                      </div>
+
+                      <div v-else class="docker-search__hint text-muted">
+                        {{ t("services.dockerSearch.result.aliasesHint") }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-else-if="!simpleLoading && !simpleError" class="docker-search__hint text-muted" style="text-align:center; margin-top: 10px;">
+                  {{ t("services.dockerSearch.simple.emptyHint") }}
+                </div>
+              </section>
+
+              <!-- TAB 2: ADVANCED -->
+              <section v-else>
+                <div class="docker-search__controls">
+                  <div class="docker-search__field">
+                    <div class="docker-search__label">{{ t("services.dockerSearch.fields.repo") }}</div>
+                    <u-input
+                        icon="i-lucide-box"
+                        v-model="repo"
+                        :placeholder="t('services.dockerSearch.placeholders.repo')"
+                        @keydown.enter="runAdvancedSearch"
+                    />
+                    <div class="docker-search__hint text-muted">
+                      {{ t("services.dockerSearch.hints.repo") }}
+                    </div>
+                  </div>
+
+                  <div class="docker-search__field docker-search__field_small">
+                    <div class="docker-search__label">{{ t("services.dockerSearch.fields.major") }}</div>
+                    <u-input
+                        icon="i-lucide-hash"
+                        type="number"
+                        v-model="major"
+                        :placeholder="t('services.dockerSearch.placeholders.major')"
+                        @keydown.enter="runAdvancedSearch"
+                    />
+                  </div>
+
+                  <div class="docker-search__field docker-search__field_small ui-pill-btn ui-pill-btn_animated">
+                    <div class="ui-pill-btn__inner">
+                      <div class="docker-search__label">{{ t("services.dockerSearch.fields.variant") }}</div>
+                      <u-select
+                          v-model="variant"
+                          :items="variantPresets.map(v => ({ label: t(v.labelKey), value: v.value }))"
+                          :ui="{ base: 'w-fill-available p-0 bg-transparent rounded-none ring-0 border-0' }"
+                          class="ui-locale"
+                      />
+                    </div>
+                  </div>
+
+                  <div class="docker-search__actions">
+                    <button
+                        type="button"
+                        class="docker-search__btn"
+                        :disabled="!canAdvancedSearch || loading"
+                        @click="runAdvancedSearch"
+                    >
+                      <u-icon v-if="loading" name="i-lucide-loader-circle" class="docker-search__btn-icon docker-search__spin" />
+                      <u-icon v-else name="i-lucide-search" class="docker-search__btn-icon" />
+                      {{ t("services.dockerSearch.actions.search") }}
+                    </button>
+
+                    <button
+                        type="button"
+                        class="docker-search__btn docker-search__btn_ghost"
+                        :disabled="loading"
+                        @click="resetAdvanced"
+                    >
+                      <u-icon name="i-lucide-eraser" class="docker-search__btn-icon" />
+                      {{ t("services.dockerSearch.actions.reset") }}
+                    </button>
+                  </div>
+                </div>
+
+                <div v-if="error" class="docker-search__empty">
+                  <div class="docker-search__empty-title">{{ t("services.dockerSearch.errors.title") }}</div>
+                  <div class="text-muted">{{ error }}</div>
+                </div>
+
+                <div v-if="resolveResult" class="docker-search__result">
+                  <div class="docker-search__result-head">
+                    <div class="docker-search__result-title">{{ t("services.dockerSearch.result.title") }}</div>
+                    <div class="docker-search__result-meta text-muted">
+                      {{ t("services.dockerSearch.result.matched") }}: {{ resolveResult.total_matched }}
+                      <span class="docker-search__dot">•</span>
+                      {{ t("services.dockerSearch.result.reason") }}: {{ resolveResult.reason }}
+                    </div>
+                  </div>
+
+                  <div class="docker-search__best">
+                    <div class="docker-search__best-left">
+                      <div class="docker-search__chip">{{ t("services.dockerSearch.result.bestTag") }}</div>
+                      <div class="docker-search__best-tag">
+                        <span v-if="resolveResult.best_tag">{{ resolveResult.best_tag }}</span>
+                        <span v-else class="text-muted">{{ t("services.dockerSearch.result.noBest") }}</span>
+                      </div>
+                      <div class="docker-search__best-repo text-muted">{{ resolveResult.repo }}</div>
+                    </div>
+
+                    <div class="docker-search__best-actions">
+                      <button
+                          type="button"
+                          class="docker-search__btn"
+                          :disabled="!selectedTag || loadingAliases"
+                          @click="selectedTag && loadAliases(selectedTag)"
+                      >
+                        <u-icon v-if="loadingAliases" name="i-lucide-loader-circle" class="docker-search__btn-icon docker-search__spin" />
+                        <u-icon v-else name="i-lucide-link-2" class="docker-search__btn-icon" />
+                        {{ t("services.dockerSearch.actions.aliases") }}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="docker-search__grid">
+                    <div class="docker-search__panel">
+                      <div class="docker-search__panel-title">
+                        {{ t("services.dockerSearch.result.fallbacks") }}
+                      </div>
+
+                      <div v-if="tagsToShow.length" class="docker-search__tags">
+                        <button
+                            v-for="tag2 in tagsToShow"
+                            :key="tag2"
+                            type="button"
+                            class="docker-search__tag"
+                            :class="{ 'docker-search__tag_active': selectedTag === tag2 }"
+                            @click="chooseAdvancedTag(tag2)"
+                        >
+                          <span class="docker-search__tag-text">{{ tag2 }}</span>
+                          <span v-if="selectedTag === tag2" class="docker-search__tag-badge">
+                            {{ t("services.dockerSearch.result.selected") }}
+                          </span>
+                        </button>
+                      </div>
+
+                      <div v-else class="docker-search__hint text-muted">
+                        {{ t("services.dockerSearch.result.noFallbacks") }}
+                      </div>
+                    </div>
+
+                    <div class="docker-search__panel">
+                      <div class="docker-search__panel-title">
+                        {{ t("services.dockerSearch.result.aliasesTitle") }}
+                      </div>
+
+                      <div v-if="aliasesError" class="docker-search__hint text-muted">{{ aliasesError }}</div>
+
+                      <div v-else-if="aliasesResult" class="docker-search__aliases">
+                        <div class="docker-search__aliases-meta text-muted">
+                          <div>
+                            {{ t("services.dockerSearch.result.digest") }}:
+                            <span class="docker-search__mono">{{ aliasesResult.digest || "—" }}</span>
+                          </div>
+                          <div>
+                            {{ t("services.dockerSearch.result.aliasCount") }}: {{ aliasesResult.aliases.length }}
+                          </div>
+                        </div>
+
+                        <div v-if="aliasesResult.aliases.length" class="docker-search__aliases-list">
+                          <div v-for="a in aliasesResult.aliases" :key="a" class="docker-search__alias">
+                            <span class="docker-search__mono">{{ a }}</span>
+                          </div>
+                        </div>
+
+                        <div v-else class="docker-search__hint text-muted">
+                          {{ t("services.dockerSearch.result.noAliases") }}
+                        </div>
+                      </div>
+
+                      <div v-else class="docker-search__hint text-muted">
+                        {{ t("services.dockerSearch.result.aliasesHint") }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </template>
+          </u-tabs>
+
+          <div class="tabs-line-wrap">
+            <div ref="tabLineElement" class="tabs-line" />
           </div>
         </div>
       </div>
     </div>
 
+    <!-- How section оставим общей -->
     <section class="docker-search__how">
       <h2 class="docker-search__h2">{{ t("services.dockerSearch.howTitle") }}</h2>
 
       <div class="docker-search__how-grid">
         <div class="how-card">
-          <u-icon name="i-lucide-search" class="how-card__icon"/>
+          <u-icon name="i-lucide-search" class="how-card__icon" />
           <div class="how-card__title">{{ t("services.dockerSearch.how.step1.title") }}</div>
           <div class="how-card__text text-muted">{{ t("services.dockerSearch.how.step1.text") }}</div>
         </div>
 
         <div class="how-card">
-          <u-icon name="i-lucide-tags" class="how-card__icon"/>
+          <u-icon name="i-lucide-tags" class="how-card__icon" />
           <div class="how-card__title">{{ t("services.dockerSearch.how.step2.title") }}</div>
           <div class="how-card__text text-muted">{{ t("services.dockerSearch.how.step2.text") }}</div>
         </div>
 
         <div class="how-card">
-          <u-icon name="i-lucide-link-2" class="how-card__icon"/>
+          <u-icon name="i-lucide-link-2" class="how-card__icon" />
           <div class="how-card__title">{{ t("services.dockerSearch.how.step3.title") }}</div>
           <div class="how-card__text text-muted">{{ t("services.dockerSearch.how.step3.text") }}</div>
         </div>

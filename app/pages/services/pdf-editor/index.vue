@@ -73,7 +73,7 @@ async function createDoc() {
 
 <template>
   <u-container class="pdf">
-    <div class="pdf__header text-center space-y-3">
+    <div class="background-hero pdf__header text-center space-y-3">
       <page-header title="services.pdfEditor.title" headline="services.pdfEditor.headline" class="mb-6" />
       <p class="pdf__subtitle text-muted mx-auto">{{ t("services.pdfEditor.subtitle") }}</p>
     </div>

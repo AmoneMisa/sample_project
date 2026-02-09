@@ -687,7 +687,7 @@ onBeforeUnmount(() => {
 
 <template>
   <u-container class="pdf">
-    <div class="pdf__header text-center space-y-3">
+    <div class="background-hero pdf__header text-center space-y-3">
       <page-header
           title="services.pdfEditor.title"
           headline="services.pdfEditor.headline"

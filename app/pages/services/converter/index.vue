@@ -2,6 +2,8 @@
 import PageHeader from "~/components/common/PageHeader.vue";
 import CustomButton from "~/components/common/CustomButton.vue";
 
+const { t } = useI18n();
+
 type Mode = "media" | "data" | "document";
 type MediaTarget = "png" | "jpg" | "jpeg" | "webp";
 type DataTarget = "csv" | "json" | "xml" | "xlsx";
@@ -271,15 +273,19 @@ const targetItems = computed(() =>
 
 <template>
   <u-page :ui="{ center: 'flex flex-col gap-[28px] lg:gap-[32px] xl:gap-[40px] py-12' }">
-    <div class="converter-hero">
+    <div class="background-hero">
       <h1 class="page-main-header mx-auto max-w-[26ch] text-center font-bold tracking-tight leading-[0.95] text-[clamp(2.1rem,5vw,3.4rem)]">
-        <span class="block dark:text-white/90 text-[var(--ui-text)]/90">Конвертер файлов</span>
-        <span
-            class="mt-2 block dark:text-white/90 text-[var(--ui-text)]/90">быстро, аккуратно и без лишней магии ✨</span>
+        <span class="block dark:text-white/90 text-[var(--ui-text)]/90">
+          {{ t('services.converter.hero.titleLine1') }}
+        </span>
+        <span class="mt-2 block dark:text-white/90 text-[var(--ui-text)]/90">
+          {{ t('services.converter.hero.titleLine2') }}
+        </span>
       </h1>
+
       <page-header
           class="mt-2"
-          :description="`Загрузи файл, выбери формат — и получишь результат. Для изображений можно пачкой до 20 штук.`"
+          :description="t('services.converter.hero.description')"
           descriptionSize="20"
       />
     </div>
@@ -308,19 +314,29 @@ const targetItems = computed(() =>
         <div class="panel">
           <div class="panel__header">
             <page-header
-                :title="mode === 'media' ? 'Изображения' : mode === 'data' ? 'Данные' : 'Документы'"
-                :description="mode === 'media'
-                ? 'Поддержка: png, jpg/jpeg, webp. До 20 файлов. Если файлов > 1 — вернём zip.'
-                : mode === 'data'
-                  ? 'Поддержка: csv, json, xml. Цели: csv/json/xml/xlsx. По одному файлу.'
-                  : 'Поддержка: docx и pdf. DOCX→PDF стабильно (через LibreOffice), PDF→DOCX best effort.'"
+                :title="
+                mode === 'media'
+                  ? t('services.converter.panel.title.media')
+                  : mode === 'data'
+                    ? t('services.converter.panel.title.data')
+                    : t('services.converter.panel.title.docs')
+              "
+                :description="
+                mode === 'media'
+                  ? t('services.converter.panel.description.media')
+                  : mode === 'data'
+                    ? t('services.converter.panel.description.data')
+                    : t('services.converter.panel.description.docs')
+              "
                 descriptionSize="18"
                 class="border-none"
             />
 
             <div class="panel__controls">
               <div class="control">
-                <span class="control__label">Формат результата</span>
+                <span class="control__label">
+                  {{ t('services.converter.controls.targetFormat') }}
+                </span>
 
                 <div class="ui-pill-btn ui-pill-btn_animated">
                   <div class="ui-pill-btn__inner w-fill-available">
@@ -330,21 +346,20 @@ const targetItems = computed(() =>
                         value-key="value"
                         label-key="label"
                         class="format-select ui-locale"
-                        :ui="{
-                          base: 'w-fill-available p-0 bg-transparent rounded-none ring-0 border-0'
-                        }"
+                        :ui="{ base: 'w-fill-available p-0 bg-transparent rounded-none ring-0 border-0' }"
                     />
                   </div>
                 </div>
               </div>
+
               <custom-button
                   variant="primary"
                   class="control__btn"
                   :disabled="isLoading"
                   @click="convert"
               >
-                <span v-if="!isLoading">Convert</span>
-                <span v-else>Converting…</span>
+                <span v-if="!isLoading">{{ t('services.converter.controls.convert') }}</span>
+                <span v-else>{{ t('services.converter.controls.converting') }}</span>
               </custom-button>
             </div>
           </div>
@@ -363,13 +378,19 @@ const targetItems = computed(() =>
 
               <div class="dropzone__text">
                 <div class="dropzone__title">
-                  Перетащи файл сюда
-                  <span class="dropzone__muted">или выбери вручную</span>
+                  {{ t('services.converter.dropzone.title') }}
+                  <span class="dropzone__muted">{{ t('services.converter.dropzone.orPick') }}</span>
                 </div>
 
                 <div class="dropzone__meta">
-                  <span>Поддержка: <b>{{ accept }}</b></span>
-                  <span>Лимит: <b>{{ maxFiles }}</b> файл(ов)</span>
+                  <span>
+                    {{ t('services.converter.dropzone.support') }}
+                    <b>{{ accept }}</b>
+                  </span>
+                  <span>
+                    {{ t('services.converter.dropzone.limit') }}
+                    <b>{{ maxFiles }}</b> {{ t('services.converter.dropzone.filesWord') }}
+                  </span>
                 </div>
               </div>
 
@@ -388,7 +409,7 @@ const targetItems = computed(() =>
                     class="dropzone__pick"
                     @click="openPicker"
                 >
-                  Загрузить
+                  {{ t('services.converter.dropzone.pick') }}
                 </custom-button>
 
                 <custom-button
@@ -397,7 +418,7 @@ const targetItems = computed(() =>
                     :disabled="isLoading"
                     @click="clearFiles"
                 >
-                  Очистить
+                  {{ t('services.converter.dropzone.clear') }}
                 </custom-button>
               </div>
             </div>
@@ -414,8 +435,10 @@ const targetItems = computed(() =>
 
           <div class="files" v-if="files.length">
             <div class="files__head">
-              <span class="files__title">Файлы</span>
-              <span class="files__hint" v-if="mode === 'media'">Если файлов больше одного — результат будет zip.</span>
+              <span class="files__title">{{ t('services.converter.files.title') }}</span>
+              <span class="files__hint" v-if="mode === 'media'">
+                {{ t('services.converter.files.zipHintMedia') }}
+              </span>
             </div>
 
             <div class="files__list">
@@ -435,11 +458,11 @@ const targetItems = computed(() =>
           <div class="tips">
             <div class="tip">
               <icon name="i-lucide-sparkles" class="tip__icon"/>
-              <span>PNG → JPEG: прозрачность заменится белым фоном.</span>
+              <span>{{ t('services.converter.tips.pngToJpeg') }}</span>
             </div>
             <div class="tip">
               <icon name="i-lucide-info" class="tip__icon"/>
-              <span>PDF → DOCX: может отличаться от оригинала — это нормально.</span>
+              <span>{{ t('services.converter.tips.pdfToDocx') }}</span>
             </div>
           </div>
         </div>
@@ -449,22 +472,6 @@ const targetItems = computed(() =>
 </template>
 
 <style scoped lang="scss">
-.converter-hero {
-  position: relative;
-
-  &:before {
-    content: "";
-    position: absolute;
-    inset: -40px -20px auto -20px;
-    height: 220px;
-    border-radius: 28px;
-    background: var(--color-primary-gradient);
-    filter: blur(48px);
-    opacity: 0.18;
-    z-index: -1;
-  }
-}
-
 .visually-hidden {
   position: absolute !important;
   width: 1px !important;
