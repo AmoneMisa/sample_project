@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, onMounted, ref } from "vue";
-import type { TabsItem } from "#ui/components/Tabs.vue";
+import {nextTick, onBeforeUnmount, onMounted, ref} from "vue";
+import type {TabsItem} from "#ui/components/Tabs.vue";
 import PageHeader from "~/components/common/PageHeader.vue";
 
-const { t } = useI18n();
+const {t} = useI18n();
 
 type ResolveResponse = {
   repo: string;
@@ -66,8 +66,8 @@ function ensureTabVisible(index: number) {
   const viewLeft = wrap.scrollLeft;
   const viewRight = wrap.scrollLeft + wrap.clientWidth;
 
-  if (left < viewLeft) wrap.scrollTo({ left: left - 16, behavior: "smooth" });
-  else if (right > viewRight) wrap.scrollTo({ left: right - wrap.clientWidth + 16, behavior: "smooth" });
+  if (left < viewLeft) wrap.scrollTo({left: left - 16, behavior: "smooth"});
+  else if (right > viewRight) wrap.scrollTo({left: right - wrap.clientWidth + 16, behavior: "smooth"});
 }
 
 async function onTabChange(index: number) {
@@ -84,7 +84,7 @@ function handleResize() {
 onMounted(async () => {
   await nextTick();
   moveTabLine(0);
-  window.addEventListener("resize", handleResize, { passive: true });
+  window.addEventListener("resize", handleResize, {passive: true});
 });
 
 onBeforeUnmount(() => {
@@ -92,8 +92,8 @@ onBeforeUnmount(() => {
 });
 
 const tabs: TabsItem[] = [
-  { label: "services.dockerSearch.tabs.simple" },
-  { label: "services.dockerSearch.tabs.advanced" },
+  {label: "services.dockerSearch.tabs.simple"},
+  {label: "services.dockerSearch.tabs.advanced"},
 ];
 
 // -----------------------------
@@ -118,7 +118,7 @@ async function loadAliases(tag: string) {
 
   try {
     aliasesResult.value = await $fetch<AliasesResponse>("/api/dockerhub/tags/aliases", {
-      params: { repo: repo.value.trim(), tag },
+      params: {repo: repo.value.trim(), tag},
     });
   } catch (e: any) {
     aliasesError.value = e?.data?.message || e?.message || "Fetch failed";
@@ -146,7 +146,7 @@ async function runSimpleSearch() {
 
   try {
     const data = await $fetch<SimpleSearchItem[]>("/api/dockerhub/tags/search", {
-      params: { repo: repo.value.trim(), q: simpleQuery.value.trim() },
+      params: {repo: repo.value.trim(), q: simpleQuery.value.trim()},
     });
 
     simpleResults.value = Array.isArray(data) ? data : [];
@@ -172,11 +172,11 @@ const major = ref<number | null>(17);
 const variant = ref<string | null>("alpine");
 
 const variantPresets: VariantPreset[] = [
-  { labelKey: "services.dockerSearch.variant.any", value: null },
-  { labelKey: "services.dockerSearch.variant.alpine", value: "alpine" },
-  { labelKey: "services.dockerSearch.variant.al2", value: "al2" },
-  { labelKey: "services.dockerSearch.variant.debian", value: "debian" },
-  { labelKey: "services.dockerSearch.variant.ubuntu", value: "ubuntu" },
+  {labelKey: "services.dockerSearch.variant.any", value: null},
+  {labelKey: "services.dockerSearch.variant.alpine", value: "alpine"},
+  {labelKey: "services.dockerSearch.variant.al2", value: "al2"},
+  {labelKey: "services.dockerSearch.variant.debian", value: "debian"},
+  {labelKey: "services.dockerSearch.variant.ubuntu", value: "ubuntu"},
 ];
 
 const loading = ref(false);
@@ -207,7 +207,7 @@ async function runAdvancedSearch() {
       params: {
         repo: repo.value.trim(),
         major: major.value,
-        ...(variant.value ? { variant: variant.value } : {}),
+        ...(variant.value ? {variant: variant.value} : {}),
       },
     });
 
@@ -241,8 +241,6 @@ function chooseAdvancedTag(tag: string) {
         {{ t("services.dockerSearch.subtitle") }}
       </p>
     </div>
-
-    <!-- Tabs -->
     <div class="tabs-row">
       <div ref="tabsScroll" class="tabs-scroll">
         <div class="tabs-head">
@@ -256,7 +254,6 @@ function chooseAdvancedTag(tag: string) {
             </template>
 
             <template #content="{ item, index }">
-              <!-- TAB 1: SIMPLE -->
               <section v-if="index === 0">
                 <div class="docker-search__controls">
                   <div class="docker-search__field">
@@ -292,8 +289,9 @@ function chooseAdvancedTag(tag: string) {
                         :disabled="!canSimpleSearch || simpleLoading"
                         @click="runSimpleSearch"
                     >
-                      <u-icon v-if="simpleLoading" name="i-lucide-loader-circle" class="docker-search__btn-icon docker-search__spin" />
-                      <u-icon v-else name="i-lucide-search" class="docker-search__btn-icon" />
+                      <u-icon v-if="simpleLoading" name="i-lucide-loader-circle"
+                              class="docker-search__btn-icon docker-search__spin"/>
+                      <u-icon v-else name="i-lucide-search" class="docker-search__btn-icon"/>
                       {{ t("services.dockerSearch.actions.search") }}
                     </button>
 
@@ -303,7 +301,7 @@ function chooseAdvancedTag(tag: string) {
                         :disabled="simpleLoading"
                         @click="() => { simpleQuery=''; simpleResults=[]; simpleError=null; selectedTag=null; resetAliases(); }"
                     >
-                      <u-icon name="i-lucide-eraser" class="docker-search__btn-icon" />
+                      <u-icon name="i-lucide-eraser" class="docker-search__btn-icon"/>
                       {{ t("services.dockerSearch.actions.reset") }}
                     </button>
                   </div>
@@ -357,8 +355,9 @@ function chooseAdvancedTag(tag: string) {
                             :disabled="!selectedTag || loadingAliases"
                             @click="selectedTag && loadAliases(selectedTag)"
                         >
-                          <u-icon v-if="loadingAliases" name="i-lucide-loader-circle" class="docker-search__btn-icon docker-search__spin" />
-                          <u-icon v-else name="i-lucide-link-2" class="docker-search__btn-icon" />
+                          <u-icon v-if="loadingAliases" name="i-lucide-loader-circle"
+                                  class="docker-search__btn-icon docker-search__spin"/>
+                          <u-icon v-else name="i-lucide-link-2" class="docker-search__btn-icon"/>
                           {{ t("services.dockerSearch.actions.aliases") }}
                         </button>
                       </div>
@@ -394,12 +393,12 @@ function chooseAdvancedTag(tag: string) {
                   </div>
                 </div>
 
-                <div v-else-if="!simpleLoading && !simpleError" class="docker-search__hint text-muted" style="text-align:center; margin-top: 10px;">
+                <div v-else-if="!simpleLoading && !simpleError" class="docker-search__hint text-muted"
+                     style="text-align:center; margin-top: 10px;">
                   {{ t("services.dockerSearch.simple.emptyHint") }}
                 </div>
               </section>
 
-              <!-- TAB 2: ADVANCED -->
               <section v-else>
                 <div class="docker-search__controls">
                   <div class="docker-search__field">
@@ -445,8 +444,9 @@ function chooseAdvancedTag(tag: string) {
                         :disabled="!canAdvancedSearch || loading"
                         @click="runAdvancedSearch"
                     >
-                      <u-icon v-if="loading" name="i-lucide-loader-circle" class="docker-search__btn-icon docker-search__spin" />
-                      <u-icon v-else name="i-lucide-search" class="docker-search__btn-icon" />
+                      <u-icon v-if="loading" name="i-lucide-loader-circle"
+                              class="docker-search__btn-icon docker-search__spin"/>
+                      <u-icon v-else name="i-lucide-search" class="docker-search__btn-icon"/>
                       {{ t("services.dockerSearch.actions.search") }}
                     </button>
 
@@ -456,7 +456,7 @@ function chooseAdvancedTag(tag: string) {
                         :disabled="loading"
                         @click="resetAdvanced"
                     >
-                      <u-icon name="i-lucide-eraser" class="docker-search__btn-icon" />
+                      <u-icon name="i-lucide-eraser" class="docker-search__btn-icon"/>
                       {{ t("services.dockerSearch.actions.reset") }}
                     </button>
                   </div>
@@ -494,8 +494,9 @@ function chooseAdvancedTag(tag: string) {
                           :disabled="!selectedTag || loadingAliases"
                           @click="selectedTag && loadAliases(selectedTag)"
                       >
-                        <u-icon v-if="loadingAliases" name="i-lucide-loader-circle" class="docker-search__btn-icon docker-search__spin" />
-                        <u-icon v-else name="i-lucide-link-2" class="docker-search__btn-icon" />
+                        <u-icon v-if="loadingAliases" name="i-lucide-loader-circle"
+                                class="docker-search__btn-icon docker-search__spin"/>
+                        <u-icon v-else name="i-lucide-link-2" class="docker-search__btn-icon"/>
                         {{ t("services.dockerSearch.actions.aliases") }}
                       </button>
                     </div>
@@ -568,31 +569,30 @@ function chooseAdvancedTag(tag: string) {
           </u-tabs>
 
           <div class="tabs-line-wrap">
-            <div ref="tabLineElement" class="tabs-line" />
+            <div ref="tabLineElement" class="tabs-line"/>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- How section оставим общей -->
     <section class="docker-search__how">
       <h2 class="docker-search__h2">{{ t("services.dockerSearch.howTitle") }}</h2>
 
       <div class="docker-search__how-grid">
         <div class="how-card">
-          <u-icon name="i-lucide-search" class="how-card__icon" />
+          <u-icon name="i-lucide-search" class="how-card__icon"/>
           <div class="how-card__title">{{ t("services.dockerSearch.how.step1.title") }}</div>
           <div class="how-card__text text-muted">{{ t("services.dockerSearch.how.step1.text") }}</div>
         </div>
 
         <div class="how-card">
-          <u-icon name="i-lucide-tags" class="how-card__icon" />
+          <u-icon name="i-lucide-tags" class="how-card__icon"/>
           <div class="how-card__title">{{ t("services.dockerSearch.how.step2.title") }}</div>
           <div class="how-card__text text-muted">{{ t("services.dockerSearch.how.step2.text") }}</div>
         </div>
 
         <div class="how-card">
-          <u-icon name="i-lucide-link-2" class="how-card__icon" />
+          <u-icon name="i-lucide-link-2" class="how-card__icon"/>
           <div class="how-card__title">{{ t("services.dockerSearch.how.step3.title") }}</div>
           <div class="how-card__text text-muted">{{ t("services.dockerSearch.how.step3.text") }}</div>
         </div>
@@ -662,7 +662,7 @@ function chooseAdvancedTag(tag: string) {
   border-radius: 14px;
   border: 1px solid var(--ui-border);
   background: rgba(255, 255, 255, 0.03);
-  color: var(--ui-text);
+  color: var(--text-white);
   font-weight: 900;
   font-size: 13px;
   cursor: pointer;

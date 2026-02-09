@@ -64,18 +64,18 @@ watch(
 </script>
 
 <template>
-  <section class="tabs-bg">
+  <section class="tabs-bg tabs-under-button">
     <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
-      <div class="tabs-card">
-        <div class="tabs-content">
-          <div class="tabs-image">
-            <div class="tabs-image__frame">
+      <div class="tabs-card tabs-under-button__card">
+        <div class="tabs-content tabs-under-button__content">
+          <div class="tabs-image tabs-under-button__image">
+            <div class="tabs-image__frame tabs-under-button__image-frame">
               <img
                   v-if="currentImg"
                   :src="currentImg"
                   :alt="activeTab ? t(activeTab.title) : 'tab image'"
-                  class="tabs-image__img"
-                  :class="{ 'is-dim': imgSwapping }"
+                  class="tabs-image__img tabs-under-button__image-img"
+                  :class="{ 'tabs-under-button__image-img_is-dim': imgSwapping }"
                   loading="eager"
                   decoding="async"
                   fetchpriority="high"
@@ -85,7 +85,7 @@ watch(
                   v-if="nextImg"
                   :src="nextImg"
                   :alt="activeTab ? t(activeTab.title) : 'tab image'"
-                  class="tabs-image__img is-next"
+                  class="tabs-image__img tabs-under-button__image-img tabs-under-button__image-img_is-next"
                   loading="eager"
                   decoding="async"
                   fetchpriority="high"
@@ -94,7 +94,7 @@ watch(
             </div>
           </div>
 
-          <div class="tabs-info">
+          <div class="tabs-info tabs-under-button__info">
             <page-header
                 v-if="activeTab"
                 :title="activeTab.title"
@@ -107,8 +107,8 @@ watch(
                 description: 'text-white/70 text-sm sm:text-base leading-relaxed'
               }"
             />
-            <div class="tabs-desc-scroll">
-              <p v-if="activeTab?.description" class="tabs-desc">
+            <div class="tabs-desc-scroll tabs-under-button__desc-scroll">
+              <p v-if="activeTab?.description" class="tabs-desc tabs-under-button__desc">
                 {{ t(activeTab.description) }}
               </p>
             </div>
@@ -119,23 +119,27 @@ watch(
           </div>
         </div>
       </div>
+
       <u-tabs
           :items="tabs"
-          class="tabs tabs-with-under-buttons"
+          class="tabs tabs-with-under-buttons tabs-under-button__tabs"
           v-model="activeIndex"
           :ui="{
-          list: 'tabs__list bg-transparent',
-          trigger: 'tabs__button',
+          list: 'tabs__list bg-transparent tabs-under-button__list',
+          trigger: 'tabs__button tabs-under-button__button',
           indicator: 'hidden',
           label: 'w-full flex md:flex-col items-center gap-[6px] md:gap-0 md:items-baseline text-left'
         }"
       >
         <template #default="{ item, index }">
-          <span class="tabs__count">
+          <span class="tabs__count tabs-under-button__count">
             <span>0{{ index + 1 }}</span>
           </span>
-          <span class="tabs__title">{{ t(item.title) }}</span>
+          <span class="tabs__title tabs-under-button__title">
+            {{ t(item.title) }}
+          </span>
         </template>
+
         <template #content>
           <div/>
         </template>
@@ -145,7 +149,7 @@ watch(
 </template>
 
 <style scoped lang="scss">
-.tabs-bg {
+.tabs-under-button {
   position: relative;
   width: 100%;
   background: radial-gradient(900px 520px at 18% 0%, rgba(128, 90, 245, 0.10), transparent 60%),
@@ -154,14 +158,19 @@ watch(
   margin-bottom: 0;
 }
 
-.tabs-card {
+.tabs-under-button__card {
   border-radius: 26px;
   padding: 2px;
-  background: linear-gradient(135deg, rgba(128, 90, 245, 0.55), rgba(255, 255, 255, 0.06), rgba(205, 153, 255, 0.35));
+  background: linear-gradient(
+          135deg,
+          rgba(128, 90, 245, 0.55),
+          rgba(255, 255, 255, 0.06),
+          rgba(205, 153, 255, 0.35)
+  );
   box-shadow: 0 22px 70px rgba(0, 0, 0, 0.55);
 }
 
-.tabs-content {
+.tabs-under-button__content {
   border-radius: 24px;
   background: rgba(14, 12, 21, 0.92);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), inset 0 -22px 45px rgba(0, 0, 0, 0.55);
@@ -171,7 +180,7 @@ watch(
 }
 
 @media (max-width: 768px) {
-  .tabs-content {
+  .tabs-under-button__content {
     flex-direction: column;
     align-items: center;
     gap: 26px;
@@ -179,7 +188,7 @@ watch(
   }
 }
 
-.tabs-image__frame {
+.tabs-under-button__image-frame {
   position: relative;
   border-radius: 18px;
   overflow: hidden;
@@ -189,7 +198,7 @@ watch(
   aspect-ratio: 1 / 1;
 }
 
-.tabs-image__img {
+.tabs-under-button__image-img {
   width: 100%;
   height: 100%;
   display: block;
@@ -199,57 +208,59 @@ watch(
   transition: opacity 220ms ease;
 }
 
-.tabs-image__img.is-dim {
+.tabs-under-button__image-img_is-dim {
   opacity: 0.55;
 }
 
-.tabs-image__img.is-next {
+.tabs-under-button__image-img_is-next {
   position: absolute;
   inset: 0;
   opacity: 0;
-  animation: imgFadeIn 220ms ease forwards;
+  animation: tabsUnderButtonImgFadeIn 220ms ease forwards;
 }
 
-@keyframes imgFadeIn {
+@keyframes tabsUnderButtonImgFadeIn {
   to {
     opacity: 1;
   }
 }
 
-.tabs-info {
+.tabs-under-button__info {
   padding: 6px 4px;
 }
 
-.tabs-desc-scroll {
+.tabs-under-button__desc-scroll {
   margin-top: 12px;
   max-height: 120px;
   overflow: auto;
   padding-right: 6px;
 }
 
-.tabs-desc {
+.tabs-under-button__desc {
   color: rgba(188, 195, 215, 0.9);
   line-height: 1.6;
   word-break: break-word;
 }
 
-.tabs-desc-scroll::-webkit-scrollbar {
+.tabs-under-button__desc-scroll::-webkit-scrollbar {
   width: 6px;
 }
 
-.tabs-desc-scroll::-webkit-scrollbar-thumb {
+.tabs-under-button__desc-scroll::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.12);
   border-radius: 999px;
 }
 
-.tabs-with-under-buttons {
+/* ===== Tabs under button area ===== */
+
+.tabs-under-button__tabs {
   display: flex;
   flex-direction: column;
   gap: 18px;
   margin-top: 18px;
 }
 
-.tabs-with-under-buttons :deep(.tabs__list) {
+.tabs-under-button__tabs :deep(.tabs-under-button__list) {
   display: grid;
   gap: 14px;
   padding: 6px 2px;
@@ -259,11 +270,11 @@ watch(
   scrollbar-width: unset;
 }
 
-.tabs-with-under-buttons :deep(.tabs__list::-webkit-scrollbar) {
+.tabs-under-button__tabs :deep(.tabs-under-button__list::-webkit-scrollbar) {
   display: none;
 }
 
-.tabs-with-under-buttons :deep(.tabs__button) {
+.tabs-under-button__tabs :deep(.tabs-under-button__button) {
   cursor: pointer;
   padding-top: 18px;
   width: 100%;
@@ -277,7 +288,7 @@ watch(
   transition: color 0.25s ease;
 }
 
-.tabs-with-under-buttons :deep(.tabs__button::before) {
+.tabs-under-button__tabs :deep(.tabs-under-button__button::before) {
   content: "";
   position: absolute;
   top: 0;
@@ -289,7 +300,7 @@ watch(
   transition: background 0.25s ease, height 0.25s ease;
 }
 
-.tabs__title {
+.tabs-under-button__title {
   font-size: 1.02rem;
   font-weight: 600;
   color: rgba(188, 195, 215, 0.95);
@@ -302,21 +313,29 @@ watch(
   -webkit-box-orient: vertical;
 }
 
+@media (min-width: 640px) and (max-width: 1023px) {
+  .tabs-under-button__tabs :deep(.tabs-under-button__list) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (min-width: 1024px) {
-  .tabs-with-under-buttons :deep(.tabs__list) {
+  .tabs-under-button__tabs :deep(.tabs-under-button__list) {
+    display: flex;
     justify-content: space-between;
-    overflow: visible;
+    gap: 16px;
     padding: 6px 2px;
+    overflow: visible;
     scroll-snap-type: none;
   }
 
-  .tabs-with-under-buttons :deep(.tabs__button) {
+  .tabs-under-button__tabs :deep(.tabs-under-button__button) {
     width: auto;
     min-width: 220px;
     padding-top: 22px;
   }
 
-  .tabs__title {
+  .tabs-under-button__title {
     white-space: nowrap;
     text-overflow: ellipsis;
     -webkit-line-clamp: unset;
@@ -325,33 +344,18 @@ watch(
   }
 }
 
-@media (min-width: 640px) and (max-width: 1023px) {
-  .tabs-with-under-buttons :deep(.tabs__list) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 1024px) {
-  .tabs-with-under-buttons :deep(.tabs__list) {
-    display: flex;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 6px 2px;
-  }
-}
-
-.tabs__count {
+.tabs-under-button__count {
   width: 36px;
   height: 36px;
   background: url("/images/tab-bg-shape.png") center/cover no-repeat;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .35));
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.35));
   transition: transform 0.25s ease, filter 0.25s ease;
 }
 
-.tabs__count span {
+.tabs-under-button__count span {
   background: linear-gradient(90deg, var(--color-primary-gradient-start), var(--color-primary-gradient-end));
   -webkit-background-clip: text;
   background-clip: text;
@@ -359,52 +363,54 @@ watch(
   font-weight: 700;
 }
 
-.tabs-with-under-buttons :deep(.tabs__button[data-state="active"]::before) {
+.tabs-under-button__tabs :deep(.tabs-under-button__button[data-state="active"]::before) {
   background: linear-gradient(90deg, var(--color-primary-gradient-start), var(--color-primary-gradient-end));
   height: 2px;
 }
 
-.tabs-with-under-buttons :deep(.tabs__button[data-state="active"] .tabs__title) {
+.tabs-under-button__tabs :deep(.tabs-under-button__button[data-state="active"] .tabs-under-button__title) {
   color: rgba(255, 255, 255, 0.95);
 }
 
-.tabs-with-under-buttons :deep(.tabs__button:hover .tabs__count) {
+.tabs-under-button__tabs :deep(.tabs-under-button__button:hover .tabs-under-button__count) {
   transform: translateY(-1px);
   filter: drop-shadow(0 16px 22px rgba(128, 90, 245, 0.25));
 }
 
 @media (max-width: 640px) {
-  .tabs-with-under-buttons :deep(.tabs__button) {
+  .tabs-under-button__tabs :deep(.tabs-under-button__button) {
     padding-top: 18px;
   }
-  .tabs__title {
+
+  .tabs-under-button__title {
     font-size: 0.98rem;
     max-width: 180px;
   }
-  .tabs__count {
+
+  .tabs-under-button__count {
     width: 34px;
     height: 34px;
   }
 }
 
 .light {
-  .tabs__count {
+  .tabs-under-button__count {
     filter: drop-shadow(0 10px 16px rgba(150, 110, 255, 0.18));
   }
 
-  .tabs__title {
+  .tabs-under-button__title {
     color: rgba(0, 0, 0, 0.60);
   }
 
-  .tabs-with-under-buttons :deep(.tabs__button[data-state="active"]::before) {
+  .tabs-under-button__tabs :deep(.tabs-under-button__button[data-state="active"]::before) {
     background: linear-gradient(90deg, var(--color-primary-gradient-start), var(--color-primary-gradient-end));
   }
 
-  .tabs-with-under-buttons :deep(.tabs__button[data-state="active"] .tabs__title) {
+  .tabs-under-button__tabs :deep(.tabs-under-button__button[data-state="active"] .tabs-under-button__title) {
     color: rgba(0, 0, 0, 0.85);
   }
 
-  .tabs-with-under-buttons :deep(.tabs__button:hover .tabs__count) {
+  .tabs-under-button__tabs :deep(.tabs-under-button__button:hover .tabs-under-button__count) {
     transform: translateY(-1px);
     filter: drop-shadow(0 6px 10px rgba(128, 90, 245, 0.18));
   }
