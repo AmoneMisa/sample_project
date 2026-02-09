@@ -654,7 +654,7 @@ function chooseAdvancedTag(tag: string) {
 
 .docker-search__controls_simple {
   @media (min-width: 900px) {
-    grid-template-columns: 1fr 2fr;
+    grid-template-columns: 1fr 1fr;
     grid-template-areas:
       "repo  query"
       "actions actions";
