@@ -27,12 +27,10 @@
       "title": "Markdown Editor",
       "headline": "Text formatting for messengers",
       "subtitle": "Prepare text for Telegram, WhatsApp, and TikTok with preview",
-
       "editor": {
         "placeholder": "Enter your text here...",
         "hotkeysHint": "Use Ctrl / Cmd shortcuts for formatting"
       },
-
       "actions": {
         "emoji": "Emoji",
         "spellcheck": "Spellcheck",
@@ -40,9 +38,10 @@
         "copy": "Copy",
         "copied": "Copied!",
         "cancel": "Cancel",
-        "insert": "Insert"
+        "insert": "Insert",
+        "check": "Check text",
+        "checking": "Checking…"
       },
-
       "format": {
         "bold": "Bold",
         "italic": "Italic",
@@ -54,31 +53,26 @@
         "quote": "Quote",
         "link": "Link"
       },
-
       "lists": {
         "ul": "Bullet list",
         "ol": "Numbered list",
         "format": "Format list"
       },
-
       "right": {
         "title": "Result",
         "modeMarkdown": "Markdown",
         "modePreview": "Preview"
       },
-
       "platforms": {
         "telegram": "Telegram",
         "whatsapp": "WhatsApp",
         "tiktok": "TikTok"
       },
-
       "platformHints": {
         "telegram": "Telegram supports Markdown formatting",
         "whatsapp": "WhatsApp uses its own formatting rules",
         "tiktok": "TikTok supports plain text only"
       },
-
       "link": {
         "title": "Insert link",
         "text": "Link text",
@@ -86,19 +80,15 @@
         "url": "Link URL",
         "urlPh": "https://example.com"
       },
-
       "limit": {
         "exceeded": "Text exceeds the maximum length"
       },
-
       "preview": {
         "empty": "Nothing to preview yet"
       },
-
       "storage": {
         "restored": "Draft restored"
       },
-
       "hotkeys": {
         "title": "Keyboard shortcuts",
         "bold": "Bold — Ctrl/Cmd + B",

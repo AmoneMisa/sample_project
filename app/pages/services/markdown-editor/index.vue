@@ -4,11 +4,12 @@ import CustomButton from "~/components/common/CustomButton.vue";
 import type {TabsItem} from "#ui/components/Tabs.vue";
 import {nextTick, onBeforeUnmount, onMounted} from "vue";
 import Modal from "~/components/common/Modal.vue";
+import {checkTextWithLanguageTool} from "~/composables/useLanguageTool";
 
 type PlatformId = "telegram" | "whatsapp" | "tiktok";
 type ViewMode = "md" | "preview";
 
-const {t} = useI18n();
+const {t, locale} = useI18n();
 
 const MAX = 8000;
 const STORAGE_KEY = "services:markdown-editor:v3";
@@ -335,6 +336,46 @@ const outputText = computed(() => {
   if (activePlatform.value === "whatsapp") return toWhatsAppStable(raw);
   return stripAllMarkdown(raw);
 });
+const checking = ref(false);
+const checkResult = ref(null);
+
+function highlightErrorsInPreview(html: string, matches: any[]) {
+  // Преобразуем HTML в plain-text индексы
+  // Нам нужно сопоставить offset/length с HTML-строкой
+  // Поэтому сначала убираем теги, чтобы получить карту позиций
+
+  const textOnly = html.replace(/<[^>]+>/g, "");
+  let result = "";
+  let lastIndex = 0;
+
+  matches.forEach((m) => {
+    const start = m.offset;
+    const end = m.offset + m.length;
+
+    // Определяем цвет по типу ошибки
+    const cat = m.rule?.category?.id || "";
+    let cls = "lt-error-generic";
+
+    if (cat.includes("TYPOS")) cls = "lt-error-typo";
+    else if (cat.includes("GRAMMAR")) cls = "lt-error-grammar";
+    else if (cat.includes("PUNCTUATION")) cls = "lt-error-punct";
+    else if (cat.includes("STYLE")) cls = "lt-error-style";
+
+    result += textOnly.slice(lastIndex, start);
+    result += `<mark class="${cls}">${textOnly.slice(start, end)}</mark>`;
+    lastIndex = end;
+  });
+
+  result += textOnly.slice(lastIndex);
+  return result.replace(/\n/g, "<br/>");
+}
+
+const highlightedPreview = computed(() => {
+  if (!checkResult.value || !checkResult.value.matches?.length) return null;
+  const html = previewHtml.value;
+
+  return highlightErrorsInPreview(html, checkResult.value.matches);
+});
 
 // --------------------
 // Preview (simple)
@@ -385,7 +426,7 @@ const previewHtml = computed(() => {
 });
 
 // --------------------
-// Copy / clear / persist
+// Copy / clear / persist / check
 // --------------------
 async function copyOutput() {
   if (isTooLong.value) return;
@@ -395,6 +436,22 @@ async function copyOutput() {
     setTimeout(() => (copied.value = false), 900);
   } catch {
     // ignore
+  }
+}
+
+async function checkOutput() {
+  if (!outputText.value) return
+
+  checking.value = true
+  checkResult.value = null
+
+  try {
+    const lang = locale.value.startsWith('ru') ? 'ru' : 'en'
+    checkResult.value = await checkTextWithLanguageTool(outputText.value, lang)
+  } catch (e) {
+    console.error(e)
+  } finally {
+    checking.value = false
   }
 }
 
@@ -715,6 +772,14 @@ onBeforeUnmount(() => {
           <custom-button
               variant="primary"
               :_class="'markdown-editor__copy'"
+              :disabled="checking"
+              @click="checkOutput"
+          >
+            {{ checking ? t("services.markdownEditor.actions.checking") : t("services.markdownEditor.actions.check") }}
+          </custom-button>
+          <custom-button
+              variant="primary"
+              :_class="'markdown-editor__copy'"
               :disabled="!canCopy"
               @click="copyOutput"
           >
@@ -756,6 +821,11 @@ onBeforeUnmount(() => {
                 />
 
                 <div v-else class="markdown-editor__preview" v-html="previewHtml"/>
+                <div
+                    v-if="highlightedPreview"
+                    class="markdown-editor__preview markdown-editor__preview_errors"
+                    v-html="highlightedPreview"
+                />
               </template>
             </u-tabs>
           </div>
@@ -773,14 +843,14 @@ onBeforeUnmount(() => {
           <div class="markdown-editor__modal-label">
             {{ t("services.markdownEditor.link.text") }}
           </div>
-          <UInput v-model="linkText" :placeholder="t('services.markdownEditor.link.textPh')" />
+          <UInput v-model="linkText" :placeholder="t('services.markdownEditor.link.textPh')"/>
         </div>
 
         <div class="markdown-editor__modal-field">
           <div class="markdown-editor__modal-label">
             {{ t("services.markdownEditor.link.url") }}
           </div>
-          <UInput v-model="linkUrl" placeholder="https://" />
+          <UInput v-model="linkUrl" placeholder="https://"/>
         </div>
       </div>
 
@@ -1249,6 +1319,31 @@ onBeforeUnmount(() => {
   font-weight: 900;
   font-size: 12px;
   color: var(--ui-text-muted);
+}
+
+.lt-error-typo {
+  background: rgba(255, 0, 0, 0.25);
+  border-bottom: 2px solid red;
+}
+
+.lt-error-grammar {
+  background: rgba(255, 165, 0, 0.25);
+  border-bottom: 2px solid orange;
+}
+
+.lt-error-punct {
+  background: rgba(128, 0, 128, 0.25);
+  border-bottom: 2px solid purple;
+}
+
+.lt-error-style {
+  background: rgba(0, 128, 255, 0.25);
+  border-bottom: 2px solid #0080ff;
+}
+
+.lt-error-generic {
+  background: rgba(255, 0, 0, 0.15);
+  border-bottom: 2px solid #cc0000;
 }
 
 </style>

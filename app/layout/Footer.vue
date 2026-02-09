@@ -73,7 +73,7 @@ const {t} = useI18n();
         </div>
       </div>
 
-      <div class="footer__column" v-if="contacts">
+      <div class="footer__column" v-if="contacts && contacts.length">
         <div class="footer__col-item">
           <h4 class="footer__title">{{ t('footer.contactTitle') }}</h4>
 
