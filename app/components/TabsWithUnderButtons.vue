@@ -54,14 +54,13 @@ watch(
 </script>
 
 <template>
-  <section class="tabs-bg tabs-under-button" v-if="tabs">
+  <section class="tabs-bg tabs-under-button" v-if="tabs && tabs.length">
     <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
       <div class="tabs-card tabs-under-button__card">
         <div class="tabs-content tabs-under-button__content">
           <div class="tabs-image tabs-under-button__image">
             <div class="tabs-image__frame tabs-under-button__image-frame">
-              <img
-                  v-if="currentImg"
+              <img v-if="currentImg"
                   :src="currentImg"
                   :alt="activeTab ? t(activeTab.titleKey) : 'tab image'"
                   class="tabs-image__img tabs-under-button__image-img"
@@ -72,8 +71,7 @@ watch(
                   draggable="false"
               />
 
-              <img
-                  v-if="nextImg"
+              <img v-if="nextImg"
                   :src="nextImg"
                   :alt="activeTab ? t(activeTab.titleKey) : 'tab image'"
                   class="tabs-image__img tabs-under-button__image-img tabs-under-button__image-img_is-next"
@@ -90,7 +88,6 @@ watch(
                 v-if="activeTab"
                 :title="activeTab.titleKey"
                 :headline="activeTab.headlineKey"
-                :description="activeTab.descriptionKey"
                 :isCentered="false"
                 headLineClasses="gradient-text_cap"
                 :ui="{
@@ -101,15 +98,12 @@ watch(
             />
 
             <div class="tabs-desc-scroll tabs-under-button__desc-scroll">
-              <p
-                  v-if="activeTab?.descriptionKey"
-                  class="tabs-desc tabs-under-button__desc"
-              >
+              <p v-if="activeTab?.descriptionKey" class="tabs-desc tabs-under-button__desc">
                 {{ t(activeTab.descriptionKey) }}
               </p>
             </div>
 
-            <custom-button class="mt-6 w-fit" variant="full">
+            <custom-button class="mt-6 w-fit" variant="full" v-if="activeTab?.buttonTextKey">
               {{ t(activeTab.buttonTextKey) }}
             </custom-button>
           </div>
@@ -132,7 +126,7 @@ watch(
             <span>0{{ index + 1 }}</span>
           </span>
 
-          <span class="tabs__title tabs-under-button__title">
+          <span class="tabs__title tabs-under-button__title" v-if="item?.labelKey">
             {{ t(item.labelKey) }}
           </span>
         </template>

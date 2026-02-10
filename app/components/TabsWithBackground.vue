@@ -77,7 +77,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <u-container class="tabs-section max-w-6xl mx-auto mb-0" v-if="tabs">
+  <u-container class="tabs-section max-w-6xl mx-auto mb-0" v-if="tabs && tabs.length">
     <page-header
         :title="title"
         :headline="headline"
@@ -106,7 +106,7 @@ onBeforeUnmount(() => {
                     <u-page-list v-if="item.list" class="tabs-card__list">
                       <li v-for="(li, idx) in item.list" :key="idx">{{ t(li.textKey) }}</li>
                     </u-page-list>
-                    <custom-button class="tabs-card__cta">
+                    <custom-button class="tabs-card__cta" v-if="item?.buttonTextKey">
                       {{ t(item.buttonTextKey) }}
                     </custom-button>
                   </div>
