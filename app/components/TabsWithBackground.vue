@@ -105,8 +105,8 @@ onBeforeUnmount(() => {
                     </h2>
                     <p v-if="item?.textKey" class="tabs-card__description">{{ t(item.textKey) }}</p>
                     <ul v-if="item.list" class="flex flex-col tabs-card__list mb-6">
-                      <li class="flex items-start gap-2" v-for="(li, idx) in item.list" :key="idx">
-                        <u-icon name="i-lucide-fish-symbol" class="text-primary w-4 h-4 mt-1" />
+                      <li class="flex items-center gap-2" v-for="(li, idx) in item.list" :key="idx">
+                        <u-icon name="i-lucide-fish-symbol" class="text-primary w-4 h-4" />
                         <span>{{ t(li.textKey) }}</span>
                       </li>
                     </ul>
