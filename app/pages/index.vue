@@ -155,7 +155,7 @@ const {data: testimonials, pending, error} = await useAsyncData<TestimonialInter
         </custom-button>
         <div class="relative logo-shadow">
           <div
-              class="logo-shadow__logo absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-12 py-8 rounded-xl ring-2 dark:ring-neutral-900 ring-[#d1d1ff]">
+              class="logo-shadow__logo absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-12 py-8 rounded-xl ring-2 dark:ring-neutral-900 ring-[#d1d1ff] max-w-[330px]">
             <img alt="AI Collaboration" src="/images/letter-logo.png"
                  class=""/>
           </div>
@@ -224,10 +224,20 @@ const {data: testimonials, pending, error} = await useAsyncData<TestimonialInter
     bottom: 0;
     margin: auto;
     z-index: -2;
-    width: 240px;
-    height: 240px;
+    width: 320px;
+    height: 320px;
     border-radius: 24px;
     animation: styles_moving-gradient 16s linear infinite;
+
+    @media screen and (max-width: 768px) {
+      width: 260px;
+      height: 260px;
+    }
+
+    @media screen and (max-width: 420px) {
+      width: 240px;
+      height: 240px;
+    }
   }
 }
 

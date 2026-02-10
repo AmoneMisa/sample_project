@@ -32,6 +32,7 @@ try {
   console.error(`${config.public.apiBase}/footer/menu/blocks`, e);
 }
 
+console.log(footerMenusRow.value);
 const footerMenus = computed(() => footerMenusRow ?? []);
 
 const {t} = useI18n();
