@@ -66,17 +66,8 @@ watch(
             />
           </picture>
         </div>
-
-        <div class="flex gap-1 mb-3 max-w-[70px] sm:max-w-fit">
-          <u-icon
-              v-for="i in item.rating"
-              :key="i"
-              name="i-lucide-star"
-              class="text-yellow-400 size-4"
-          />
-        </div>
-        <div class="flex sm:items-center gap-4 justify-between md:justify-baseline">
-          <div class="flex items-center gap-4 min-w-0">
+        <div class="flex sm:items-center gap-4 justify-between md:justify-baseline mb-3">
+          <div class="min-w-0">
             <img
                 :alt="t(item.nameKey)"
                 :src="item.avatar"
@@ -84,15 +75,14 @@ watch(
                 loading="lazy"
                 decoding="async"
             />
-
-            <div class="flex flex-col gap-1 min-w-0">
-              <p class="font-semibold text-sm line-clamp-1" :title="t(item.nameKey)">
-                {{ t(item.nameKey) }}
-              </p>
-              <p class="text-xs text-muted line-clamp-1" :title="t(item.roleKey)">
-                {{ t(item.roleKey) }}
-              </p>
-            </div>
+          </div>
+          <div class="flex gap-1 mb-3 max-w-[70px] sm:max-w-fit">
+            <u-icon
+                v-for="i in item.rating"
+                :key="i"
+                name="i-lucide-fish"
+                class="text-yellow-400 size-4"
+            />
           </div>
         </div>
         <blockquote v-if="item?.quoteKey"
@@ -101,6 +91,14 @@ watch(
         >
           “{{ t(item.quoteKey) }}”
         </blockquote>
+        <div class="flex sm:items-center gap-4 justify-between md:justify-baseline w-full min-w-0">
+          <p class="font-semibold text-sm line-clamp-1">
+            {{ t(item.nameKey) }}
+          </p>
+          <p class="text-xs text-muted line-clamp-1">
+            {{ t(item.roleKey) }}
+          </p>
+        </div>
       </u-card>
     </carousel>
   </u-container>
