@@ -75,14 +75,6 @@ watch(
               class="text-yellow-400 size-4"
           />
         </div>
-
-        <blockquote v-if="item?.quoteKey"
-            class="text-sm text-muted italic mb-4 line-clamp-5 break-words"
-            :title="t(item.quoteKey)"
-        >
-          “{{ t(item.quoteKey) }}”
-        </blockquote>
-
         <div class="flex sm:items-center gap-4 justify-between md:justify-baseline">
           <div class="flex items-center gap-4 min-w-0">
             <img
@@ -102,15 +94,13 @@ watch(
               </p>
             </div>
           </div>
-
-          <img
-              :alt="t(item.roleKey)"
-              :src="item.logo"
-              class="testimonial__image testimonial__image_logo sm:ml-auto sm:h-5 md:h-6 h-12 w-12 rounded-full"
-              loading="lazy"
-              decoding="async"
-          />
         </div>
+        <blockquote v-if="item?.quoteKey"
+                    class="text-sm text-muted italic mb-4 line-clamp-5 break-words"
+                    :title="t(item.quoteKey)"
+        >
+          “{{ t(item.quoteKey) }}”
+        </blockquote>
       </u-card>
     </carousel>
   </u-container>
