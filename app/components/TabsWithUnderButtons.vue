@@ -7,12 +7,6 @@ const {t} = useI18n();
 
 const props = defineProps({
   tabs: {
-    type: Array as () => Array<{
-      title: string;
-      description?: string;
-      headline?: string;
-      image?: string;
-    }>,
     default: () => [],
     required: true,
   }
@@ -60,7 +54,7 @@ watch(
 </script>
 
 <template>
-  <section class="tabs-bg tabs-under-button">
+  <section class="tabs-bg tabs-under-button" v-if="tabs">
     <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
       <div class="tabs-card tabs-under-button__card">
         <div class="tabs-content tabs-under-button__content">

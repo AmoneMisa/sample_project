@@ -77,7 +77,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <u-container class="tabs-section max-w-6xl mx-auto mb-0">
+  <u-container class="tabs-section max-w-6xl mx-auto mb-0" v-if="tabs">
     <page-header
         :title="title"
         :headline="headline"
