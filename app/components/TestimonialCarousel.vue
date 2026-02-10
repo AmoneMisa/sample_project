@@ -4,14 +4,7 @@ import Carousel from "~/components/common/Carousel.vue";
 
 const props = defineProps({
   testimonials: {
-    type: Array as () => Array<{
-      rating: number;
-      quote: string;
-      name: string;
-      role: string;
-      avatar: string;
-      logo: string;
-    }>,
+    type: Array,
     required: true,
   },
   title: String,
@@ -19,6 +12,7 @@ const props = defineProps({
   headline: String,
 });
 
+const {t} = useI18n();
 const selected = ref(0);
 const canPaginate = computed(() => (props.testimonials?.length ?? 0) > 1);
 
@@ -82,17 +76,17 @@ watch(
           />
         </div>
 
-        <blockquote
+        <blockquote v-if="item?.quoteKey"
             class="text-sm text-muted italic mb-4 line-clamp-5 break-words"
-            :title="item.quote"
+            :title="t(item.quoteKey)"
         >
-          “{{ item.quote }}”
+          “{{ t(item.quoteKey) }}”
         </blockquote>
 
         <div class="flex sm:items-center gap-4 justify-between md:justify-baseline">
           <div class="flex items-center gap-4 min-w-0">
             <img
-                :alt="item.name"
+                :alt="t(item.nameKey)"
                 :src="item.avatar"
                 class="h-12 w-12 rounded-full object-cover shrink-0"
                 loading="lazy"
@@ -100,17 +94,17 @@ watch(
             />
 
             <div class="flex flex-col gap-1 min-w-0">
-              <p class="font-semibold text-sm line-clamp-1" :title="item.name">
-                {{ item.name }}
+              <p class="font-semibold text-sm line-clamp-1" :title="t(item.nameKey)">
+                {{ t(item.nameKey) }}
               </p>
-              <p class="text-xs text-muted line-clamp-1" :title="item.role">
-                {{ item.role }}
+              <p class="text-xs text-muted line-clamp-1" :title="t(item.roleKey)">
+                {{ t(item.roleKey) }}
               </p>
             </div>
           </div>
 
           <img
-              :alt="item.role"
+              :alt="t(item.roleKey)"
               :src="item.logo"
               class="testimonial__image testimonial__image_logo sm:ml-auto sm:h-5 md:h-6 h-12 w-12 rounded-full"
               loading="lazy"
