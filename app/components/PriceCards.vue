@@ -57,7 +57,8 @@ const {t} = useI18n();
               root: 'offer-card flex flex-col p-0 ring-0 bg-transparent relative',
               body: 'offer-card__inner flex flex-col h-full p-6'
           }">
-        <div v-if="offerCard.highlight" class="flex justify-center absolute price-cards__highlight z-10 top-[-3px] left-[-2px]">
+        <div v-if="offerCard.highlight"
+             class="flex justify-center absolute price-cards__highlight z-10 top-[-3px] left-[-2px]">
           <u-badge color="primary" variant="solid">
             {{ t('pricing.badge.bestOffer') }}
           </u-badge>
@@ -79,8 +80,8 @@ const {t} = useI18n();
             {{ t('pricing.featuresTitle') }}
           </p>
           <u-page-list class="space-y-1 text-sm text-muted spoiler-list"
-              :class="{ spoiler_open: index === Math.floor(offerCards.length / 2) }"
-              :items="offerCard.features">
+                       :class="{ spoiler_open: index === Math.floor(offerCards.length / 2) }"
+                       :items="offerCard.features">
             <li v-for="feature in offerCard.features"
                 :key="feature.id"
                 class="flex items-center gap-2">
@@ -286,6 +287,8 @@ const {t} = useI18n();
   }
 
   @media (max-width: 420px) {
+    flex-direction: column;
+    gap: 10px;
     width: 100%;
     .price-cards__switcher-button {
       flex: 1;

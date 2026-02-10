@@ -103,6 +103,14 @@ const scrollNext = () => { carousel.value?.emblaApi?.scrollNext(); };
   margin-bottom: 24px;
 }
 
+@media screen and (max-width: 560px){
+  .carousel__row {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+  }
+}
+
 .carousel__arrows {
   display: flex;
   gap: 20px;

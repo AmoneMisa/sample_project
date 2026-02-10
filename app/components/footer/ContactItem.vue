@@ -71,15 +71,17 @@ const props = defineProps({
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  border: var(--color-primary-alt);
+  transition: transform;
+  cursor: pointer;
 
   &:hover {
-    border: var(--color-primary);
+    transform: scale(1.1);
+    filter: brightness(115%);
   }
 }
 
 .footer__social-icon {
-  width: 24px;
-  height: 24px;
+  width: 30px;
+  height: 30px;
 }
 </style>

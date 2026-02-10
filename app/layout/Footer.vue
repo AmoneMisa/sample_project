@@ -24,10 +24,15 @@ const {data: contactsRow} = await safeFetch<[]>(
 );
 
 const contacts = computed(() => contactsRow?.contacts ?? []);
-//
-// const {data: footerMenus} = await safeFetch(
-//     `${config.public.apiBase}/footer/menu/blocks`
-// );
+
+let footerMenusRow = ref([]);
+try {
+  ({ data: footerMenusRow.value } = await safeFetch<[]>( `${config.public.apiBase}/footer/menu/blocks` ));
+} catch (e) {
+  console.error(`${config.public.apiBase}/footer/menu/blocks`, e);
+}
+
+const footerMenus = computed(() => footerMenusRow ?? []);
 
 const {t} = useI18n();
 </script>
@@ -53,24 +58,11 @@ const {t} = useI18n();
       </div>
 
       <div class="footer__column">
-        <div class="footer__col-item">
-          <h4 class="footer__title">{{ t('footer.quickLinksTitle') }}</h4>
-
-          <u-page-list class="footer__list">
-            <li v-for="item in quickLinks" :key="item.to">
-              <a class="footer__link" :href="item.to">{{ t(item.name) }}</a>
-            </li>
-          </u-page-list>
-        </div>
-      </div>
-
-      <div class="footer__column">
-        <div class="footer__col-item">
-          <h4 class="footer__title">{{ t('footer.servicesTitle') }}</h4>
-
-          <u-page-list class="footer__list">
-            <li v-for="item in services" :key="item.to">
-              <a class="footer__link" :href="item.to">{{ t(item.name) }}</a>
+        <div class="footer__col-item" v-for="menu in footerMenus">
+          <h4 class="footer__title" v-if="menu?.titleKey">{{ t(menu.titleKey) }}</h4>
+          <u-page-list class="footer__list" v-if="menu?.links">
+            <li v-for="item in menu.links" :key="item.href">
+              <a class="footer__link" :href="item.href">{{ t(item.labelKey) }}</a>
             </li>
           </u-page-list>
         </div>

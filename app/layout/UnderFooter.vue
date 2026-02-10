@@ -13,13 +13,15 @@ const contacts = computed(() => contactsRow?.contacts ?? []);
 
 <template>
   <div class="under-footer" v-if="contacts && contacts.length">
-    <div class="under-footer__column" >
+    <div class="under-footer__column">
       <u-page-list class="under-footer__list under-footer__contact">
         <contact-item :contacts="contacts.filter(contact => contact.type === 'social') || []"/>
       </u-page-list>
     </div>
 
-    <div class="under-footer__column"><contact-item :contacts="contacts.filter(contact => contact.type === 'other') || []"/></div>
+    <div class="under-footer__column">
+      <contact-item :contacts="contacts.filter(contact => contact.type === 'other') || []"/>
+    </div>
   </div>
 </template>
 
@@ -29,11 +31,19 @@ const contacts = computed(() => contactsRow?.contacts ?? []);
   justify-content: center;
   align-items: center;
   padding: 10px;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+@media screen and (max-width: 560px) {
+  .under-footer {
+    text-align: center;
+  }
 }
 
 .under-footer__list {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
   flex-direction: row !important;
 }

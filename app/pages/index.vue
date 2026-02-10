@@ -78,7 +78,7 @@ const tabs2 = [
     title: 'tabs2.workflow.title',
     description: 'tabs2.workflow.description',
     headline: 'tabs2.workflow.headline',
-    image: '/images/split-2.png'
+    image: '/images/letter-logo.png'
   },
   {
     label: 'tabs2.cyber.label',
@@ -156,7 +156,7 @@ const {data: testimonials, pending, error} = await useAsyncData<TestimonialInter
         <div class="relative logo-shadow">
           <div
               class="logo-shadow__logo absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-12 py-8 rounded-xl ring-2 dark:ring-neutral-900 ring-[#d1d1ff]">
-            <img alt="AI Collaboration" src="/images/split-2-logo.png"
+            <img alt="AI Collaboration" src="/images/letter-logo.png"
                  class=""/>
           </div>
           <img alt="AI Collaboration" src="/images/split-2-background.png"/>
