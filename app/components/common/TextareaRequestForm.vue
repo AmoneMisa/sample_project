@@ -71,17 +71,57 @@ watch(message, () => {
   if (!touched.value) touched.value = true;
 });
 
-function openTelegramShare() {
+const copied = ref(false);
+
+function isMobileDevice() {
+  return /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+}
+
+async function copyToClipboard(text: string) {
+  try {
+    await navigator.clipboard.writeText(text);
+    copied.value = true;
+    return true;
+  } catch {
+    copied.value = false;
+    return false;
+  }
+}
+
+function tryOpen(url: string) {
+  return new Promise<boolean>((resolve) => {
+    const w = window.open(url, "_blank", "noopener,noreferrer");
+    if (!w) return resolve(false);
+    resolve(true);
+  });
+}
+
+async function openTelegramShare() {
   submitted.value = true;
 
   const err = validateInput(message.value);
   if (err) return;
 
+  copied.value = false;
+
   const finalText = `@${TG_USERNAME}\n\n${message.value.trim()}`;
   const encoded = encodeURIComponent(finalText);
-  const shareUrl = `https://t.me/share/url?url=&text=${encoded}`;
 
-  window.open(shareUrl, "_blank", "noopener,noreferrer");
+  const tgProto = `tg://msg?text=${encoded}`;
+  const tgShare = `https://t.me/share/url?url=&text=${encoded}`;
+  const tgProfile = `https://t.me/${TG_USERNAME}`;
+
+  const copiedOk = await copyToClipboard(finalText);
+
+  const openedProto = await tryOpen(tgProto);
+  if (openedProto) return;
+
+  const openedShare = await tryOpen(tgShare);
+  if (openedShare) return;
+
+  await tryOpen(tgProfile);
+
+  if (!copiedOk) await copyToClipboard(finalText);
 }
 </script>
 
@@ -102,6 +142,9 @@ function openTelegramShare() {
 
       <p v-if="errorText" class="mt-2 text-sm text-red-500">
         {{ errorText }}
+      </p>
+      <p v-else-if="copied" class="mt-2 text-sm text-green-500">
+        Текст скопирован.
       </p>
     </u-form-field>
 
