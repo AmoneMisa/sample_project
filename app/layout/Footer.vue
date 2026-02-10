@@ -25,14 +25,10 @@ const {data: contactsRow} = await safeFetch<[]>(
 
 const contacts = computed(() => contactsRow?.contacts ?? []);
 
-let footerMenusRow = ref([]);
-try {
-  ({ data: footerMenusRow.value } = await safeFetch<[]>( `${config.public.apiBase}/footer/menu/blocks` ));
-} catch (e) {
-  console.error(`${config.public.apiBase}/footer/menu/blocks`, e);
-}
+const {data: footerMenusRow} = await safeFetch<[]>(
+    `${config.public.apiBase}/footer/menu/blocks`
+);
 
-console.log(footerMenusRow.value);
 const footerMenus = computed(() => footerMenusRow ?? []);
 
 const {t} = useI18n();
@@ -74,7 +70,8 @@ const {t} = useI18n();
           <h4 class="footer__title">{{ t('footer.contactTitle') }}</h4>
 
           <u-page-list class="footer__list footer__contact" :ui="{list: 'flex-row'}">
-            <contact-item :contacts="contacts.filter((contact) => contact.type !== 'social' && contact.type !== 'other') || []" />
+            <contact-item
+                :contacts="contacts.filter((contact) => contact.type !== 'social' && contact.type !== 'other') || []"/>
           </u-page-list>
         </div>
       </div>
