@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from 'vue'
-import type { PropType } from 'vue'
+import {onMounted, onUnmounted, ref, watch} from 'vue';
 
+const {t} = useI18n();
 const props = defineProps({
   textsList: {
-    type: Array as PropType<string[]>,
+    type: Array,
     required: true
   }
 });
@@ -46,7 +46,7 @@ function flipNext() {
 
   midTimeout = setTimeout(() => {
     currentIndex.value = nextIndex;
-    displayedText.value = props.textsList[nextIndex] ?? '';
+    displayedText.value = props.textsList[nextIndex]?.titleKey ?? '';
   }, MID_MS);
 
   endTimeout = setTimeout(() => {
@@ -65,16 +65,16 @@ watch(
     () => props.textsList,
     (list) => {
       currentIndex.value = 0;
-      displayedText.value = list?.[0] ?? '';
+      displayedText.value = list?.[0]?.titleKey ?? '';
       isFlipping.value = false;
 
       if (import.meta.client) startTimer();
     },
-    { deep: true }
+    {deep: true}
 )
 
 onMounted(() => {
-  displayedText.value = props.textsList[0] ?? '';
+  displayedText.value = props.textsList[0]?.titleKey ?? '';
   startTimer();
 })
 
@@ -87,7 +87,7 @@ onUnmounted(clearAll);
         class="animated-rotated-text__inner hero-rotator gradient-text"
         :class="{ 'flip-anim': isFlipping }"
     >
-      {{ displayedText }}
+      {{ t(displayedText) }}
     </span>
   </span>
 </template>
@@ -119,9 +119,21 @@ onUnmounted(clearAll);
 }
 
 @keyframes flipCalendar {
-  0%   { transform: rotateX(0deg);   opacity: 1; }
-  49%  { transform: rotateX(90deg);  opacity: 0; }
-  50%  { transform: rotateX(-90deg); opacity: 0; }
-  100% { transform: rotateX(0deg);   opacity: 1; }
+  0% {
+    transform: rotateX(0deg);
+    opacity: 1;
+  }
+  49% {
+    transform: rotateX(90deg);
+    opacity: 0;
+  }
+  50% {
+    transform: rotateX(-90deg);
+    opacity: 0;
+  }
+  100% {
+    transform: rotateX(0deg);
+    opacity: 1;
+  }
 }
 </style>
