@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type {TabsItem} from "#ui/components/Tabs.vue";
 import TextareaRequestForm from "~/components/common/TextareaRequestForm.vue";
 import FeaturesCarousel from "~/components/FeaturesCarousel.vue";
 import TabsWithUnderButtons from "~/components/TabsWithUnderButtons.vue";
@@ -9,45 +8,9 @@ import type TestimonialInterface from "~/interfaces/TestimonialInterface";
 import type FeatureCardInterface from "~/interfaces/FeatureCardInterface";
 import PageHeader from "~/components/common/PageHeader.vue";
 import CustomButton from "~/components/common/CustomButton.vue";
-import type {FeatureCardType} from "~/types/FeatureCardType";
 import type {TabsResponse} from "~/interfaces/TabsInterface";
 
 const {t} = useI18n();
-const tabs: TabsItem[] = [
-  {
-    label: 'tabs.audio.label',
-    icon: 'i-lucide-volume-2',
-    title: 'tabs.audio.title',
-    text: 'tabs.audio.text',
-    list: 'tabs.audio.features',
-    image: '/images/chat-export-audio.png'
-  },
-  {
-    label: 'tabs.code.label',
-    icon: 'i-lucide-terminal',
-    title: 'tabs.code.title',
-    text: 'tabs.code.text',
-    list: 'tabs.code.features',
-    image: '/images/chat-export-code.png'
-  },
-  {
-    label: 'tabs.photo.label',
-    icon: 'i-lucide-image',
-    title: 'tabs.photo.title',
-    text: 'tabs.photo.text',
-    list: 'tabs.photo.features',
-    image: '/images/chat-export-photo.png'
-  },
-  {
-    label: 'tabs.video.label',
-    icon: 'i-lucide-video',
-    title: 'tabs.video.title',
-    text: 'tabs.video.text',
-    list: 'tabs.video.features',
-    image: '/images/chat-export-video.png'
-  }
-];
-
 const cards = [
   {
     title: 'cards.ask.title',
@@ -65,38 +28,6 @@ const cards = [
     icon: '/svg/service-icon-03.svg'
   }
 ];
-
-const tabs2 = [
-  {
-    label: 'tabs2.connect.label',
-    title: 'tabs2.connect.title',
-    description: 'tabs2.connect.description',
-    headline: 'tabs2.connect.headline',
-    image: '/images/split-1.png'
-  },
-  {
-    label: 'tabs2.workflow.label',
-    title: 'tabs2.workflow.title',
-    description: 'tabs2.workflow.description',
-    headline: 'tabs2.workflow.headline',
-    image: '/images/letter-logo.png'
-  },
-  {
-    label: 'tabs2.cyber.label',
-    title: 'tabs2.cyber.title',
-    description: 'tabs2.cyber.description',
-    headline: 'tabs2.cyber.headline',
-    image: '/images/split-3.png'
-  },
-  {
-    label: 'tabs2.data.label',
-    title: 'tabs2.data.title',
-    description: 'tabs2.data.description',
-    headline: 'tabs2.data.headline',
-    image: '/images/split-4.png'
-  }
-];
-
 const config = useRuntimeConfig();
 
 const {data: featureCards} = await safeFetch<FeatureCardInterface[]>(
@@ -108,7 +39,7 @@ const {data: testimonials, pending, error} = await useAsyncData<TestimonialInter
     () => $fetch(`${config.public.apiBase}/testimonials`)
 );
 
-const { data: tabs } = await useAsyncData<TabsResponse>(
+const {data: tabs} = await useAsyncData<TabsResponse>(
     "tabsWithBackground",
     () => $fetch<TabsResponse>(`${config.public.apiBase}/tabs`)
 );
@@ -122,7 +53,8 @@ const underbuttonTabs = computed(() => tabs.value?.underbutton ?? []);
       <h1 class="page-main-header mx-auto max-w-[22ch] text-center font-bold tracking-tight leading-[0.95] text-[clamp(2.25rem,5vw,3.5rem)]">
         <span class="block dark:text-white/90 text-[var(--ui-text)]/90">{{ t('hero.title') }}</span>
         <span class="mt-2 block">
-            <animated-rotated-x-text class="align-baseline" :texts-list="['AI Chating', 'AI Writing', 'AI Chating', 'AI Writing']"/>
+            <animated-rotated-x-text class="align-baseline"
+                                     :texts-list="['AI Chating', 'AI Writing', 'AI Chating', 'AI Writing']"/>
         </span>
         <span class="mt-2 block dark:text-white/90 text-[var(--ui-text)]/90">{{ t('hero.title2') }}</span>
       </h1>
@@ -148,7 +80,8 @@ const underbuttonTabs = computed(() => tabs.value?.underbutton ?? []);
             '/images/mapbox.png'
         ]"/>
       </u-container>
-      <tabs-with-background :tabs="withBackgroundTabs" title="page.tabsWithBackground.title" headline="page.tabsWithBackground.headline"/>
+      <tabs-with-background :tabs="withBackgroundTabs" title="page.tabsWithBackground.title"
+                            headline="page.tabsWithBackground.headline"/>
       <features-carousel :cards="cards" button-text="page.featuresCarousel.button"/>
       <tabs-with-under-buttons class="bg-full" :tabs="underbuttonTabs"/>
       <u-container class="flex flex-col justify-center">
