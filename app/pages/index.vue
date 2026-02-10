@@ -44,10 +44,18 @@ const {data: tabs} = await useAsyncData<TabsResponse>(
     () => $fetch<TabsResponse>(`${config.public.apiBase}/tabs`)
 );
 
-const {data: animatedText} = await useAsyncData<[]>(
+interface AnimatedTextItem {
+  id: string;
+  titleKey: string;
+  isVisible: boolean;
+  order: number;
+}
+
+const { data: animatedText } = await useAsyncData<AnimatedTextItem[]>(
     "animatedText",
-    () => $fetch<[]>(`${config.public.apiBase}/animated-text`)
+    () => $fetch<AnimatedTextItem[]>(`${config.public.apiBase}/animated-text`)
 );
+
 const withBackgroundTabs = computed(() => tabs.value?.withBackground ?? []);
 const underbuttonTabs = computed(() => tabs.value?.underbutton ?? []);
 </script>
