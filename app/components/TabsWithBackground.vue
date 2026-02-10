@@ -104,15 +104,13 @@ onBeforeUnmount(() => {
                       {{ t(item.titleKey) }}
                     </h2>
                     <p v-if="item?.textKey" class="tabs-card__description">{{ t(item.textKey) }}</p>
-                    <u-page-list v-if="item.list" class="tabs-card__list mb-6"
-                                 :ui="{
-    base: 'list-none',
-    item: 'relative flex items-start gap-2',
-    marker: 'i-lucide-fish-symbol text-primary mt-1'
-  }">
-                      <li v-for="(li, idx) in item.list" :key="idx">{{ t(li.textKey) }}</li>
-                    </u-page-list>
-                    <custom-button class="tabs-card__cta w-[240px]" variant="full" v-if="item?.buttonTextKey">
+                    <ul v-if="item.list" class="flex flex-col tabs-card__list mb-6">
+                      <li class="flex items-start gap-2" v-for="(li, idx) in item.list" :key="idx">
+                        <u-icon name="i-lucide-fish-symbol" class="text-primary w-4 h-4 mt-1" />
+                        <span>{{ t(li.textKey) }}</span>
+                      </li>
+                    </ul>
+                    <custom-button class="tabs-card__cta w-[240px] mb-4 justify-center" variant="full" v-if="item?.buttonTextKey">
                       {{ t(item.buttonTextKey) }}
                     </custom-button>
                   </div>
