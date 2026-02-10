@@ -116,10 +116,12 @@ const underbuttonTabs = computed(() => tabs.value?.underbutton ?? []);
           <img src="/images/bg-shape-01.png" :alt="t('page.community.title')">
         </div>
         <u-container class="w-full lg:w-1/4 gap-6 flex flex-col items-center lg:items-start justify-center">
-          <img src="/images/myself.png" alt="team on GitHub" class="flex-none mx-auto w-full max-w-[180px]">
-          <custom-button class="justify-center h-12 text-base w-max" button-type="white">
-            <a href="https://github.com/AmoneMisa" target="_blank" rel="noopener noreferrer">{{ t('page.community.cta') }}</a>
-          </custom-button>
+          <img src="/images/myself.png" alt="team on GitHub" class="flex-none mx-auto w-[120px]">
+          <a href="https://github.com/AmoneMisa" target="_blank" rel="noopener noreferrer">
+            <custom-button class="justify-center h-12 text-base w-max" button-type="white">
+              {{ t('page.community.cta') }}
+            </custom-button>
+          </a>
         </u-container>
       </u-container>
 
