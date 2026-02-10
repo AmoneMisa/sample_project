@@ -100,14 +100,19 @@ onBeforeUnmount(() => {
               <section class="tabs-card">
                 <div class="tabs-card__inner">
                   <div class="tabs-card__content">
-                    <h2 class="tabs-card__title mb-4">
+                    <h2 class="tabs-card__title mb-4 mt-2">
                       {{ t(item.titleKey) }}
                     </h2>
                     <p v-if="item?.textKey" class="tabs-card__description">{{ t(item.textKey) }}</p>
-                    <u-page-list v-if="item.list" class="tabs-card__list">
+                    <u-page-list v-if="item.list" class="tabs-card__list mb-6"
+                                 :ui="{
+    base: 'list-none',
+    item: 'relative flex items-start gap-2',
+    marker: 'i-lucide-fish-symbol text-primary mt-1'
+  }">
                       <li v-for="(li, idx) in item.list" :key="idx">{{ t(li.textKey) }}</li>
                     </u-page-list>
-                    <custom-button class="tabs-card__cta" v-if="item?.buttonTextKey">
+                    <custom-button class="tabs-card__cta w-[240px]" variant="full" v-if="item?.buttonTextKey">
                       {{ t(item.buttonTextKey) }}
                     </custom-button>
                   </div>

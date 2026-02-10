@@ -145,17 +145,12 @@
 .tabs-card__list {
     margin-top: 12px;
     color: rgba(188, 195, 215, .92);
-    line-height: 1.6;
-    padding-left: 15px;
+    line-height: 1.1;
+    padding-left: 26px;
 
     li {
-        margin: 6px 0;
+        margin: 5px 0;
     }
-}
-
-.tabs-card__cta {
-    margin-top: 16px;
-    width: fit-content;
 }
 
 .tabs-card__media {
