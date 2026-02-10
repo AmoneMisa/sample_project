@@ -4,15 +4,14 @@ import {nextTick, onBeforeUnmount, onMounted, ref} from 'vue';
 import PageHeader from "~/components/common/PageHeader.vue";
 import CustomButton from "~/components/common/CustomButton.vue";
 
-const props = defineProps<{
+defineProps<{
   tabs: TabsItem[]
   title?: string
   headline?: string
   description?: string
-  ctaKey?: string
 }>();
 
-const {t, tm, rt} = useI18n();
+const {t} = useI18n();
 
 const tabsScroll = useTemplateRef<HTMLElement>('tabsScroll');
 const tabLine = useTemplateRef<HTMLElement>('tabLineElement');
@@ -62,18 +61,6 @@ async function onTabChange(index: number) {
   ensureTabVisible(index);
 }
 
-function resolveList(list?: TabsItem['list']): string[] {
-  if (!list) return [];
-
-  if (typeof list === 'string') {
-    const raw = tm(list) as unknown;
-    if (Array.isArray(raw)) return raw.map((x) => (typeof x === 'string' ? x : rt(x)));
-    return []
-  }
-
-  return list.map((x) => (typeof x === 'string' ? t(x) : String(x)));
-}
-
 function handleResize() {
   nextTick(() => moveTabLine(currentIndex.value));
 }
@@ -97,6 +84,7 @@ onBeforeUnmount(() => {
         :description="description"
         :isCentered="true"
     />
+
     <div class="tabs-row">
       <div ref="tabsScroll" class="tabs-scroll">
         <div class="tabs-head">
@@ -106,28 +94,26 @@ onBeforeUnmount(() => {
               :ui="{ trigger: 'tabs__trigger', list: 'tabs__list mt-4', indicator: 'hidden' }"
           >
             <template #default="{ item }">
-              {{ t(item.label) }}
+              {{ t(item.labelKey) }}
             </template>
-
             <template #content="{ item }">
               <section class="tabs-card">
                 <div class="tabs-card__inner">
                   <div class="tabs-card__content">
-                    <h2 class="tabs-card__title">{{ t(item.title) }}</h2>
-
+                    <h2 class="tabs-card__title">
+                      {{ t(item.titleKey) }}
+                    </h2>
                     <u-page-list v-if="item.list" class="tabs-card__list">
-                      <li v-for="(li, idx) in resolveList(item.list)" :key="idx">{{ li }}</li>
+                      <li v-for="(li, idx) in item.list" :key="idx">{{ t(li.textKey) }}</li>
                     </u-page-list>
-
                     <custom-button class="tabs-card__cta">
-                      {{ t(item.ctaKey ?? ctaKey ?? 'tabs.audio.cta') }}
+                      {{ t(item.buttonTextKey) }}
                     </custom-button>
                   </div>
-
                   <div class="tabs-card__media">
                     <img
                         :src="item.image"
-                        :alt="t(item.title)"
+                        :alt="t(item.titleKey)"
                         class="tabs-card__img"
                         decoding="async"
                         loading="eager"

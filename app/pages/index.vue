@@ -10,6 +10,7 @@ import type FeatureCardInterface from "~/interfaces/FeatureCardInterface";
 import PageHeader from "~/components/common/PageHeader.vue";
 import CustomButton from "~/components/common/CustomButton.vue";
 import type {FeatureCardType} from "~/types/FeatureCardType";
+import type {TabsResponse} from "~/interfaces/TabsInterface";
 
 const {t} = useI18n();
 const tabs: TabsItem[] = [
@@ -106,6 +107,13 @@ const {data: testimonials, pending, error} = await useAsyncData<TestimonialInter
     "testimonials",
     () => $fetch(`${config.public.apiBase}/testimonials`)
 );
+
+const { data: tabs } = await useAsyncData<TabsResponse>(
+    "tabsWithBackground",
+    () => $fetch<TabsResponse>(`${config.public.apiBase}/tabs`)
+);
+const withBackgroundTabs = computed(() => tabs.value?.withBackground ?? []);
+const underbuttonTabs = computed(() => tabs.value?.underbutton ?? []);
 </script>
 
 <template>
@@ -140,9 +148,9 @@ const {data: testimonials, pending, error} = await useAsyncData<TestimonialInter
             '/images/mapbox.png'
         ]"/>
       </u-container>
-      <tabs-with-background :tabs="tabs" title="page.tabsWithBackground.title" headline="page.tabsWithBackground.headline"/>
+      <tabs-with-background :tabs="withBackgroundTabs" title="page.tabsWithBackground.title" headline="page.tabsWithBackground.headline"/>
       <features-carousel :cards="cards" button-text="page.featuresCarousel.button"/>
-      <tabs-with-under-buttons class="bg-full" :tabs="tabs2" button-text="page.tabsWithUnderButtons.button"/>
+      <tabs-with-under-buttons class="bg-full" :tabs="underbuttonTabs"/>
       <u-container class="flex flex-col justify-center">
         <page-header
             title="page.collaboration.title"

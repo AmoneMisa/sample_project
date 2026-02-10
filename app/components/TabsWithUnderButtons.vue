@@ -15,11 +15,7 @@ const props = defineProps({
     }>,
     default: () => [],
     required: true,
-  },
-  buttonText: {
-    type: String,
-    default: "Try It Now →",
-  },
+  }
 });
 
 const activeIndex = ref(0);
@@ -73,7 +69,7 @@ watch(
               <img
                   v-if="currentImg"
                   :src="currentImg"
-                  :alt="activeTab ? t(activeTab.title) : 'tab image'"
+                  :alt="activeTab ? t(activeTab.titleKey) : 'tab image'"
                   class="tabs-image__img tabs-under-button__image-img"
                   :class="{ 'tabs-under-button__image-img_is-dim': imgSwapping }"
                   loading="eager"
@@ -81,10 +77,11 @@ watch(
                   fetchpriority="high"
                   draggable="false"
               />
+
               <img
                   v-if="nextImg"
                   :src="nextImg"
-                  :alt="activeTab ? t(activeTab.title) : 'tab image'"
+                  :alt="activeTab ? t(activeTab.titleKey) : 'tab image'"
                   class="tabs-image__img tabs-under-button__image-img tabs-under-button__image-img_is-next"
                   loading="eager"
                   decoding="async"
@@ -97,8 +94,9 @@ watch(
           <div class="tabs-info tabs-under-button__info">
             <page-header
                 v-if="activeTab"
-                :title="activeTab.title"
-                :headline="activeTab.headline"
+                :title="activeTab.titleKey"
+                :headline="activeTab.headlineKey"
+                :description="activeTab.descriptionKey"
                 :isCentered="false"
                 headLineClasses="gradient-text_cap"
                 :ui="{
@@ -107,14 +105,18 @@ watch(
                 description: 'text-white/70 text-sm sm:text-base leading-relaxed'
               }"
             />
+
             <div class="tabs-desc-scroll tabs-under-button__desc-scroll">
-              <p v-if="activeTab?.description" class="tabs-desc tabs-under-button__desc">
-                {{ t(activeTab.description) }}
+              <p
+                  v-if="activeTab?.descriptionKey"
+                  class="tabs-desc tabs-under-button__desc"
+              >
+                {{ t(activeTab.descriptionKey) }}
               </p>
             </div>
 
             <custom-button class="mt-6 w-fit" variant="full">
-              {{ t(buttonText) }}
+              {{ t(activeTab.buttonTextKey) }}
             </custom-button>
           </div>
         </div>
@@ -135,8 +137,9 @@ watch(
           <span class="tabs__count tabs-under-button__count">
             <span>0{{ index + 1 }}</span>
           </span>
+
           <span class="tabs__title tabs-under-button__title">
-            {{ t(item.title) }}
+            {{ t(item.labelKey) }}
           </span>
         </template>
 
