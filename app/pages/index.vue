@@ -56,7 +56,6 @@ const { data: animatedText } = await useAsyncData<AnimatedTextItem[]>(
     () => $fetch<AnimatedTextItem[]>(`${config.public.apiBase}/animated-text`)
 );
 
-console.log("animatedText", animatedText);
 const withBackgroundTabs = computed(() => tabs.value?.withBackground ?? []);
 const underbuttonTabs = computed(() => tabs.value?.underbutton ?? []);
 </script>
@@ -70,7 +69,6 @@ const underbuttonTabs = computed(() => tabs.value?.underbutton ?? []);
             <animated-rotated-x-text v-if="animatedText && animatedText?.length" class="align-baseline"
                                      :texts-list="animatedText"/>
         </span>
-        <span class="mt-2 block dark:text-white/90 text-[var(--ui-text)]/90">{{ t('hero.title2') }}</span>
       </h1>
       <page-header description="hero.subtitle" descriptionSize="24" class="mt-2"/>
     </div>
