@@ -179,7 +179,7 @@
         grid-template-columns: 1.05fr 1fr;
         align-items: center;
         gap: 22px;
-        padding: 22px;
+        padding: 22px 30px;
     }
 
     .tabs-card__title {
@@ -228,6 +228,7 @@
     }
 
     /* Hover — стекло плотнее + фиолетовый градиент рамки */
+
     .tabs__trigger:hover {
         background: rgba(255, 255, 255, 0.9);
 
@@ -238,6 +239,7 @@
     }
 
     /* Active — чуть плотнее фон + яркая рамка */
+
     .tabs__trigger[data-state="active"] {
         background: rgba(255, 255, 255, 0.95);
         color: rgba(0, 0, 0, 0.9);
