@@ -10,7 +10,7 @@ const props = defineProps({
 });
 
 const currentIndex = ref(0);
-const displayedText = ref(props.textsList[0] ?? '');
+const displayedText = ref(props.textsList[0]?.titleKey ?? '');
 const isFlipping = ref(false);
 console.log("displayedText", displayedText);
 
