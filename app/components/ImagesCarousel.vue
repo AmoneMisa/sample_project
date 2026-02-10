@@ -35,6 +35,7 @@ defineProps({
     height: 100%;
     width: 200px;
     z-index: 2;
+    pointer-events: none;
   }
 
   &:before {
@@ -70,9 +71,7 @@ defineProps({
 
 .carousel__slide {
   flex: 0 0 auto;
-}
-
-.carousel__slide {
+  justify-items: center;
   width: 252px;
 }
 

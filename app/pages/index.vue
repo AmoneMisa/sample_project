@@ -73,11 +73,15 @@ const underbuttonTabs = computed(() => tabs.value?.underbutton ?? []);
       <u-container class="flex items-center flex-col justify-center min-w-0 mb-0">
         <h3 class="text-2xl font-semibold text-center text-muted uppercase mb-8">{{ t('trust.title') }}</h3>
         <images-carousel :images="[
-            '/images/spotify.png',
-            '/images/woocommerce.png',
-            '/images/slack.png',
-            '/images/strapi.png',
-            '/images/mapbox.png'
+            '/images/intellij.png',
+            '/images/restapi.png',
+            '/images/jira.png',
+            '/images/docker.png',
+            '/images/jenkins.png',
+            '/images/github.png',
+            '/images/cicd.png',
+            '/images/gitlab.png',
+            '/images/confluence.png'
         ]"/>
       </u-container>
       <tabs-with-background :tabs="withBackgroundTabs" title="page.tabsWithBackground.title"
