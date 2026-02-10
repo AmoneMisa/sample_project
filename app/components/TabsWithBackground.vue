@@ -100,9 +100,10 @@ onBeforeUnmount(() => {
               <section class="tabs-card">
                 <div class="tabs-card__inner">
                   <div class="tabs-card__content">
-                    <h2 class="tabs-card__title">
+                    <h2 class="tabs-card__title mb-4">
                       {{ t(item.titleKey) }}
                     </h2>
+                    <p v-if="item?.descriptionKey" class="tabs-card__description">{{ t(item.descriptionKey) }}</p>
                     <u-page-list v-if="item.list" class="tabs-card__list">
                       <li v-for="(li, idx) in item.list" :key="idx">{{ t(li.textKey) }}</li>
                     </u-page-list>
