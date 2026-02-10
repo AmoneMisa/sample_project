@@ -31,12 +31,6 @@ defineProps<{
             >
               <img src="/images/play-app.png" alt="Google Play"/>
             </a>
-            <a
-                href="https://appstore.com"
-                class="store-btn store-btn--apple"
-            >
-              <img src="/images/apple-app.png" alt="App Store"/>
-            </a>
           </div>
         </div>
         <div class="relative hidden md:flex justify-center lg:justify-end px-6 pb-10 lg:pb-0">

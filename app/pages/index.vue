@@ -43,6 +43,11 @@ const {data: tabs} = await useAsyncData<TabsResponse>(
     "tabsWithBackground",
     () => $fetch<TabsResponse>(`${config.public.apiBase}/tabs`)
 );
+
+const {data: animatedText} = await useAsyncData<[]>(
+    "animatedText",
+    () => $fetch<[]>(`${config.public.apiBase}/animated-text`)
+);
 const withBackgroundTabs = computed(() => tabs.value?.withBackground ?? []);
 const underbuttonTabs = computed(() => tabs.value?.underbutton ?? []);
 </script>
@@ -53,8 +58,8 @@ const underbuttonTabs = computed(() => tabs.value?.underbutton ?? []);
       <h1 class="page-main-header mx-auto max-w-[22ch] text-center font-bold tracking-tight leading-[0.95] text-[clamp(2.25rem,5vw,3.5rem)]">
         <span class="block dark:text-white/90 text-[var(--ui-text)]/90">{{ t('hero.title') }}</span>
         <span class="mt-2 block">
-            <animated-rotated-x-text class="align-baseline"
-                                     :texts-list="['AI Chating', 'AI Writing', 'AI Chating', 'AI Writing']"/>
+            <animated-rotated-x-text v-if="animatedText && animatedText?.length" class="align-baseline"
+                                     :texts-list="animatedText"/>
         </span>
         <span class="mt-2 block dark:text-white/90 text-[var(--ui-text)]/90">{{ t('hero.title2') }}</span>
       </h1>
