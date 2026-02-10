@@ -66,7 +66,7 @@ watch(
             />
           </picture>
         </div>
-        <div class="flex sm:items-center gap-4 justify-between md:justify-baseline mb-3">
+        <div class="flex items-center gap-4 justify-between mb-3">
           <div class="min-w-0">
             <img
                 :alt="t(item.nameKey)"
@@ -76,7 +76,7 @@ watch(
                 decoding="async"
             />
           </div>
-          <div class="flex gap-1 mb-3 max-w-[70px] sm:max-w-fit">
+          <div class="flex gap-1 max-w-[70px] sm:max-w-fit">
             <u-icon
                 v-for="i in item.rating"
                 :key="i"
