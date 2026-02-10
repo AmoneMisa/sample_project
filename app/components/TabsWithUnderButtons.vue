@@ -118,7 +118,7 @@ watch(
           list: 'tabs__list bg-transparent tabs-under-button__list',
           trigger: 'tabs__button tabs-under-button__button',
           indicator: 'hidden',
-          label: 'w-full flex md:flex-col items-center gap-[6px] md:gap-0 md:items-baseline text-left'
+          label: 'w-full flex items-center gap-[6px] text-left'
         }"
       >
         <template #default="{ item, index }">
@@ -222,7 +222,7 @@ watch(
 
 .tabs-under-button__desc-scroll {
   margin-top: 12px;
-  max-height: 120px;
+  max-height: 240px;
   overflow: auto;
   padding-right: 6px;
 }
