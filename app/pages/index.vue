@@ -56,6 +56,7 @@ const { data: animatedText } = await useAsyncData<AnimatedTextItem[]>(
     () => $fetch<AnimatedTextItem[]>(`${config.public.apiBase}/animated-text`)
 );
 
+console.log("animatedText", animatedText);
 const withBackgroundTabs = computed(() => tabs.value?.withBackground ?? []);
 const underbuttonTabs = computed(() => tabs.value?.underbutton ?? []);
 </script>

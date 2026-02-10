@@ -12,6 +12,7 @@ const props = defineProps({
 const currentIndex = ref(0);
 const displayedText = ref(props.textsList[0] ?? '');
 const isFlipping = ref(false);
+console.log("displayedText", displayedText);
 
 let timer: ReturnType<typeof setInterval> | undefined;
 let midTimeout: ReturnType<typeof setTimeout> | undefined;
@@ -82,7 +83,7 @@ onUnmounted(clearAll);
 </script>
 
 <template>
-  <span class="animated-rotated-text">
+  <span class="animated-rotated-text" v-if="displayedText">
     <span
         class="animated-rotated-text__inner hero-rotator gradient-text"
         :class="{ 'flip-anim': isFlipping }"
