@@ -153,10 +153,11 @@ const underbuttonTabs = computed(() => tabs.value?.underbutton ?? []);
       <review-logos
           title="page.reviewLogos.title"
           :logos="[
-    { src: '/images/brand-01.png', alt: 'G2 Crowd' },
-    { src: '/images/brand-02.png', alt: 'Capterra' },
-    { src: '/images/brand-03.png', alt: 'GetApp' },
-    { src: '/images/brand-04.png', alt: 'TrustRadius' }
+    { src: '/images/electron-gradient.png', alt: 'electron' },
+    { src: '/images/nuxt-gradient.png', alt: 'nuxt' },
+    { src: '/images/vue-gradient.png', alt: 'vue' },
+    { src: '/images/postgre-gradient.png', alt: 'postgreSql' },
+    { src: '/images/scss-gradient.png', alt: 'scss' }
   ]"/>
       <app-download-promo headline="download.headline" title="download.title
 " description="download.description"/>
