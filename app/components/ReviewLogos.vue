@@ -14,13 +14,13 @@ const {t} = useI18n();
       <u-page-header :title="t(title)" class="p-0 border-0" :ui="{title: 'text-base sm:text-base'}"/>
     </div>
 
-    <div class="flex flex-wrap justify-center gap-6 mt-6 items-center">
+    <div class="flex flex-wrap justify-center gap-8 mt-6 items-center">
       <img
           v-for="(logo, index) in logos"
           :key="index"
           :src="logo.src"
           :alt="t(logo.alt)"
-          class="transition hover:brightness-125 hover:drop-shadow-md cursor-pointer w-[33%] md:w-48 h-fit"
+          class="transition hover:brightness-125 hover:drop-shadow-md cursor-pointer w-[33%] w-max-[100px] md:w-48 h-fit"
       />
     </div>
   </div>
