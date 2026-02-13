@@ -174,14 +174,6 @@ textarea:active {
     text-decoration: none;
 }
 
-.gradient-button_black {
-    color: var(--color-black);
-}
-
-.gradient-button_black:hover {
-    color: var(--color-black);
-}
-
 .gradient-button-figure {
     position: relative;
     padding: 0 30px;

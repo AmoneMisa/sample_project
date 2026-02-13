@@ -43,7 +43,7 @@ defineProps<{
         <div class="relative hidden md:flex justify-center lg:justify-end px-6 pb-10 lg:pb-0">
           <img
               alt="mobile view"
-              src="/images/view-img.png"
+              src="/images/mobile-app.png"
               class="max-h-[520px] w-auto drop-shadow-[0_30px_60px_rgba(0,0,0,0.55)]"
           />
         </div>
@@ -135,10 +135,6 @@ defineProps<{
 .store-btn:hover {
   transform: translateY(-1px) scale(1.03);
   filter: drop-shadow(0 16px 22px rgba(0, 0, 0, .45));
-}
-
-.store-btn--apple {
-  transform: scale(1.05);
 }
 
 @media (max-width: 1024px) {

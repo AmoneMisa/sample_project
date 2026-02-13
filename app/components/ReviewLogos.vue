@@ -15,13 +15,12 @@ const {t} = useI18n();
     </div>
 
     <div class="flex flex-wrap justify-center gap-8 mt-6 items-center">
-      <img
-          v-for="(logo, index) in logos"
-          :key="index"
-          :src="logo.src"
-          :alt="t(logo.alt)"
-          class="transition hover:brightness-125 hover:drop-shadow-md cursor-pointer w-max-[100px] w-full h-fit"
-      />
+      <div class="max-w-[100px]" v-for="(logo, index) in logos" :key="index">
+        <img :src="logo.src"
+             :alt="t(logo.alt)"
+            class="transition hover:brightness-125 hover:drop-shadow-md cursor-pointer w-full h-fit"
+        />
+      </div>
     </div>
   </div>
 </template>
