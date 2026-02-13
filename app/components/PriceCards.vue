@@ -6,8 +6,11 @@ import CustomButton from "~/components/common/CustomButton.vue";
 
 const config = useRuntimeConfig();
 
-const {data: offerCards} = await safeFetch<OfferCardType[]>(
-    `${config.public.apiBase}/offer-cards`
+const { data: offerCards } = await useAsyncData<OfferCardType[]>(
+    'offerCards',
+    async () =>
+        (await safeFetch<OfferCardType[]>(`${config.public.apiBase}/offer-cards`)).data ?? [],
+    { default: () => [], server: true }
 );
 
 const isYearly = ref(true);

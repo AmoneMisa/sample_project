@@ -24,8 +24,8 @@ function moveTabLine(index: number) {
   if (!wrap || !line) return;
 
   const triggers = wrap.querySelectorAll<HTMLElement>('.tabs__trigger');
-  const active = triggers[index]
-  if (!active) return
+  const active = triggers[index];
+  if (!active) return;
 
   const center = active.offsetLeft + active.offsetWidth / 2;
   const w = 12;
@@ -69,11 +69,11 @@ onMounted(async () => {
   await nextTick();
   moveTabLine(0);
   window.addEventListener('resize', handleResize, {passive: true});
-})
+});
 
 onBeforeUnmount(() => {
   window.removeEventListener('resize', handleResize);
-})
+});
 </script>
 
 <template>

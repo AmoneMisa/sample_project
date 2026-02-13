@@ -4,11 +4,11 @@ import FeaturesCarousel from "~/components/FeaturesCarousel.vue";
 import TabsWithUnderButtons from "~/components/TabsWithUnderButtons.vue";
 import ImagesCarousel from "~/components/ImagesCarousel.vue";
 import {safeFetch} from "~/utils/safeFetch";
-import type TestimonialInterface from "~/interfaces/TestimonialInterface";
 import type FeatureCardInterface from "~/interfaces/FeatureCardInterface";
 import PageHeader from "~/components/common/PageHeader.vue";
 import CustomButton from "~/components/common/CustomButton.vue";
 import type {TabsResponse} from "~/interfaces/TabsInterface";
+import type TestimonialInterface from "~/interfaces/TestimonialInterface";
 
 const {t} = useI18n();
 const cards = [
@@ -30,19 +30,29 @@ const cards = [
 ];
 const config = useRuntimeConfig();
 
-const {data: featureCards} = await safeFetch<FeatureCardInterface[]>(
-    `${config.public.apiBase}/feature-cards`
+const {data: featureCards} = await useAsyncData(
+    'featureCards',
+    async () => (await safeFetch<FeatureCardInterface[]>(`${config.public.apiBase}/feature-cards`)).data ?? [],
+    {default: () => []}
 );
 
-const {data: testimonials, pending, error} = await useAsyncData<TestimonialInterface[]>(
-    "testimonials",
-    () => $fetch(`${config.public.apiBase}/testimonials`)
+const {data: testimonials} = await useAsyncData(
+    'testimonials',
+    async () => (await safeFetch<TestimonialInterface[]>(`${config.public.apiBase}/testimonials`)).data ?? [],
+    {default: () => [], server: true}
 );
 
-const {data: tabs} = await useAsyncData<TabsResponse>(
-    "tabsWithBackground",
-    () => $fetch<TabsResponse>(`${config.public.apiBase}/tabs`)
+const {data: tabs} = await useAsyncData(
+    'tabsWithBackground',
+    async () => {
+      const {data} = await safeFetch(`${config.public.apiBase}/tabs`)
+      return data ?? {withBackground: [], underbutton: []}
+    },
+    {server: true, default: () => ({withBackground: [], underbutton: []})}
 );
+
+const withBackgroundTabs = computed(() => tabs.value?.withBackground ?? []);
+const underbuttonTabs = computed(() => tabs.value?.underbutton ?? []);
 
 interface AnimatedTextItem {
   id: string;
@@ -51,13 +61,14 @@ interface AnimatedTextItem {
   order: number;
 }
 
-const { data: animatedText } = await useAsyncData<AnimatedTextItem[]>(
-    "animatedText",
-    () => $fetch<AnimatedTextItem[]>(`${config.public.apiBase}/animated-text`)
+const {data: animatedText} = await useAsyncData<AnimatedTextItem[]>(
+    'animatedText',
+    async () => {
+      const {data} = await safeFetch<AnimatedTextItem[]>(`${config.public.apiBase}/animated-text`)
+      return data ?? [];
+    },
+    {server: true, default: () => []}
 );
-
-const withBackgroundTabs = computed(() => tabs.value?.withBackground ?? []);
-const underbuttonTabs = computed(() => tabs.value?.underbutton ?? []);
 </script>
 
 <template>
@@ -79,7 +90,8 @@ const underbuttonTabs = computed(() => tabs.value?.underbutton ?? []);
       />
       <u-container class="max-w-6xl mx-auto admin-panel">
         <div class="admin-panel__image">
-          <h3 class="text-pretty font-bold text-highlighted mx-auto whitespace-normal [overflow-wrap:anywhere] text-3xl sm:text-4xl lg:text-5xl mb-9 gradient-text text-center">{{ t('adminPanel.title') }}</h3>
+          <h3 class="text-pretty font-bold text-highlighted mx-auto whitespace-normal [overflow-wrap:anywhere] text-3xl sm:text-4xl lg:text-5xl mb-9 gradient-text text-center">
+            {{ t('adminPanel.title') }}</h3>
           <img src="/images/admin-panel.png" class="w-full rounded-lg" alt="admin panel"/>
         </div>
       </u-container>

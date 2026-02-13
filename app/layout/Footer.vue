@@ -1,35 +1,8 @@
 <script setup lang="ts">
-import {safeFetch} from "~/utils/safeFetch";
 import ContactItem from "~/components/footer/ContactItem.vue";
-import {computed} from "vue";
 
-const quickLinks = [
-  {name: 'footer.quickLinks.pages', to: '/pages'},
-  {name: 'footer.quickLinks.blog', to: '/blog'},
-  {name: 'footer.quickLinks.contact', to: '/contact'},
-  {name: 'footer.quickLinks.howToUse', to: '/how-to-use'},
-  {name: 'footer.quickLinks.roadmap', to: '/roadmap'}
-];
-
-const services = [
-  {name: 'footer.services.imageGenerator', to: '/tools/image'},
-  {name: 'footer.services.videoGenerator', to: '/tools/video'},
-  {name: 'footer.services.textGenerator', to: '/tools/text'},
-  {name: 'footer.services.codeGenerator', to: '/tools/code'},
-  {name: 'footer.services.educationFeedback', to: '/tools/education'}
-];
-const config = useRuntimeConfig();
-const {data: contactsRow} = await safeFetch<[]>(
-    `${config.public.apiBase}/contacts`
-);
-
-const contacts = computed(() => contactsRow?.contacts ?? []);
-
-const {data: footerMenusRow} = await safeFetch<[]>(
-    `${config.public.apiBase}/footer/menu/blocks`
-);
-
-const footerMenus = computed(() => footerMenusRow ?? []);
+const contacts = useContacts();
+const footerMenus = useFooterBlocks();
 
 const {t} = useI18n();
 </script>

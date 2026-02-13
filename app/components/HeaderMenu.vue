@@ -1,20 +1,10 @@
 <script setup lang="ts">
-import {safeFetch} from "~/utils/safeFetch";
 const props = withDefaults(defineProps<{ variant?: 'desktop' | 'mobile' }>(), {
   variant: 'desktop'
 });
 
 const {t} = useI18n();
-const config = useRuntimeConfig();
-
-const { data: menu, error } = await safeFetch(
-    `${config.public.apiBase}/header-menu`
-);
-
-if (error) {
-  console.warn("Ошибка загрузки меню:", error);
-}
-
+const menu = useHeaderMenu();
 const emit = defineEmits<{
   (e: 'navigate'): void
 }>();
@@ -52,7 +42,9 @@ const emit = defineEmits<{
             >
               <a class="header-menu__dropdown-link" :href="sub.href"
                  @click="emit('navigate')">
-                {{ t(sub.labelKey) }} <span v-if="sub.badge" class="header-menu__badge line-clamp-1">{{ t(sub.labelKey) }}</span>
+                {{ t(sub.labelKey) }} <span v-if="sub.badge" class="header-menu__badge line-clamp-1">{{
+                  t(sub.labelKey)
+                }}</span>
               </a>
             </li>
           </ul>
@@ -77,7 +69,8 @@ const emit = defineEmits<{
                 >
                   <a class="header-menu__mega-link" :href="sub.href"
                      @click="emit('navigate')">
-                    {{ t(sub.labelKey) }} <span v-if="sub.badge" class="header-menu__badge line-clamp-1">{{ t(sub.labelKey) }}</span>
+                    {{ t(sub.labelKey) }} <span v-if="sub.badge"
+                                                class="header-menu__badge line-clamp-1">{{ t(sub.labelKey) }}</span>
                   </a>
                 </li>
               </ul>

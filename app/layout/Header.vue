@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {en, ru, kk} from '@nuxt/ui/locale';
 import HeaderMenu from "~/components/HeaderMenu.vue";
+import {reloadLocaleData} from "~/composables/useLocaleReload";
 
 const header = useTemplateRef('header');
 const isSticky = ref(false);
@@ -33,6 +34,7 @@ async function onLocaleChange(v: any) {
   if (!code) return;
   if (code === locale.value) return;
   setLocaleCookie(code);
+  await reloadLocaleData(nuxtApp, code);
   await setLocale(code);
 }
 
@@ -65,16 +67,6 @@ onMounted(() => {
 
 const nuxtApp = useNuxtApp();
 const i18n = nuxtApp.$i18n;
-
-watch(() => i18n.locale.value, async (newLang) => {
-  const {translations, menu, testi} = await loadInitialDataSSR(api, newLang);
-
-  i18n.setLocaleMessage(newLang, translations);
-
-  nuxtApp.payload.data.headerMenu = menu;
-  nuxtApp.payload.data.testimonials = testi;
-});
-
 const colorMode = useColorMode();
 
 function toggleTheme() {

@@ -1,27 +1,21 @@
 <script setup lang="ts">
-import {loadInitialDataClient} from "~/composables/useInitialLoad";
+import {loadTranslationsClient} from "~/composables/useI18nClientLoader";
 
 const nuxtApp = useNuxtApp();
 const isLoadingCount = useI18nLoadingCount();
-
-onMounted(async () => {
-  const rawLocale = nuxtApp.$i18n.locale;
-  const lang = typeof rawLocale === "string" ? rawLocale : rawLocale?.value || "ru";
-  await loadInitialDataClient(nuxtApp, lang);
-});
-
+const rawLocale = nuxtApp.$i18n.locale;
+const localeRef = typeof rawLocale === "string" ? ref(rawLocale) : rawLocale;
 if (import.meta.client) {
   watch(
-      isLoadingCount,
-      (v) => {
-        const locked = v > 0;
-        document.documentElement.style.overflow = locked ? "hidden" : "";
-        document.body.style.overflow = locked ? "hidden" : "";
-      },
-      { immediate: true }
+      localeRef,
+      async (newLang, oldLang) => {
+        const lang = newLang || "ru";
+        if (lang === oldLang) return;
+
+        await loadTranslationsClient(nuxtApp, lang);
+      }
   );
 }
-
 </script>
 
 <template>
@@ -73,6 +67,7 @@ if (import.meta.client) {
 .fade-leave-active {
   transition: opacity 0.15s ease;
 }
+
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;

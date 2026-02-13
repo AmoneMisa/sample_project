@@ -4,9 +4,9 @@ import ServiceCard from "~/components/ServiceCard.vue";
 
 const props = defineProps<{
   cards: FeatureCardInterface[]
-}>()
+}>();
 
-const isChess = computed(() => (props.cards?.length ?? 0) < 5)
+const isChess = computed(() => (props.cards?.length ?? 0) < 5);
 </script>
 
 <template>

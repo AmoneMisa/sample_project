@@ -6,9 +6,9 @@ defineProps<{
   title: string
   description: string
   link?: { name: string; params?: Record<string, any> }
-}>()
+}>();
 
-const {t} = useI18n()
+const {t} = useI18n();
 </script>
 
 <template>
