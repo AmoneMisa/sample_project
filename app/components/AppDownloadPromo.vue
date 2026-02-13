@@ -36,7 +36,7 @@ defineProps<{
                 download="RusticPriceConvertor_v1.0_WhitesLove.apk"
                 class="store-btn"
             >
-              <img src="/images/download.png" alt="Download"/>
+              <img src="/images/download.png" class="app-image" alt="Download"/>
             </a>
           </div>
         </div>
@@ -165,5 +165,9 @@ defineProps<{
   .download-inner {
     border-radius: 20px;
   }
+}
+
+.app-image {
+  max-width: 320px !important;
 }
 </style>
