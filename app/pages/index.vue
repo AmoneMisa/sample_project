@@ -79,6 +79,7 @@ const underbuttonTabs = computed(() => tabs.value?.underbutton ?? []);
       />
       <u-container class="max-w-6xl mx-auto admin-panel">
         <div class="admin-panel__image">
+          <h3 class="text-pretty font-bold text-highlighted mx-auto whitespace-normal [overflow-wrap:anywhere] text-3xl sm:text-4xl lg:text-5xl mb-9 gradient-text text-center">{{ t('adminPanel.title') }}</h3>
           <img src="/images/admin-panel.png" class="w-full rounded-lg" alt="admin panel"/>
         </div>
       </u-container>
