@@ -214,7 +214,7 @@ const underbuttonTabs = computed(() => tabs.value?.underbutton ?? []);
 
 .admin-panel__image {
   background-size: contain;
-  background: url('/images/slider-main-bg.png') no-repeat top center;
+  background: url('/images/admin-panel.png') no-repeat top center;
   padding: 70px 70px 42px;
   position: relative;
   z-index: 3;
