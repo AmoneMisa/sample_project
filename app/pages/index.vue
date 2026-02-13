@@ -79,7 +79,7 @@ const underbuttonTabs = computed(() => tabs.value?.underbutton ?? []);
       />
       <u-container class="max-w-6xl mx-auto admin-panel">
         <div class="admin-panel__image">
-          <img src="/images/slider-main-image.png" class="w-full rounded-lg" alt="admin panel"/>
+          <img src="/images/admin-panel.png" class="w-full rounded-lg" alt="admin panel"/>
         </div>
       </u-container>
       <u-container class="flex items-center flex-col justify-center min-w-0 mb-0">
