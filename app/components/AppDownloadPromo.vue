@@ -36,7 +36,7 @@ defineProps<{
                 download="RusticPriceConvertor_v1.0_WhitesLove.apk"
                 class="store-btn"
             >
-              <img src="/images/download.png" class="app-image" alt="Download"/>
+              <img src="/images/download.png" alt="Download"/>
             </a>
           </div>
         </div>
@@ -44,7 +44,7 @@ defineProps<{
           <img
               alt="mobile view"
               src="/images/mobile-app.png"
-              class="max-h-[520px] w-auto drop-shadow-[0_30px_60px_rgba(0,0,0,0.55)]"
+              class="app-image max-h-[520px] w-full drop-shadow-[0_30px_60px_rgba(0,0,0,0.55)]"
           />
         </div>
       </div>
