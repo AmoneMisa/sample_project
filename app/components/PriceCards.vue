@@ -64,7 +64,7 @@ const {t} = useI18n();
           </u-badge>
         </div>
         <div class="text-center space-y-1" v-if="offerCard.nameKey">
-          <h3 class="text-xl font-bold">
+          <h3 class="text-xl font-bold text-white">
             {{ t(offerCard.nameKey) }}
           </h3>
           <p class="text-muted text-sm" v-if="offerCard.descriptionKey">

@@ -103,7 +103,7 @@ onBeforeUnmount(() => {
                     <h2 class="tabs-card__title mb-4 mt-2">
                       {{ t(item.titleKey) }}
                     </h2>
-                    <p v-if="item?.textKey" class="tabs-card__description">{{ t(item.textKey) }}</p>
+                    <p v-if="item?.textKey" class="tabs-card__description text-white/70">{{ t(item.textKey) }}</p>
                     <ul v-if="item.list" class="flex flex-col tabs-card__list mb-6">
                       <li class="flex items-center gap-2" v-for="(li, idx) in item.list" :key="idx">
                         <u-icon name="i-lucide-fish-symbol" class="text-primary w-4 h-4" />

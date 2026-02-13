@@ -55,6 +55,7 @@
 }
 
 .light {
+    --ui-text-inverted: #15162A;
     --color-primary: #805af5;
     --color-primary-alt: #6B4BEA;
     --color-secondary: #CD99FF;
