@@ -20,7 +20,7 @@ const {t} = useI18n();
           :key="index"
           :src="logo.src"
           :alt="t(logo.alt)"
-          class="transition hover:brightness-125 hover:drop-shadow-md cursor-pointer w-[33%] w-max-[100px] md:w-48 h-fit"
+          class="transition hover:brightness-125 hover:drop-shadow-md cursor-pointer w-max-[100px] w-full h-fit"
       />
     </div>
   </div>

@@ -25,11 +25,18 @@ defineProps<{
             }"
           />
           <div class="mt-7 flex flex-wrap gap-4">
+<!--            <a-->
+<!--                href="https://googleplaymarket.com"-->
+<!--                class="store-btn"-->
+<!--            >-->
+<!--              <img src="/images/play-app.png" alt="Google Play"/>-->
+<!--            </a>-->
             <a
-                href="https://googleplaymarket.com"
+                href="/files/RusticPriceConvertor_v1.0_WhitesLove.apk"
+                download="RusticPriceConvertor_v1.0_WhitesLove.apk"
                 class="store-btn"
             >
-              <img src="/images/play-app.png" alt="Google Play"/>
+              <img src="/images/download.png" alt="Download"/>
             </a>
           </div>
         </div>

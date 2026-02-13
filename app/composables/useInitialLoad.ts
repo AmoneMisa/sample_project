@@ -9,15 +9,12 @@ export const useTranslationsLoaded = () =>
 
 export async function loadInitialDataSSR(api: string, lang: string) {
     const [translations, menu, testi] = await Promise.all([
-        $fetch(`${api}/translations/structured`, { query: { lang } }),
+        $fetch(`${api}/translations/structured`, {query: {lang}}),
         $fetch(`${api}/header-menu`),
-        $fetch(`${api}/testimonials`),
-        $fetch(`${api}/offer-cards`),
-        $fetch(`${api}/feature-cards`),
-        $fetch(`${api}/contacts`)
+        $fetch(`${api}/testimonials`)
     ]);
 
-    return { translations, menu, testi };
+    return {translations, menu, testi};
 }
 
 export async function loadInitialDataClient(nuxtApp: ReturnType<typeof useNuxtApp>,
@@ -36,7 +33,7 @@ export async function loadInitialDataClient(nuxtApp: ReturnType<typeof useNuxtAp
     try {
         const [translations, menu, testi] = await Promise.all([
             needTranslations
-                ? $fetch(`${api}/translations/structured`, { query: { lang } })
+                ? $fetch(`${api}/translations/structured`, {query: {lang}})
                 : null,
             $fetch(`${api}/header-menu`),
             $fetch(`${api}/testimonials`),
@@ -50,6 +47,8 @@ export async function loadInitialDataClient(nuxtApp: ReturnType<typeof useNuxtAp
         headerMenu.value = menu;
         testimonials.value = testi;
 
+    } catch (e) {
+        console.error("fetch error:", e);
     } finally {
         finishI18nLoading();
     }
