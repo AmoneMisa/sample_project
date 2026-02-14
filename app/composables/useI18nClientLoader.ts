@@ -4,7 +4,7 @@ import { safeFetch } from '~/utils/safeFetch';
 
 export async function loadTranslationsClient(nuxtApp: ReturnType<typeof useNuxtApp>, lang: string) {
     const loaded = useTranslationsLoaded();
-    if (loaded.value.has(lang)) return;
+    if (loaded.value.includes(lang)) return;
 
     const config = useRuntimeConfig();
     const api = config.public.apiBase;

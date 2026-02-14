@@ -11,7 +11,10 @@ export async function bootstrapCommonSSR(nuxtApp: ReturnType<typeof useNuxtApp>,
     );
 
     nuxtApp.$i18n.setLocaleMessage(lang, tr.data ?? {});
-    useTranslationsLoaded().value.add(lang);
+    nuxtApp.runWithContext(() => {
+        const loaded = useTranslationsLoaded();
+        loaded.value.add(lang);
+    });
 
     const [contacts, menu, footer] = await Promise.all([
         safeFetch(`${api}/contacts`),
@@ -19,7 +22,9 @@ export async function bootstrapCommonSSR(nuxtApp: ReturnType<typeof useNuxtApp>,
         safeFetch(`${api}/footer/menu/blocks`),
     ]);
 
-    useContacts().value = contacts.data ?? null;
-    useHeaderMenu().value = menu.data ?? null;
-    useFooterBlocks().value = footer.data ?? null;
+    nuxtApp.runWithContext(() => {
+        useContacts().value = contacts.data ?? null;
+        useHeaderMenu().value = menu.data ?? null;
+        useFooterBlocks().value = footer.data ?? null;
+    });
 }
