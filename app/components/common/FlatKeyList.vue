@@ -40,7 +40,7 @@ function pick(k: string) {
     >
       <span class="fk__key">{{ k }}</span>
       <span v-if="statusByKey" class="fk__badge">
-        {{ $t(`services.mergeJSON.badges.${statusByKey(k)}`) }}
+        {{ $t(`services.mergeJson.badges.${statusByKey(k)}`) }}
       </span>
     </button>
   </div>

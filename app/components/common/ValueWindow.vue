@@ -55,7 +55,7 @@ async function copy() {
 
       <div class="vw__right">
         <span v-if="status" class="vw__badge" :data-kind="status">
-          {{ $t(`services.mergeJSON.badges.${status}`) }}
+          {{ $t(`services.mergeJson.badges.${status}`) }}
         </span>
 
         <CustomButton
@@ -65,7 +65,7 @@ async function copy() {
             type="button"
             @click="copy"
         >
-          {{ $t("services.mergeJSON.actions.copy") }}
+          {{ $t("services.mergeJson.actions.copy") }}
         </CustomButton>
       </div>
     </div>

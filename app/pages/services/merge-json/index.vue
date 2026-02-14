@@ -188,7 +188,7 @@ async function onFilesA(files: File[]) {
     const {obj} = await loadJsonFromFile(files[0]);
     jsonA.value = obj as JsonValue;
   } catch (e: any) {
-    errorA.value = e?.message || t("services.mergeJSON.errors.invalidFile");
+    errorA.value = e?.message || t("services.mergeJson.errors.invalidFile");
   }
 }
 
@@ -199,7 +199,7 @@ async function onFilesB(files: File[]) {
     const {obj} = await loadJsonFromFile(files[0]);
     jsonB.value = obj as JsonValue;
   } catch (e: any) {
-    errorB.value = e?.message || t("services.mergeJSON.errors.invalidFile");
+    errorB.value = e?.message || t("services.mergeJson.errors.invalidFile");
   }
 }
 
@@ -274,16 +274,16 @@ watch(query, (v) => {
 <template>
   <u-container class="merge">
     <div class="merge__header background-hero text-center space-y-3">
-      <page-header title="services.mergeJSON.title" headline="services.mergeJSON.headline" class="mb-6"/>
-      <p class="merge__subtitle text-muted mx-auto">{{ t("services.mergeJSON.subtitle") }}</p>
+      <page-header title="services.mergeJson.title" headline="services.mergeJson.headline" class="mb-6"/>
+      <p class="merge__subtitle text-muted mx-auto">{{ t("services.mergeJson.subtitle") }}</p>
     </div>
 
     <section class="merge__card">
       <div class="merge__toolbar">
         <file-input
-            label-key="services.mergeJSON.inputs.fileA"
+            label-key="services.mergeJson.inputs.fileA"
             :error="errorA"
-            hint-key="services.mergeJSON.inputs.hint"
+            hint-key="services.mergeJson.inputs.hint"
             @files="onFilesA"
         />
 
@@ -295,90 +295,90 @@ watch(query, (v) => {
             { label: 'Tree', value: 'tree' },
             { label: 'Flat keys', value: 'flat' }
           ]"
-            :title="t('services.mergeJSON.titles.viewMode')"
+            :title="t('services.mergeJson.titles.viewMode')"
         />
 
         <custom-checkbox
             v-model="minify"
-            label-key="services.mergeJSON.controls.minify"
-            :title="t('services.mergeJSON.titles.minify')"
+            label-key="services.mergeJson.controls.minify"
+            :title="t('services.mergeJson.titles.minify')"
         />
 
         <file-input
-            label-key="services.mergeJSON.inputs.fileB"
+            label-key="services.mergeJson.inputs.fileB"
             :error="errorB"
-            hint-key="services.mergeJSON.inputs.hint"
+            hint-key="services.mergeJson.inputs.hint"
             @files="onFilesB"
         />
 
         <div class="merge__group">
-          <div class="merge__group-label">{{ t("services.mergeJSON.controls.truth") }}</div>
+          <div class="merge__group-label">{{ t("services.mergeJson.controls.truth") }}</div>
           <div class="merge__group-row">
             <custom-button
                 variant="secondary"
                 :_class="`merge__chip ${truth === 'A' ? 'merge__chip_active' : ''}`"
                 @click="takeAllFrom('A')"
-                :title="t('services.mergeJSON.titles.truthA')"
+                :title="t('services.mergeJson.titles.truthA')"
             >
-              {{ t("services.mergeJSON.controls.truthA") }}
+              {{ t("services.mergeJson.controls.truthA") }}
             </custom-button>
             <custom-button
                 variant="secondary"
                 :_class="`merge__chip ${truth === 'B' ? 'merge__chip_active' : ''}`"
                 @click="takeAllFrom('B')"
-                :title="t('services.mergeJSON.titles.truthB')"
+                :title="t('services.mergeJson.titles.truthB')"
             >
-              {{ t("services.mergeJSON.controls.truthB") }}
+              {{ t("services.mergeJson.controls.truthB") }}
             </custom-button>
           </div>
         </div>
 
         <div class="merge__group">
-          <div class="merge__group-label">{{ t("services.mergeJSON.controls.sort") }}</div>
+          <div class="merge__group-label">{{ t("services.mergeJson.controls.sort") }}</div>
           <div class="merge__group-row">
             <custom-button
                 variant="ghost"
                 :_class="`merge__chip ${sortMode === 'asc' ? 'merge__chip_active' : ''}`"
                 @click="sortMode = 'asc'"
-                :title="t('services.mergeJSON.titles.sortAsc')"
+                :title="t('services.mergeJson.titles.sortAsc')"
             >
-              {{ t("services.mergeJSON.controls.sortAsc") }}
+              {{ t("services.mergeJson.controls.sortAsc") }}
             </custom-button>
             <custom-button
                 variant="ghost"
                 :_class="`merge__chip ${sortMode === 'desc' ? 'merge__chip_active' : ''}`"
                 @click="sortMode = 'desc'"
-                :title="t('services.mergeJSON.titles.sortDesc')"
+                :title="t('services.mergeJson.titles.sortDesc')"
             >
-              {{ t("services.mergeJSON.controls.sortDesc") }}
+              {{ t("services.mergeJson.controls.sortDesc") }}
             </custom-button>
           </div>
         </div>
 
         <custom-checkbox
             v-model="onlyDiff"
-            label-key="services.mergeJSON.controls.onlyDiff"
-            :title="t('services.mergeJSON.titles.onlyDiff')"
+            label-key="services.mergeJson.controls.onlyDiff"
+            :title="t('services.mergeJson.titles.onlyDiff')"
         />
 
         <custom-checkbox
             v-model="searchInValue"
-            label-key="services.mergeJSON.controls.searchInValue"
-            :title="t('services.mergeJSON.titles.searchInValue')"
+            label-key="services.mergeJson.controls.searchInValue"
+            :title="t('services.mergeJson.titles.searchInValue')"
         />
 
         <custom-checkbox
             v-model="syncSearch"
-            label-key="services.mergeJSON.controls.syncSearch"
-            :title="t('services.mergeJSON.titles.sync')"
+            label-key="services.mergeJson.controls.syncSearch"
+            :title="t('services.mergeJson.titles.sync')"
         />
 
         <custom-input
             v-model="query"
             class="merge__search"
-            label-key="services.mergeJSON.controls.search"
-            placeholder-key="services.mergeJSON.controls.searchPh"
-            :title="t('services.mergeJSON.titles.search')"
+            label-key="services.mergeJson.controls.search"
+            placeholder-key="services.mergeJson.controls.searchPh"
+            :title="t('services.mergeJson.titles.search')"
             clearable
         />
 
@@ -389,16 +389,16 @@ watch(query, (v) => {
             class="merge__select merge__select_small"
             :disabled="!selectedKey"
             :items="[
-            { label: t('services.mergeJSON.controls.keyTruthAuto'), value: 'AUTO' },
-            { label: t('services.mergeJSON.controls.keyTruthA'), value: 'A' },
-            { label: t('services.mergeJSON.controls.keyTruthB'), value: 'B' }
+            { label: t('services.mergeJson.controls.keyTruthAuto'), value: 'AUTO' },
+            { label: t('services.mergeJson.controls.keyTruthA'), value: 'A' },
+            { label: t('services.mergeJson.controls.keyTruthB'), value: 'B' }
           ]"
             :title="
             keyTruth === 'AUTO'
-              ? t('services.mergeJSON.titles.keyTruthAuto')
+              ? t('services.mergeJson.titles.keyTruthAuto')
               : keyTruth === 'A'
-                ? t('services.mergeJSON.titles.keyTruthA')
-                : t('services.mergeJSON.titles.keyTruthB')
+                ? t('services.mergeJson.titles.keyTruthA')
+                : t('services.mergeJson.titles.keyTruthB')
           "
         />
 
@@ -407,9 +407,9 @@ watch(query, (v) => {
             :_class="'merge__btn'"
             :disabled="!selectedKey"
             @click="useA"
-            :title="t('services.mergeJSON.titles.useA')"
+            :title="t('services.mergeJson.titles.useA')"
         >
-          {{ t("services.mergeJSON.row.useA") }}
+          {{ t("services.mergeJson.row.useA") }}
         </custom-button>
 
         <custom-button
@@ -417,9 +417,9 @@ watch(query, (v) => {
             :_class="'merge__btn'"
             :disabled="!selectedKey"
             @click="useB"
-            :title="t('services.mergeJSON.titles.useB')"
+            :title="t('services.mergeJson.titles.useB')"
         >
-          {{ t("services.mergeJSON.row.useB") }}
+          {{ t("services.mergeJson.row.useB") }}
         </custom-button>
 
         <custom-button
@@ -427,34 +427,34 @@ watch(query, (v) => {
             :_class="'merge__btn'"
             :disabled="!selectedKey"
             @click="resetSelected"
-            :title="t('services.mergeJSON.titles.reset')"
+            :title="t('services.mergeJson.titles.reset')"
         >
-          {{ t("services.mergeJSON.row.reset") }}
+          {{ t("services.mergeJson.row.reset") }}
         </custom-button>
 
         <custom-button
             variant="ghost"
             :_class="'merge__btn'"
             @click="showAddKey = true"
-            :title="t('services.mergeJSON.titles.addKey')"
+            :title="t('services.mergeJson.titles.addKey')"
         >
-          {{ t("services.mergeJSON.actions.addKey") }}
+          {{ t("services.mergeJson.actions.addKey") }}
         </custom-button>
 
         <custom-button
             variant="primary"
             :_class="'merge__btn'"
             @click="downloadResultJson"
-            :title="t('services.mergeJSON.titles.download')"
+            :title="t('services.mergeJson.titles.download')"
         >
-          {{ t("services.mergeJSON.actions.downloadJson") }}
+          {{ t("services.mergeJson.actions.downloadJson") }}
         </custom-button>
       </div>
 
       <div class="merge__triple">
         <div class="merge__pane">
           <div class="merge__pane-head">
-            <div class="merge__pane-title">{{ t("services.mergeJSON.table.colA") }}</div>
+            <div class="merge__pane-title">{{ t("services.mergeJson.table.colA") }}</div>
             <div class="merge__pane-sub" v-if="selectedKey"><span class="merge__sel">{{ selectedKey }}</span></div>
           </div>
 
@@ -506,7 +506,7 @@ watch(query, (v) => {
 
         <div class="merge__pane merge__pane_center">
           <div class="merge__pane-head">
-            <div class="merge__pane-title">{{ t("services.mergeJSON.table.colResult") }}</div>
+            <div class="merge__pane-title">{{ t("services.mergeJson.table.colResult") }}</div>
             <div class="merge__pane-sub" v-if="selectedKey"><span class="merge__sel">{{ selectedKey }}</span></div>
           </div>
 
@@ -559,7 +559,7 @@ watch(query, (v) => {
 
         <div class="merge__pane">
           <div class="merge__pane-head">
-            <div class="merge__pane-title">{{ t("services.mergeJSON.table.colB") }}</div>
+            <div class="merge__pane-title">{{ t("services.mergeJson.table.colB") }}</div>
             <div class="merge__pane-sub" v-if="selectedKey"><span class="merge__sel">{{ selectedKey }}</span></div>
           </div>
 
