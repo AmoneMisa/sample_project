@@ -1,5 +1,5 @@
-import { useHeaderMenu, useFooterBlocks, useContacts, useTranslationsLoaded } from '~/composables/useCommonData';
-import { safeFetch } from '~/utils/safeFetch';
+import {useHeaderMenu, useFooterBlocks, useContacts, useTranslationsLoaded} from '~/composables/useCommonData';
+import {safeFetch} from '~/utils/safeFetch';
 
 export async function bootstrapCommonSSR(nuxtApp: ReturnType<typeof useNuxtApp>, lang: string) {
     const config = useRuntimeConfig();
@@ -7,10 +7,12 @@ export async function bootstrapCommonSSR(nuxtApp: ReturnType<typeof useNuxtApp>,
 
     const tr = await safeFetch<Record<string, any>>(
         `${api}/translations/structured`,
-        { query: { lang } }
+        {query: {lang}}
     );
 
-    nuxtApp.$i18n.setLocaleMessage(lang, tr.data ?? {});
+    if (tr.data && Object.keys(tr.data).length) {
+        nuxtApp.$i18n.setLocaleMessage(lang, tr.data);
+    }
     nuxtApp.runWithContext(() => {
         const loaded = useTranslationsLoaded();
         loaded.value.push(lang);

@@ -1,6 +1,6 @@
-import { startI18nLoading, finishI18nLoading } from '~/composables/useI18nLoading';
-import { useTranslationsLoaded } from '~/composables/useCommonData';
-import { safeFetch } from '~/utils/safeFetch';
+import {startI18nLoading, finishI18nLoading} from '~/composables/useI18nLoading';
+import {useTranslationsLoaded} from '~/composables/useCommonData';
+import {safeFetch} from '~/utils/safeFetch';
 
 export async function loadTranslationsClient(nuxtApp: ReturnType<typeof useNuxtApp>, lang: string) {
     const loaded = useTranslationsLoaded();
@@ -11,12 +11,14 @@ export async function loadTranslationsClient(nuxtApp: ReturnType<typeof useNuxtA
 
     startI18nLoading();
     try {
-        const { data } = await safeFetch<Record<string, any>>(
+        const {data} = await safeFetch<Record<string, any>>(
             `${api}/translations/structured`,
-            { query: { lang } }
+            {query: {lang}}
         );
-        nuxtApp.$i18n.setLocaleMessage(lang, data ?? {});
-        loaded.value.add(lang);
+        if (data && Object.keys(data).length) {
+            nuxtApp.$i18n.setLocaleMessage(lang, data);
+            if (!loaded.value.includes(lang)) loaded.value.push(lang);
+        }
     } finally {
         finishI18nLoading();
     }
