@@ -7,7 +7,6 @@ import {safeFetch} from "~/utils/safeFetch";
 import type FeatureCardInterface from "~/interfaces/FeatureCardInterface";
 import PageHeader from "~/components/common/PageHeader.vue";
 import CustomButton from "~/components/common/CustomButton.vue";
-import type {TabsResponse} from "~/interfaces/TabsInterface";
 import type TestimonialInterface from "~/interfaces/TestimonialInterface";
 
 const {t} = useI18n();

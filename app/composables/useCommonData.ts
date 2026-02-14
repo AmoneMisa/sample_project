@@ -5,3 +5,5 @@ export const useContacts = () => useState<any>('contacts', () => null);
 export const useTranslationsLoaded = () =>
     useState<string[]>('translations-loaded', () => []);
 
+export const useTranslationMessages = () =>
+    useState<{}>('translation-messages', () => null);

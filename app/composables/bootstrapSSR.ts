@@ -1,4 +1,10 @@
-import {useHeaderMenu, useFooterBlocks, useContacts, useTranslationsLoaded} from '~/composables/useCommonData';
+import {
+    useContacts,
+    useFooterBlocks,
+    useHeaderMenu,
+    useTranslationMessages,
+    useTranslationsLoaded
+} from '~/composables/useCommonData';
 import {safeFetch} from '~/utils/safeFetch';
 
 export async function bootstrapCommonSSR(nuxtApp: ReturnType<typeof useNuxtApp>, lang: string) {
@@ -13,6 +19,12 @@ export async function bootstrapCommonSSR(nuxtApp: ReturnType<typeof useNuxtApp>,
     if (tr.data && Object.keys(tr.data).length) {
         nuxtApp.$i18n.setLocaleMessage(lang, tr.data);
     }
+
+    nuxtApp.runWithContext(() => {
+        const messages = useTranslationMessages();
+        messages.value = tr.data;
+    });
+
     nuxtApp.runWithContext(() => {
         const loaded = useTranslationsLoaded();
         loaded.value.push(lang);

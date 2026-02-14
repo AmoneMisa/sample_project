@@ -11,7 +11,8 @@ export async function reloadLocaleData(nuxtApp: ReturnType<typeof useNuxtApp>, l
     startI18nLoading();
     try {
         const tr = await safeFetch<Record<string, any>>(`${api}/translations/structured`, {query: {lang}});
-        nuxtApp.$i18n.setLocaleMessage(lang, tr.data ?? {});
+        console.log("useLocaleReload", tr.data);
+        nuxtApp.$i18n.setLocaleMessage(lang, tr.data);
         loaded.value.push(lang);
     } finally {
         finishI18nLoading();
