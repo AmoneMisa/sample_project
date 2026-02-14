@@ -37,7 +37,7 @@ export async function bootstrapCommonSSR(nuxtApp: ReturnType<typeof useNuxtApp>,
     ]);
 
     nuxtApp.runWithContext(() => {
-        useContacts().value = contacts.data ?? null;
+        useContacts().value = contacts?.data ?? null;
         useHeaderMenu().value = menu.data ?? null;
         useFooterBlocks().value = footer.data ?? null;
     });

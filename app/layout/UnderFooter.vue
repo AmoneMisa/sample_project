@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import ContactItem from "~/components/footer/ContactItem.vue";
 
-const contacts = useContacts();
+const contactsData = useContacts();
+const contacts = computed(() => contactsData?.value?.contacts ?? []);
 </script>
 
 <template>

@@ -66,7 +66,6 @@ onMounted(() => {
 });
 
 const nuxtApp = useNuxtApp();
-const i18n = nuxtApp.$i18n;
 const colorMode = useColorMode();
 
 function toggleTheme() {

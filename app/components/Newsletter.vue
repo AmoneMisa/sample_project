@@ -31,7 +31,7 @@ const {t} = useI18n();
   padding-right: 31%;
   line-height: 28px;
   margin-bottom: 16px;
-  color: var(--ui-text-inverted);
+  color: var(--text-white);
 
   @media (max-width: 1024px) {
     font-size: 18px;
