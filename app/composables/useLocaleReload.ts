@@ -6,13 +6,13 @@ export async function reloadLocaleData(nuxtApp: ReturnType<typeof useNuxtApp>, l
     const api = config.public.apiBase;
     const loaded = useTranslationsLoaded();
 
-    if (loaded.value.has(lang)) return;
+    if (loaded.value.includes(lang)) return;
 
     startI18nLoading();
     try {
         const tr = await safeFetch<Record<string, any>>(`${api}/translations/structured`, {query: {lang}});
         nuxtApp.$i18n.setLocaleMessage(lang, tr.data ?? {});
-        loaded.value.add(lang);
+        loaded.value.push(lang);
     } finally {
         finishI18nLoading();
     }

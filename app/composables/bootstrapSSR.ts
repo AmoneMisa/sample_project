@@ -13,7 +13,7 @@ export async function bootstrapCommonSSR(nuxtApp: ReturnType<typeof useNuxtApp>,
     nuxtApp.$i18n.setLocaleMessage(lang, tr.data ?? {});
     nuxtApp.runWithContext(() => {
         const loaded = useTranslationsLoaded();
-        loaded.value.add(lang);
+        loaded.value.push(lang);
     });
 
     const [contacts, menu, footer] = await Promise.all([
