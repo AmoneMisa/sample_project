@@ -11,6 +11,11 @@
         "pickFile": "Выбрать файл",
         "noFile": "Файл не выбран"
       },
+      "table": {
+        "colA": "A",
+        "colB": "Б",
+        "colResult": "Результат"
+      },
       "controls": {
         "view": "Режим",
         "viewJson": "JSON",
@@ -24,6 +29,7 @@
         "sortDesc": "Z → A",
         "onlyDiff": "Только различия",
         "minify": "Свернуть",
+        "search": "Поиск",
         "searchPh": "Поиск по ключам",
         "searchInValue": "По значениям",
         "sync": "Синхронизировать",
@@ -61,7 +67,8 @@
       },
       "errors": {
         "invalidFile": "Не удалось прочитать файл. Проверьте формат и попробуйте ещё раз.",
-        "invalidJson": "Некорректный JSON."
+        "invalidJson": "Некорректный JSON.",
+        "fileTooLarge": "Файл слишком большой."
       }
     },
     "markdownEditor": {

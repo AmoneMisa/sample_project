@@ -5,12 +5,16 @@ type Props = {
   multiple?: boolean
   error?: string | null
   hintKey?: string
+  maxBytes?: number
+  maxBytesErrorKey?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   accept: ".json,.csv,.xml",
   multiple: false,
   error: null,
+  maxBytes: 50 * 1024 * 1024,
+  maxBytesErrorKey: "services.mergeJson.errors.fileTooLarge",
 })
 
 const emit = defineEmits<{
@@ -18,18 +22,55 @@ const emit = defineEmits<{
 }>()
 
 const inputRef = ref<HTMLInputElement | null>(null)
-const fileNames = ref<string>("")
+const fileNames = ref("")
+const localError = ref<string | null>(null)
+
+const shownError = computed(() => props.error ?? localError.value)
 
 function openPicker() {
   inputRef.value?.click()
 }
 
+function formatBytes(bytes: number) {
+  const mb = bytes / (1024 * 1024)
+  if (mb >= 1024) return `${(mb / 1024).toFixed(1)} GB`
+  return `${mb.toFixed(1)} MB`
+}
+
+function validateFiles(files: File[]) {
+  const tooLarge = files.find((f) => f.size > props.maxBytes)
+  if (!tooLarge) return { ok: true as const }
+
+  return {
+    ok: false as const,
+    message: (key: string) =>
+        `${key} (${formatBytes(tooLarge.size)} > ${formatBytes(props.maxBytes)})`,
+    file: tooLarge,
+  }
+}
+
 function onChange(e: Event) {
+  localError.value = null
+
   const input = e.target as HTMLInputElement
   const files = Array.from(input.files || [])
+  input.value = ""
+
+  if (!files.length) {
+    fileNames.value = ""
+    return
+  }
+
+  const res = validateFiles(files)
+  if (!res.ok) {
+    fileNames.value = ""
+    localError.value = `${(useI18n().t as any)(props.maxBytesErrorKey)} (${formatBytes(res.file.size)} > ${formatBytes(props.maxBytes)})`
+    emit("files", [])
+    return
+  }
+
   fileNames.value = files.map((f) => f.name).join(", ")
   emit("files", files)
-  input.value = ""
 }
 </script>
 
@@ -37,7 +78,7 @@ function onChange(e: Event) {
   <div class="fi">
     <div class="fi__label">{{ $t(labelKey) }}</div>
 
-    <div class="fi__box" :class="{ fi__box_error: !!error }">
+    <div class="fi__box" :class="{ fi__box_error: !!shownError }">
       <input
           ref="inputRef"
           class="fi__input"
@@ -61,7 +102,7 @@ function onChange(e: Event) {
     </div>
 
     <div v-if="hintKey" class="fi__hint">{{ $t(hintKey) }}</div>
-    <div v-if="error" class="fi__error">{{ error }}</div>
+    <div v-if="shownError" class="fi__error">{{ shownError }}</div>
   </div>
 </template>
 
@@ -152,6 +193,8 @@ function onChange(e: Event) {
 }
 
 @media (max-width: 1100px) {
-  .fi { min-width: 200px; }
+  .fi {
+    min-width: 200px;
+  }
 }
 </style>

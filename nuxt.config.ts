@@ -5,7 +5,11 @@ export default defineNuxtConfig({
     devtools: {enabled: true},
     modules: ['@nuxt/ui', '@nuxtjs/i18n', '@nuxt/icon'],
     css: ['~/assets/css/main.css'],
-    vite: { plugins: [svgLoader()] },
+    vite: {
+        plugins: [svgLoader()], optimizeDeps: {
+            exclude: ["monaco-editor"],
+        }
+    },
     i18n: {
         defaultLocale: 'ru',
         langDir: null,
