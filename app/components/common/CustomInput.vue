@@ -80,9 +80,9 @@ function clear() {
           class="uii__clear"
           type="button"
           @click="clear"
-          :title="$t('services.jsonMerge.titles.reset')"
+          :title="$t('services.mergeJson.titles.reset')"
       >
-        <i-lucide-x class="uii__clear-icon" />
+        <u-icon name="i-lucide-x" class="uii__clear-icon" />
       </button>
     </div>
 

@@ -49,13 +49,13 @@ function onChange(e: Event) {
 
       <div class="fi__row">
         <button class="fi__btn" type="button" @click="openPicker">
-          <i-lucide-upload class="fi__icon" />
-          <span>{{ $t("services.jsonMerge.inputs.pickFile") }}</span>
+          <u-icon name="i-lucide-upload" class="fi__icon" />
+          <span>{{ $t("services.mergeJson.inputs.pickFile") }}</span>
         </button>
 
-        <div class="fi__name" :title="fileNames || $t('services.jsonMerge.inputs.noFile')">
+        <div class="fi__name" :title="fileNames || $t('services.mergeJson.inputs.noFile')">
           <span v-if="fileNames">{{ fileNames }}</span>
-          <span v-else class="fi__muted">{{ $t("services.jsonMerge.inputs.noFile") }}</span>
+          <span v-else class="fi__muted">{{ $t("services.mergeJson.inputs.noFile") }}</span>
         </div>
       </div>
     </div>
