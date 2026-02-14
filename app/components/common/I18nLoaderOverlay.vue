@@ -6,14 +6,18 @@ const isLoadingCount = useI18nLoadingCount();
 const rawLocale = nuxtApp.$i18n.locale;
 const localeRef = typeof rawLocale === "string" ? ref(rawLocale) : rawLocale;
 if (import.meta.client) {
+  const loaded = useTranslationsLoaded();
+
   watch(
       localeRef,
-      async (newLang, oldLang) => {
+      async (newLang) => {
         const lang = newLang || "ru";
-        if (lang === oldLang) return;
+
+        if (loaded.value.includes(lang)) return;
 
         await loadTranslationsClient(nuxtApp, lang);
-      }
+      },
+      {immediate: true}
   );
 }
 </script>
