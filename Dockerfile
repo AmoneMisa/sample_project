@@ -5,6 +5,9 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 FROM node:22 AS build
+
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
 WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
