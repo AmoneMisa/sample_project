@@ -85,6 +85,7 @@ const emit = defineEmits<{
   (e: "update:modelValue", v: string): void;
   (e: "select", key: string): void;
   (e: "ready", api: { openFind: () => void; revealKey: (k: string) => void }): void;
+  (e: "nav", dir: 1 | -1): void;
 }>();
 
 const el = ref<HTMLDivElement | null>(null);
@@ -125,47 +126,6 @@ function rangeFromOffsets(start: number, end: number) {
   return new monaco.Range(a.lineNumber, 1, b.lineNumber, 1);
 }
 
-function getJsonRangeByPath(path: string) {
-  if (!editor || props.mode !== "json") return null;
-  const m = model();
-  if (!m) return null;
-
-  const tree = parseTree(m.getValue());
-  if (!tree) return null;
-
-  const parts = path
-      .split(".")
-      .filter(Boolean)
-      .map((p) => (/^\d+$/.test(p) ? Number(p) : p)) as (string | number)[];
-
-  let cur: any = tree;
-
-  for (const seg of parts) {
-    if (!cur) return null;
-
-    if (cur.type === "object") {
-      const prop = (cur.children ?? []).find(
-          (ch: any) => ch.type === "property" && ch.children?.[0]?.value === seg
-      );
-      if (!prop) return null;
-      cur = prop.children?.[1];
-      continue;
-    }
-
-    if (cur.type === "array") {
-      const idx = typeof seg === "number" ? seg : Number(seg);
-      if (Number.isNaN(idx)) return null;
-      cur = cur.children?.[idx];
-      continue;
-    }
-
-    return null;
-  }
-
-  if (!cur) return null;
-  return rangeFromOffsets(cur.offset, cur.offset + cur.length);
-}
-
 function getFlatRangeByPath(path: string) {
   if (!editor || props.mode !== "flat") return null;
   const m = model();
@@ -182,10 +142,6 @@ function getFlatRangeByPath(path: string) {
   const start = idx;
   const end = text.indexOf("\n", idx);
   return rangeFromOffsets(start, end === -1 ? text.length : end);
-}
-
-function getRangeByPath(path: string) {
-  return props.mode === "json" ? getJsonRangeByPath(path) : getFlatRangeByPath(path);
 }
 
 function getJsonPathAtOffset(offset: number): string | null {
@@ -314,7 +270,10 @@ onMounted(async () => {
   });
 
   emit("ready", {openFind, revealKey: (k) => emit("select", k)});
-
+  editor.addCommand(monaco.KeyCode.UpArrow, () => emit("nav", -1));
+  editor.addCommand(monaco.KeyCode.DownArrow, () => emit("nav", 1));
+  editor.addCommand(monaco.KeyCode.Enter, () => emit("nav", 1));
+  editor.addCommand(monaco.KeyMod.Shift | monaco.KeyCode.Enter, () => emit("nav", -1));
   applySelected();
   applyDecorations();
 });

@@ -128,21 +128,20 @@ function onDownload() {
             :title="t('services.mergeJson.titles.onlyDiff')"
         />
 
-        <custom-checkbox
-            v-model="ui.searchInValue"
-            :label-key="'services.mergeJson.controls.searchInValue'"
-            :title="t('services.mergeJson.titles.searchInValue')"
-        />
+        <div class="merge__search-wrap">
+          <custom-input
+              v-model="ui.query"
+              class="merge__search"
+              :label-key="'services.mergeJson.controls.search'"
+              :placeholder-key="'services.mergeJson.controls.searchPh'"
+              :title="t('services.mergeJson.titles.search')"
+              clearable
+          />
 
-        <custom-input
-            v-model="ui.query"
-            class="merge__search"
-            :label-key="'services.mergeJson.controls.search'"
-            :placeholder-key="'services.mergeJson.controls.searchPh'"
-            :title="t('services.mergeJson.titles.search')"
-            clearable
-        />
-
+          <div v-if="ui.query.trim()" class="merge__matches">
+            {{ ui.matchesCount ? `${ui.matchIndex + 1}/${ui.matchesCount}` : `0` }}
+          </div>
+        </div>
         <div class="merge__spacer"/>
 
         <custom-button
@@ -233,6 +232,7 @@ function onDownload() {
                   :hidden-keys="ui.hiddenKeysA"
                   :decorations="ui.decorationsA"
                   :reveal-path="ui.revealKey"
+                  @nav="ui.jumpToMatch"
                   readonly
                   @select="ui.selectKey"
               />
@@ -257,6 +257,7 @@ function onDownload() {
                   :hidden-keys="ui.hiddenKeysR"
                   :decorations="ui.decorationsR"
                   :reveal-path="ui.revealKey"
+                  @nav="ui.jumpToMatch"
                   :readonly="false"
                   @update:modelValue="
                   (v) => (ui.viewMode === 'flat' ? ui.onResultFlatChange(v) : ui.onResultJsonChange(v))
@@ -286,6 +287,7 @@ function onDownload() {
                   :hidden-keys="ui.hiddenKeysB"
                   :decorations="ui.decorationsB"
                   :reveal-path="ui.revealKey"
+                  @nav="ui.jumpToMatch"
                   readonly
                   @select="ui.selectKey"
               />
@@ -462,4 +464,18 @@ function onDownload() {
     min-width: 180px;
   }
 }
+
+.merge__search-wrap {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.merge__matches {
+  font-size: 12px;
+  font-weight: 900;
+  opacity: .75;
+  padding-bottom: 6px;
+}
+
 </style>

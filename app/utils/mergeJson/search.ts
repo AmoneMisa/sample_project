@@ -8,15 +8,13 @@ export function matchesInPane(args: {
     pane: Pane;
     path: string;
     query: string;
-    searchInValue: boolean;
 }) {
-    const { aRoot, bRoot, rRoot, pane, path, query, searchInValue } = args;
+    const { aRoot, bRoot, rRoot, pane, path, query } = args;
 
     const q = query.trim().toLowerCase();
     if (!q) return false;
 
     if (path.toLowerCase().includes(q)) return true;
-    if (!searchInValue) return false;
 
     const val =
         pane === "A" ? getByPath(aRoot, path)

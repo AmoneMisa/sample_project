@@ -38,8 +38,6 @@ export function useMergeJsonState() {
     const onlyDiff = ref(false);
     const query = ref("");
 
-    const searchInValue = ref(true);
-
     const selectedKey = ref("");
 
     const errorA = ref<string | null>(null);
@@ -119,9 +117,47 @@ export function useMergeJsonState() {
             rRoot: resultObj.value,
             pane,
             path,
-            query: query.value,
-            searchInValue: searchInValue.value
+            query: query.value
         });
+    }
+
+    function getMatches(pane: Pane) {
+        const q = query.value.trim();
+        if (!q) return [];
+
+        return allLeafKeys.value.filter((k) =>
+            matchesInPane({
+                aRoot: jsonA.value,
+                bRoot: jsonB.value,
+                rRoot: resultObj.value,
+                pane,
+                path: k,
+                query: q
+            })
+        );
+    }
+
+    const matchesA = computed(() => getMatches("A"));
+    const matchesB = computed(() => getMatches("B"));
+    const matchesR = computed(() => getMatches("R"));
+
+    const matchesCount = computed(() => matchesR.value.length);
+    const matchIndex = ref(0);
+
+    watch(query, () => {
+        matchIndex.value = 0;
+    });
+
+    function jumpToMatch(dir: 1 | -1) {
+        const list = matchesR.value;
+        if (!list.length) return;
+
+        const n = list.length;
+        matchIndex.value = (matchIndex.value + dir + n) % n;
+
+        const k = list[matchIndex.value];
+        selectedKey.value = k;
+        revealKey.value = k;
     }
 
     function openRename() {
@@ -330,10 +366,10 @@ export function useMergeJsonState() {
         const keys = allLeafKeys.value;
 
         const q = query.value.trim();
-        const matchKey = q ? keys.find((k) => match("R", k)) : null;
+        const found = q ? getMatches(pane) : [];
 
         for (const k of keys) {
-            if (matchKey && k === matchKey) out.push({path: k, kind: "find"});
+            if (found.length && found.includes(k)) out.push({ path: k, kind: "find" });
 
             if (addedKeys.has(k) || pickByKey[k] === "ADDED") {
                 if (pane === "R") out.push({path: k, kind: "added"});
@@ -518,7 +554,6 @@ export function useMergeJsonState() {
         sortMode,
         onlyDiff,
         query,
-        searchInValue,
         selectedKey,
         errorA,
         errorB,
@@ -572,5 +607,11 @@ export function useMergeJsonState() {
         onFilesA,
         onFilesB,
         match,
+        matchesA,
+        matchesB,
+        matchesR,
+        matchesCount,
+        matchIndex,
+        jumpToMatch
     };
 }
