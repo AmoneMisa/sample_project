@@ -34,47 +34,49 @@ function onDownload() {
 
     <section class="merge__card">
       <div class="merge__toolbar">
-        <file-input
-            :label-key="'services.mergeJson.inputs.fileA'"
-            :hint-key="'services.mergeJson.inputs.hint'"
-            :error="ui.errorA"
-            :max-bytes="50 * 1024 * 1024"
-            :accept="ui.accept"
-            @files="ui.onFilesA"
-        />
+        <div class="merge__toolbar-row">
+          <file-input
+              :label-key="'services.mergeJson.inputs.fileA'"
+              :hint-key="'services.mergeJson.inputs.hint'"
+              :error="ui.errorA"
+              :max-bytes="50 * 1024 * 1024"
+              :accept="ui.accept"
+              @files="ui.onFilesA"
+          />
+          <file-input
+              :label-key="'services.mergeJson.inputs.fileB'"
+              :hint-key="'services.mergeJson.inputs.hint'"
+              :error="ui.errorB"
+              :max-bytes="50 * 1024 * 1024"
+              :accept="ui.accept"
+              @files="ui.onFilesB"
+          />
+        </div>
+        <div class="merge__toolbar-row">
+          <u-select
+              v-model="ui.viewMode"
+              class="merge__select"
+              :items="viewModeItems"
+              :title="t('services.mergeJson.titles.viewMode')"
+          />
 
-        <u-select
-            v-model="ui.viewMode"
-            class="merge__select"
-            :items="viewModeItems"
-            :title="t('services.mergeJson.titles.viewMode')"
-        />
+          <custom-checkbox
+              v-model="ui.minify"
+              :label-key="'services.mergeJson.controls.minify'"
+              :title="t('services.mergeJson.titles.minify')"
+              @update:modelValue="ui.onMinifyToggle"
+          />
 
-        <custom-checkbox
-            v-model="ui.minify"
-            :label-key="'services.mergeJson.controls.minify'"
-            :title="t('services.mergeJson.titles.minify')"
-            @update:modelValue="ui.onMinifyToggle"
-        />
-
-        <custom-button
-            variant="ghost"
-            :_class="'merge__btn'"
-            :disabled="!ui.canFix"
-            @click="ui.fixCurrent"
-            :title="t('services.mergeJson.titles.fixJson')"
-        >
-          {{ t("services.mergeJson.actions.fixJson") }}
-        </custom-button>
-
-        <file-input
-            :label-key="'services.mergeJson.inputs.fileB'"
-            :hint-key="'services.mergeJson.inputs.hint'"
-            :error="ui.errorB"
-            :max-bytes="50 * 1024 * 1024"
-            :accept="ui.accept"
-            @files="ui.onFilesB"
-        />
+          <custom-button
+              variant="ghost"
+              :_class="'merge__btn'"
+              :disabled="!ui.canFix"
+              @click="ui.fixCurrent"
+              :title="t('services.mergeJson.titles.fixJson')"
+          >
+            {{ t("services.mergeJson.actions.fixJson") }}
+          </custom-button>
+        </div>
 
         <div class="merge__group">
           <div class="merge__group-label">{{ t("services.mergeJson.controls.truth") }}</div>
@@ -201,6 +203,15 @@ function onDownload() {
             :title="t('services.mergeJson.titles.deleteBlock')"
         >
           {{ t("services.mergeJson.actions.deleteBlock") }}
+        </custom-button>
+        <custom-button
+            variant="ghost"
+            :_class="'merge__btn'"
+            :disabled="!ui.resultTextJson.trim()"
+            @click="ui.validateResult"
+            :title="t('services.mergeJson.titles.validate')"
+        >
+          {{ t("services.mergeJson.actions.validate") }}
         </custom-button>
 
         <custom-button
@@ -336,6 +347,14 @@ function onDownload() {
   flex-wrap: wrap;
   gap: 10px;
   align-items: flex-end;
+}
+
+.merge__toolbar-row {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  width: -webkit-fill-available;
 }
 
 .merge__spacer {

@@ -1,5 +1,9 @@
 export type JsonPrimitive = null | boolean | number | string;
-export interface JsonObject { [key: string]: JsonValue }
+
+export interface JsonObject {
+    [key: string]: JsonValue
+}
+
 export type JsonValue = JsonPrimitive | JsonValue[] | JsonObject;
 
 export function isPlainObject(v: any): v is Record<string, any> {
@@ -8,9 +12,9 @@ export function isPlainObject(v: any): v is Record<string, any> {
 
 export function safeParseJson(text: string): { ok: true; value: any } | { ok: false; error: string } {
     try {
-        return { ok: true, value: JSON.parse(text) };
+        return {ok: true, value: JSON.parse(text)};
     } catch (e: any) {
-        return { ok: false, error: e?.message || "Invalid JSON" };
+        return {ok: false, error: e?.message || "Invalid JSON"};
     }
 }
 
@@ -41,6 +45,32 @@ export function setByPath(root: any, path: string, value: any) {
             cur = cur[p];
         }
     }
+}
+
+export function keyExistsOrConflicts(root: any, path: string) {
+    const p = path.trim();
+    if (!p) return {ok: false as const, reason: "empty"};
+
+    if (getByPath(root, p) !== undefined) {
+        return {ok: false as const, reason: "exists"};
+    }
+
+    const parts = p.split(".").filter(Boolean);
+    for (let i = 1; i < parts.length; i++) {
+        const pref = parts.slice(0, i).join(".");
+        const v = getByPath(root, pref);
+        if (v !== undefined && (v == null || typeof v !== "object" || Array.isArray(v))) {
+            return {ok: false as const, reason: "prefixIsValue", at: pref};
+        }
+    }
+
+    const leaves = collectLeafPaths(root);
+    const hasChildren = leaves.some((k) => k.startsWith(p + "."));
+    if (hasChildren) {
+        return {ok: false as const, reason: "wouldShadowTree"};
+    }
+
+    return {ok: true as const};
 }
 
 export function collectLeafPaths(root: any, prefix = "", out: string[] = []) {
@@ -114,7 +144,7 @@ export async function loadJsonFromFile(file: File) {
     const text = await file.text();
     const parsed = safeParseJson(text);
     if (!parsed.ok) throw new Error(parsed.error);
-    return { text, obj: parsed.value };
+    return {text, obj: parsed.value};
 }
 
 export function sortJsonDeep(v: any, order: "asc" | "desc"): any {

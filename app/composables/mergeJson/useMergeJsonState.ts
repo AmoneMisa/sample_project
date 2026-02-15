@@ -9,7 +9,7 @@ import {
     type JsonValue,
     sortJsonDeep,
     loadJsonFromFile,
-    normalizeLoadedJson,
+    normalizeLoadedJson, keyExistsOrConflicts,
 } from "~/utils/mergeJson/json";
 import {makeDiffSet} from "~/utils/mergeJson/diff";
 import {matchesInPane} from "~/utils/mergeJson/search";
@@ -142,7 +142,20 @@ export function useMergeJsonState() {
     const matchesR = computed(() => getMatches("R"));
 
     const matchesCount = computed(() => matchesR.value.length);
+
     const matchIndex = ref(0);
+    function validateResult() {
+        const raw = (resultTextJson.value || "").trim() || "{}";
+        const p = safeParseJson(raw);
+        if (!p.ok) {
+            errorR.value = p.error;
+            return false;
+        }
+
+        resultObj.value = p.value as JsonValue;
+        errorR.value = null;
+        return true;
+    }
 
     watch(query, () => {
         matchIndex.value = 0;
@@ -419,6 +432,15 @@ export function useMergeJsonState() {
         const key = payload.key.trim();
         if (!key) return;
 
+        const chk = keyExistsOrConflicts(resultObj.value, key);
+        if (!chk.ok) {
+            if (chk.reason === "exists") errorR.value = `Key already exists: ${key}`;
+            else if (chk.reason === "prefixIsValue") errorR.value = `Cannot create "${key}": "${(chk as any).at}" is a value`;
+            else if (chk.reason === "wouldShadowTree") errorR.value = `Cannot create "${key}": it would replace an existing object`;
+            else errorR.value = "Invalid key";
+            return;
+        }
+
         const v = payload.value.trim() || "null";
         const parsed = safeParseJson(v);
         if (!parsed.ok) {
@@ -612,6 +634,7 @@ export function useMergeJsonState() {
         matchesR,
         matchesCount,
         matchIndex,
-        jumpToMatch
+        jumpToMatch,
+        validateResult
     };
 }
