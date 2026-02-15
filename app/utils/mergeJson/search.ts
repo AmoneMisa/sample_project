@@ -9,14 +9,11 @@ export function matchesInPane(args: {
     path: string;
     query: string;
     searchInValue: boolean;
-    syncSearch: boolean;
 }) {
-    const { aRoot, bRoot, rRoot, pane, path, query, searchInValue, syncSearch } = args;
+    const { aRoot, bRoot, rRoot, pane, path, query, searchInValue } = args;
 
     const q = query.trim().toLowerCase();
     if (!q) return false;
-
-    if (!syncSearch && pane !== "R") return false;
 
     if (path.toLowerCase().includes(q)) return true;
     if (!searchInValue) return false;

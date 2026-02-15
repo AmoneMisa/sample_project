@@ -2,363 +2,78 @@
 import PageHeader from "~/components/common/PageHeader.vue";
 import CustomButton from "~/components/common/CustomButton.vue";
 import FileInput from "~/components/common/FileInput.vue";
-import JsonTreeView from "~/components/mergeJson/JsonTreeView.vue";
-import AddKeyModal from "~/components/mergeJson/AddKeyModal.vue";
-import MonacoJsonView from "~/components/mergeJson/MonacoJsonView.client.vue";
-
-import {
-  getByPath,
-  setByPath,
-  cloneDeep,
-  collectLeafPaths,
-  normalizeLoadedJson,
-  loadJsonFromFile,
-  safeParseJson,
-} from "~/utils/mergeJson/json";
-import type { JsonValue } from "~/utils/mergeJson/json";
-import { makeDiffSet, leafStatus } from "~/utils/mergeJson/diff";
-import type { Truth } from "~/utils/mergeJson/pick";
-import { matchesInPane } from "~/utils/mergeJson/search";
-
 import CustomCheckbox from "~/components/common/CustomCheckbox.vue";
 import CustomInput from "~/components/common/CustomInput.vue";
+import AddKeyModal from "~/components/mergeJson/AddKeyModal.vue";
+import MonacoJsonView from "~/components/mergeJson/MonacoJsonView.client.vue";
+import {useMergeJsonState} from "~/composables/mergeJson/useMergeJsonState";
 
-type SortMode = "asc" | "desc";
-type ViewMode = "json" | "tree" | "flat";
-type Pane = "A" | "B" | "R";
+const {t} = useI18n();
+const ui = proxyRefs(useMergeJsonState());
 
-const { t } = useI18n();
+const viewModeItems = computed(() => [
+  {label: t("services.mergeJson.viewModes.json"), value: "json"},
+  {label: t("services.mergeJson.viewModes.flat"), value: "flat"},
+]);
 
-const viewMode = ref<ViewMode>("json");
-const minify = ref(false);
+const monacoMode = computed(() => (ui.viewMode === "flat" ? "flat" : "json"));
 
-const truth = ref<Truth>("A");
-const sortMode = ref<SortMode>("asc");
-
-const onlyDiff = ref(false);
-const query = ref("");
-
-const searchInValue = ref(true);
-const syncSearch = ref(false);
-
-const selectedKey = ref("");
-
-const errorA = ref<string | null>(null);
-const errorB = ref<string | null>(null);
-const errorR = ref<string | null>(null);
-
-const jsonA = ref<JsonValue>({});
-const jsonB = ref<JsonValue>({});
-
-/** Result — истина */
-const resultTextJson = ref<string>("{}");
-const resultObj = ref<JsonValue>({});
-const isDirty = ref(false);
-
-function jsonStringify(v: any) {
-  return minify.value ? JSON.stringify(v) : JSON.stringify(v, null, 2);
+function onDownload() {
+  ui.download({filename: t("services.mergeJson.download.filename")});
 }
-
-/** авто-результат (когда “reset”, “takeAllFrom”, загрузка файлов) */
-const autoResultTree = computed<JsonValue>(() => {
-  const base = cloneDeep(truth.value === "A" ? jsonA.value : jsonB.value);
-  const other = truth.value === "A" ? jsonB.value : jsonA.value;
-
-  const keys = new Set<string>([
-    ...collectLeafPaths(jsonA.value as any),
-    ...collectLeafPaths(jsonB.value as any),
-  ]);
-
-  for (const k of keys) {
-    const cur = getByPath(base as any, k);
-    if (cur === undefined) {
-      const ov = getByPath(other as any, k);
-      if (ov !== undefined) setByPath(base as any, k, ov);
-    }
-  }
-
-  return base;
-});
-
-function setResultFromAuto() {
-  const txt = jsonStringify(autoResultTree.value);
-  resultTextJson.value = txt;
-  const parsed = safeParseJson(txt);
-  resultObj.value = parsed.ok ? (parsed.value as JsonValue) : {};
-  errorR.value = null;
-  isDirty.value = false;
-}
-
-/** A/B diff (для onlyDiff) */
-const diffSet = computed(() => makeDiffSet(jsonA.value, jsonB.value));
-const statusByLeaf = (p: string) => leafStatus(jsonA.value, jsonB.value, p);
-
-/** union keys для скрытия */
-const allLeafKeys = computed(() => {
-  const keys = new Set<string>([
-    ...collectLeafPaths(jsonA.value as any),
-    ...collectLeafPaths(jsonB.value as any),
-    ...collectLeafPaths(resultObj.value as any),
-  ]);
-  const arr = Array.from(keys).filter(Boolean);
-  arr.sort((a, b) => a.localeCompare(b));
-  if (sortMode.value === "desc") arr.reverse();
-  return arr;
-});
-
-/** match для поиска */
-const matchCfg = (pane: Pane) => ({
-  aRoot: jsonA.value,
-  bRoot: jsonB.value,
-  rRoot: resultObj.value,
-  pane,
-  path: "",
-  query: query.value,
-  searchInValue: searchInValue.value,
-  syncSearch: syncSearch.value,
-});
-
-function match(pane: Pane, path: string) {
-  return matchesInPane({ ...matchCfg(pane), path });
-}
-
-watch(query, (v) => {
-  if (!v.trim()) return;
-  const keys = allLeafKeys.value;
-  const found = keys.find((k) => match("R", k));
-  if (found && found !== selectedKey.value) selectedKey.value = found;
-});
-
-/** Скрытые ключи для viewer (onlyDiff + search) */
-function hiddenKeysForPane(pane: Pane) {
-  const keys = allLeafKeys.value;
-  return keys.filter((k) => {
-    if (onlyDiff.value && !diffSet.value.has(k)) return true;
-    if (query.value.trim() && !match(pane, k)) return true;
-    return false;
-  });
-}
-
-/** flat: a.b.c = "..." */
-function toFlatText(root: any) {
-  const keys = collectLeafPaths(root as any);
-  keys.sort((a, b) => a.localeCompare(b));
-  if (sortMode.value === "desc") keys.reverse();
-
-  const lines: string[] = [];
-  for (const k of keys) {
-    if (!k) continue;
-    const v = getByPath(root, k);
-    lines.push(`${k} = ${JSON.stringify(v)}`);
-  }
-  return lines.join("\n");
-}
-
-function parseFlatTextToTree(text: string): { ok: true; value: JsonValue } | { ok: false; error: string } {
-  const out: any = {};
-  const lines = text.split(/\r?\n/);
-
-  for (let i = 0; i < lines.length; i++) {
-    const raw = lines[i].trim();
-    if (!raw) continue;
-    const idx = raw.indexOf("=");
-    if (idx === -1) return { ok: false, error: `Line ${i + 1}: expected "="` };
-
-    const key = raw.slice(0, idx).trim();
-    const valStr = raw.slice(idx + 1).trim();
-    if (!key) return { ok: false, error: `Line ${i + 1}: empty key` };
-
-    const parsed = safeParseJson(valStr);
-    if (!parsed.ok) return { ok: false, error: `Line ${i + 1}: ${parsed.error}` };
-
-    setByPath(out, key, parsed.value);
-  }
-
-  return { ok: true, value: out as JsonValue };
-}
-
-/** viewer texts */
-const viewTextA = computed(() => (viewMode.value === "flat" ? toFlatText(jsonA.value) : jsonStringify(jsonA.value)));
-const viewTextB = computed(() => (viewMode.value === "flat" ? toFlatText(jsonB.value) : jsonStringify(jsonB.value)));
-
-/** Result editor text depends on viewMode */
-const resultTextFlat = computed(() => toFlatText(resultObj.value));
-
-/** actions */
-function useA() {
-  if (!selectedKey.value) return;
-  const v = getByPath(jsonA.value as any, selectedKey.value);
-  if (v === undefined) return;
-  patchResultValue(selectedKey.value, v);
-}
-
-function useB() {
-  if (!selectedKey.value) return;
-  const v = getByPath(jsonB.value as any, selectedKey.value);
-  if (v === undefined) return;
-  patchResultValue(selectedKey.value, v);
-}
-
-function resetSelected() {
-  if (!selectedKey.value) return;
-  const v = getByPath(autoResultTree.value as any, selectedKey.value);
-  if (v === undefined) return;
-  patchResultValue(selectedKey.value, v);
-}
-
-function takeAllFrom(which: Truth) {
-  truth.value = which;
-  setResultFromAuto();
-}
-
-function patchResultValue(path: string, value: any) {
-  // правим объект-истину, затем сериализуем обратно
-  const base = cloneDeep(resultObj.value);
-  setByPath(base as any, path, value);
-
-  const txt = jsonStringify(base);
-  resultTextJson.value = txt;
-  resultObj.value = base as JsonValue;
-  errorR.value = null;
-  isDirty.value = true;
-}
-
-function onResultJsonChange(v: string) {
-  resultTextJson.value = v;
-  const parsed = safeParseJson(v.trim() || "{}");
-  if (!parsed.ok) {
-    errorR.value = parsed.error;
-    isDirty.value = true;
-    return;
-  }
-  resultObj.value = parsed.value as JsonValue;
-  errorR.value = null;
-  isDirty.value = true;
-}
-
-function onResultFlatChange(v: string) {
-  // flat редактирование: парсим → сохраняем как JSON-истину
-  const parsed = parseFlatTextToTree(v);
-  if (!parsed.ok) {
-    errorR.value = parsed.error;
-    isDirty.value = true;
-    return;
-  }
-  const txt = jsonStringify(parsed.value);
-  resultTextJson.value = txt;
-  resultObj.value = parsed.value;
-  errorR.value = null;
-  isDirty.value = true;
-}
-
-/** files */
-async function onFilesA(files: File[]) {
-  errorA.value = null;
-  try {
-    if (!files.length) return;
-    const { obj } = await loadJsonFromFile(files[0]);
-    jsonA.value = obj as JsonValue;
-    setResultFromAuto();
-  } catch (e: any) {
-    errorA.value = e?.message || t("services.mergeJson.errors.invalidFile");
-  }
-}
-
-async function onFilesB(files: File[]) {
-  errorB.value = null;
-  try {
-    if (!files.length) return;
-    const { obj } = await loadJsonFromFile(files[0]);
-    jsonB.value = obj as JsonValue;
-    setResultFromAuto();
-  } catch (e: any) {
-    errorB.value = e?.message || t("services.mergeJson.errors.invalidFile");
-  }
-}
-
-function downloadResultJson() {
-  const blob = new Blob([resultTextJson.value], { type: "application/json;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "merged.json";
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-/** add key -> patch into result */
-const showAddKey = ref(false);
-
-function onAddKey(payload: { key: string; value: string }) {
-  const key = payload.key.trim();
-  if (!key) return;
-
-  const v = payload.value.trim();
-  const parsed = safeParseJson(v);
-  if (!parsed.ok) {
-    errorR.value = parsed.error;
-    return;
-  }
-
-  patchResultValue(key, normalizeLoadedJson(parsed.value));
-  selectedKey.value = key;
-}
-
-onMounted(() => {
-  setResultFromAuto();
-});
 </script>
 
 <template>
   <u-container class="merge">
     <div class="merge__header background-hero text-center space-y-3">
-      <page-header title="services.mergeJson.title" headline="services.mergeJson.headline" class="mb-6" />
-      <p class="merge__subtitle text-muted mx-auto">{{ t("services.mergeJson.subtitle") }}</p>
+      <page-header title="services.mergeJson.title" headline="services.mergeJson.headline" class="mb-6"/>
+      <p class="merge__subtitle text-muted mx-auto">
+        {{ t("services.mergeJson.subtitle") }}
+      </p>
     </div>
 
     <section class="merge__card">
       <div class="merge__toolbar">
         <file-input
-            label-key="services.mergeJson.inputs.fileA"
-            :error="errorA"
+            :label-key="'services.mergeJson.inputs.fileA'"
+            :hint-key="'services.mergeJson.inputs.hint'"
+            :error="ui.errorA"
             :max-bytes="50 * 1024 * 1024"
-            hint-key="services.mergeJson.inputs.hint"
-            @files="onFilesA"
+            :accept="ui.accept"
+            @files="ui.onFilesA"
         />
 
         <u-select
-            v-model="viewMode"
+            v-model="ui.viewMode"
             class="merge__select"
-            :items="[
-            { label: 'JSON', value: 'json' },
-            { label: 'Tree', value: 'tree' },
-            { label: 'Flat keys', value: 'flat' },
-          ]"
+            :items="viewModeItems"
             :title="t('services.mergeJson.titles.viewMode')"
         />
 
         <custom-checkbox
-            v-model="minify"
-            label-key="services.mergeJson.controls.minify"
+            v-model="ui.minify"
+            :label-key="'services.mergeJson.controls.minify'"
             :title="t('services.mergeJson.titles.minify')"
-            @update:modelValue="() => {
-            // применяем форматирование к текущей истине, если json валиден
-            const p = safeParseJson(resultTextJson.trim() || '{}');
-            if (p.ok) {
-              const txt = jsonStringify(p.value);
-              resultTextJson = txt;
-              resultObj = p.value;
-              errorR = null;
-            }
-          }"
+            @update:modelValue="ui.onMinifyToggle"
         />
 
+        <custom-button
+            variant="ghost"
+            :_class="'merge__btn'"
+            :disabled="!ui.canFix"
+            @click="ui.fixCurrent"
+            :title="t('services.mergeJson.titles.fixJson')"
+        >
+          {{ t("services.mergeJson.actions.fixJson") }}
+        </custom-button>
+
         <file-input
-            label-key="services.mergeJson.inputs.fileB"
-            :error="errorB"
+            :label-key="'services.mergeJson.inputs.fileB'"
+            :hint-key="'services.mergeJson.inputs.hint'"
+            :error="ui.errorB"
             :max-bytes="50 * 1024 * 1024"
-            hint-key="services.mergeJson.inputs.hint"
-            @files="onFilesB"
+            :accept="ui.accept"
+            @files="ui.onFilesB"
         />
 
         <div class="merge__group">
@@ -366,8 +81,8 @@ onMounted(() => {
           <div class="merge__group-row">
             <custom-button
                 variant="secondary"
-                :_class="`merge__chip ${truth === 'A' ? 'merge__chip_active' : ''}`"
-                @click="takeAllFrom('A')"
+                :_class="`merge__chip ${ui.truth === 'A' ? 'merge__chip_active' : ''}`"
+                @click="ui.takeAllFrom('A')"
                 :title="t('services.mergeJson.titles.truthA')"
             >
               {{ t("services.mergeJson.controls.truthA") }}
@@ -375,8 +90,8 @@ onMounted(() => {
 
             <custom-button
                 variant="secondary"
-                :_class="`merge__chip ${truth === 'B' ? 'merge__chip_active' : ''}`"
-                @click="takeAllFrom('B')"
+                :_class="`merge__chip ${ui.truth === 'B' ? 'merge__chip_active' : ''}`"
+                @click="ui.takeAllFrom('B')"
                 :title="t('services.mergeJson.titles.truthB')"
             >
               {{ t("services.mergeJson.controls.truthB") }}
@@ -389,8 +104,8 @@ onMounted(() => {
           <div class="merge__group-row">
             <custom-button
                 variant="ghost"
-                :_class="`merge__chip ${sortMode === 'asc' ? 'merge__chip_active' : ''}`"
-                @click="sortMode = 'asc'"
+                :_class="`merge__chip ${ui.sortMode === 'asc' ? 'merge__chip_active' : ''}`"
+                @click="ui.setSort('asc')"
                 :title="t('services.mergeJson.titles.sortAsc')"
             >
               {{ t("services.mergeJson.controls.sortAsc") }}
@@ -398,8 +113,8 @@ onMounted(() => {
 
             <custom-button
                 variant="ghost"
-                :_class="`merge__chip ${sortMode === 'desc' ? 'merge__chip_active' : ''}`"
-                @click="sortMode = 'desc'"
+                :_class="`merge__chip ${ui.sortMode === 'desc' ? 'merge__chip_active' : ''}`"
+                @click="ui.setSort('desc')"
                 :title="t('services.mergeJson.titles.sortDesc')"
             >
               {{ t("services.mergeJson.controls.sortDesc") }}
@@ -408,39 +123,33 @@ onMounted(() => {
         </div>
 
         <custom-checkbox
-            v-model="onlyDiff"
-            label-key="services.mergeJson.controls.onlyDiff"
+            v-model="ui.onlyDiff"
+            :label-key="'services.mergeJson.controls.onlyDiff'"
             :title="t('services.mergeJson.titles.onlyDiff')"
         />
 
         <custom-checkbox
-            v-model="searchInValue"
-            label-key="services.mergeJson.controls.searchInValue"
+            v-model="ui.searchInValue"
+            :label-key="'services.mergeJson.controls.searchInValue'"
             :title="t('services.mergeJson.titles.searchInValue')"
         />
 
-        <custom-checkbox
-            v-model="syncSearch"
-            label-key="services.mergeJson.controls.sync"
-            :title="t('services.mergeJson.titles.sync')"
-        />
-
         <custom-input
-            v-model="query"
+            v-model="ui.query"
             class="merge__search"
-            label-key="services.mergeJson.controls.search"
-            placeholder-key="services.mergeJson.controls.searchPh"
+            :label-key="'services.mergeJson.controls.search'"
+            :placeholder-key="'services.mergeJson.controls.searchPh'"
             :title="t('services.mergeJson.titles.search')"
             clearable
         />
 
-        <div class="merge__spacer" />
+        <div class="merge__spacer"/>
 
         <custom-button
             variant="secondary"
             :_class="'merge__btn'"
-            :disabled="!selectedKey"
-            @click="useA"
+            :disabled="!ui.selectedKey"
+            @click="ui.useA"
             :title="t('services.mergeJson.titles.useA')"
         >
           {{ t("services.mergeJson.row.useA") }}
@@ -449,8 +158,8 @@ onMounted(() => {
         <custom-button
             variant="secondary"
             :_class="'merge__btn'"
-            :disabled="!selectedKey"
-            @click="useB"
+            :disabled="!ui.selectedKey"
+            @click="ui.useB"
             :title="t('services.mergeJson.titles.useB')"
         >
           {{ t("services.mergeJson.row.useB") }}
@@ -459,8 +168,8 @@ onMounted(() => {
         <custom-button
             variant="ghost"
             :_class="'merge__btn'"
-            :disabled="!selectedKey"
-            @click="resetSelected"
+            :disabled="!ui.selectedKey"
+            @click="ui.resetSelected"
             :title="t('services.mergeJson.titles.reset')"
         >
           {{ t("services.mergeJson.row.reset") }}
@@ -469,146 +178,134 @@ onMounted(() => {
         <custom-button
             variant="ghost"
             :_class="'merge__btn'"
-            @click="showAddKey = true"
+            @click="ui.showAddKey = true"
             :title="t('services.mergeJson.titles.addKey')"
         >
           {{ t("services.mergeJson.actions.addKey") }}
         </custom-button>
 
         <custom-button
+            variant="ghost"
+            :_class="'merge__btn'"
+            :disabled="!ui.canRename"
+            @click="ui.openRename"
+            :title="t('services.mergeJson.titles.rename')"
+        >
+          {{ t("services.mergeJson.actions.rename") }}
+        </custom-button>
+
+        <custom-button
+            variant="ghost"
+            :_class="'merge__btn'"
+            :disabled="!ui.canDeleteBlock"
+            @click="ui.openDeleteBlock"
+            :title="t('services.mergeJson.titles.deleteBlock')"
+        >
+          {{ t("services.mergeJson.actions.deleteBlock") }}
+        </custom-button>
+
+        <custom-button
             variant="primary"
             :_class="'merge__btn'"
-            @click="downloadResultJson"
+            :disabled="!ui.canDownload"
+            @click="onDownload"
             :title="t('services.mergeJson.titles.download')"
         >
-          {{ t("services.mergeJson.actions.downloadJson") }}
+          {{ t("services.mergeJson.actions.download") }}
         </custom-button>
       </div>
 
       <div class="merge__triple">
-        <!-- A -->
         <div class="merge__pane">
           <div class="merge__pane-head">
             <div class="merge__pane-title">{{ t("services.mergeJson.table.colA") }}</div>
-            <div class="merge__pane-sub" v-if="selectedKey">
-              <span class="merge__sel">{{ selectedKey }}</span>
+            <div class="merge__pane-sub" v-if="ui.selectedKey">
+              <span class="merge__sel">{{ ui.selectedKey }}</span>
             </div>
           </div>
 
           <div class="merge__pane-body">
-            <template v-if="viewMode === 'tree'">
-              <json-tree-view
-                  v-model="selectedKey"
-                  :value="jsonA"
-                  :sort="sortMode"
-                  :filter="query"
-                  :only-diff="onlyDiff"
-                  :diff-set="diffSet"
-                  :status-by-leaf="statusByLeaf"
-                  :highlight="{ aRoot: jsonA, bRoot: jsonB, truth, pickByKey: {}, addedKeys: new Set(), editedKeys: new Set(), pane: 'A' }"
-                  :search="{ aRoot: jsonA, bRoot: jsonB, rRoot: resultObj, pane: 'A', query, searchInValue, syncSearch }"
+            <ClientOnly>
+              <monaco-json-view
+                  :mode="monacoMode"
+                  :text="ui.viewTextA"
+                  :selected-key="ui.selectedKey"
+                  :hidden-keys="ui.hiddenKeysA"
+                  :decorations="ui.decorationsA"
+                  :reveal-path="ui.revealKey"
+                  readonly
+                  @select="ui.selectKey"
               />
-            </template>
-
-            <template v-else>
-              <ClientOnly>
-                <MonacoJsonView
-                    :text="viewTextA"
-                    :mode="viewMode === 'flat' ? 'flat' : 'json'"
-                    :selected-key="selectedKey"
-                    :hidden-keys="hiddenKeysForPane('A')"
-                    readonly
-                    @select="selectedKey = $event"
-                />
-              </ClientOnly>
-            </template>
+            </ClientOnly>
           </div>
         </div>
 
-        <!-- Result -->
         <div class="merge__pane merge__pane_center">
           <div class="merge__pane-head">
             <div class="merge__pane-title">{{ t("services.mergeJson.table.colResult") }}</div>
-            <div class="merge__pane-sub" v-if="selectedKey">
-              <span class="merge__sel">{{ selectedKey }}</span>
+            <div class="merge__pane-sub" v-if="ui.selectedKey">
+              <span class="merge__sel">{{ ui.selectedKey }}</span>
             </div>
           </div>
 
           <div class="merge__pane-body">
-            <template v-if="viewMode === 'tree'">
-              <json-tree-view
-                  v-model="selectedKey"
-                  :value="resultObj"
-                  :sort="sortMode"
-                  :filter="query"
-                  :only-diff="onlyDiff"
-                  :diff-set="diffSet"
-                  :status-by-leaf="statusByLeaf"
-                  :highlight="{ aRoot: jsonA, bRoot: jsonB, truth, pickByKey: {}, addedKeys: new Set(), editedKeys: new Set(), pane: 'R' }"
-                  :search="{ aRoot: jsonA, bRoot: jsonB, rRoot: resultObj, pane: 'R', query, searchInValue, syncSearch }"
+            <ClientOnly>
+              <monaco-json-view
+                  :mode="monacoMode"
+                  :model-value="ui.viewMode === 'flat' ? ui.resultTextFlat : ui.resultTextJson"
+                  :selected-key="ui.selectedKey"
+                  :hidden-keys="ui.hiddenKeysR"
+                  :decorations="ui.decorationsR"
+                  :reveal-path="ui.revealKey"
+                  :readonly="false"
+                  @update:modelValue="
+                  (v) => (ui.viewMode === 'flat' ? ui.onResultFlatChange(v) : ui.onResultJsonChange(v))
+                "
+                  @select="ui.selectKey"
               />
-            </template>
+            </ClientOnly>
 
-            <template v-else>
-              <ClientOnly>
-                <MonacoJsonView
-                    :mode="viewMode === 'flat' ? 'flat' : 'json'"
-                    :selected-key="selectedKey"
-                    :hidden-keys="hiddenKeysForPane('R')"
-                    :readonly="false"
-                    :model-value="viewMode === 'flat' ? resultTextFlat : resultTextJson"
-                    @update:modelValue="viewMode === 'flat' ? onResultFlatChange($event) : onResultJsonChange($event)"
-                    @select="selectedKey = $event"
-                />
-              </ClientOnly>
-            </template>
-
-            <div v-if="errorR" class="merge__err">{{ errorR }}</div>
+            <div v-if="ui.errorR" class="merge__err">{{ ui.errorR }}</div>
           </div>
         </div>
 
-        <!-- B -->
         <div class="merge__pane">
           <div class="merge__pane-head">
             <div class="merge__pane-title">{{ t("services.mergeJson.table.colB") }}</div>
-            <div class="merge__pane-sub" v-if="selectedKey">
-              <span class="merge__sel">{{ selectedKey }}</span>
+            <div class="merge__pane-sub" v-if="ui.selectedKey">
+              <span class="merge__sel">{{ ui.selectedKey }}</span>
             </div>
           </div>
 
           <div class="merge__pane-body">
-            <template v-if="viewMode === 'tree'">
-              <json-tree-view
-                  v-model="selectedKey"
-                  :value="jsonB"
-                  :sort="sortMode"
-                  :filter="query"
-                  :only-diff="onlyDiff"
-                  :diff-set="diffSet"
-                  :status-by-leaf="statusByLeaf"
-                  :highlight="{ aRoot: jsonA, bRoot: jsonB, truth, pickByKey: {}, addedKeys: new Set(), editedKeys: new Set(), pane: 'B' }"
-                  :search="{ aRoot: jsonA, bRoot: jsonB, rRoot: resultObj, pane: 'B', query, searchInValue, syncSearch }"
+            <ClientOnly>
+              <monaco-json-view
+                  :mode="monacoMode"
+                  :text="ui.viewTextB"
+                  :selected-key="ui.selectedKey"
+                  :hidden-keys="ui.hiddenKeysB"
+                  :decorations="ui.decorationsB"
+                  :reveal-path="ui.revealKey"
+                  readonly
+                  @select="ui.selectKey"
               />
-            </template>
-
-            <template v-else>
-              <ClientOnly>
-                <MonacoJsonView
-                    :text="viewTextB"
-                    :mode="viewMode === 'flat' ? 'flat' : 'json'"
-                    :selected-key="selectedKey"
-                    :hidden-keys="hiddenKeysForPane('B')"
-                    readonly
-                    @select="selectedKey = $event"
-                />
-              </ClientOnly>
-            </template>
+            </ClientOnly>
           </div>
         </div>
       </div>
     </section>
 
-    <AddKeyModal v-model="showAddKey" @submit="onAddKey" />
+    <add-key-modal v-model="ui.showAddKey" @submit="ui.onAddKey"/>
+    <component
+        v-if="ui.modal.component"
+        :is="ui.modal.component"
+        :model-value="ui.modal.open"
+        v-bind="ui.modal.props"
+        @update:modelValue="(v) => (v ? (ui.modal.open = true) : ui.closeModal())"
+        @close="ui.closeModal"
+        @confirm="(payload) => { ui.modal.onConfirm(payload); ui.closeModal(); }"
+    />
+
   </u-container>
 </template>
 

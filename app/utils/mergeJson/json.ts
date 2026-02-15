@@ -87,15 +87,34 @@ export function buildTreeFromFlat(obj: Record<string, any>) {
 }
 
 export function normalizeLoadedJson(obj: any): JsonValue {
-    if (detectJsonMode(obj) === "flat") return buildTreeFromFlat(obj);
-    return obj as JsonValue;
+    let cur: any = obj;
+
+    for (let i = 0; i < 2; i++) {
+        if (typeof cur !== "string") break;
+
+        const t = cur.trim();
+        const looksLikeJson =
+            (t.startsWith("{") && t.endsWith("}")) || (t.startsWith("[") && t.endsWith("]"));
+
+        if (!looksLikeJson) break;
+
+        const p = safeParseJson(t);
+        if (!p.ok) break;
+
+        cur = p.value;
+    }
+
+    if (detectJsonMode(cur) === "flat" && isPlainObject(cur)) return buildTreeFromFlat(cur);
+
+    return cur as JsonValue;
 }
+
 
 export async function loadJsonFromFile(file: File) {
     const text = await file.text();
     const parsed = safeParseJson(text);
     if (!parsed.ok) throw new Error(parsed.error);
-    return { text, obj: normalizeLoadedJson(parsed.value) };
+    return { text, obj: parsed.value };
 }
 
 export function sortJsonDeep(v: any, order: "asc" | "desc"): any {

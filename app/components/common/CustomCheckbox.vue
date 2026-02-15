@@ -1,6 +1,6 @@
 <script setup lang="ts">
 type Props = {
-  modelValue: boolean
+  modelValue?: boolean
   label?: string
   labelKey?: string
   hint?: string
@@ -16,6 +16,7 @@ const props = withDefaults(defineProps<Props>(), {
   hintKey: "",
   error: null,
   disabled: false,
+  modelValue: false,
 })
 
 const emit = defineEmits<{

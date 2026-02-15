@@ -2,7 +2,7 @@
 type InputType = "text" | "search" | "email" | "password" | "number" | "url";
 
 type Props = {
-  modelValue: string
+  modelValue?: string
   type?: InputType
   label?: string
   labelKey?: string
@@ -32,6 +32,7 @@ const props = withDefaults(defineProps<Props>(), {
   autocomplete: "off",
   inputmode: "text",
   clearable: true,
+  modelValue: ""
 })
 
 const emit = defineEmits<{

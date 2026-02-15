@@ -1,17 +1,20 @@
 <script setup lang="ts">
-import type { editor as E } from "monaco-editor";
-import { parseTree } from "jsonc-parser";
+import type {editor as E} from "monaco-editor";
+import {parseTree} from "jsonc-parser";
+import {buildJsonIndex} from "~/utils/mergeJson/monacoIndex";
 
 type ViewMode = "json" | "flat";
+type DecoKind = "new" | "conflict" | "added" | "edited" | "find";
+type Deco = { path: string; kind: DecoKind };
 
 type Props = {
-  modelValue?: string; // если задан — компонент controlled
-  text?: string;       // fallback для readonly/простого режима
+  modelValue?: string;
+  text?: string;
   mode: ViewMode;
-
   selectedKey?: string;
   hiddenKeys?: string[];
-
+  decorations?: Deco[];
+  revealPath?: string | null;
   readonly?: boolean;
 };
 
@@ -21,8 +24,63 @@ const props = withDefaults(defineProps<Props>(), {
   selectedKey: "",
   hiddenKeys: () => [],
   readonly: true,
+  decorations: () => [],
+  revealPath: null
+});
+let index = buildJsonIndex(currentText() || "{}");
+
+function classFor(k: DecoKind) {
+  if (k === "new") return "jm__hl_new";
+  if (k === "conflict") return "jm__hl_conflict";
+  if (k === "added") return "jm__hl_added";
+  if (k === "edited") return "jm__hl_edited";
+  return "jm__findRing";
+}
+
+function rgForPath(path: string) {
+  if (!editor || !monaco) return null;
+
+  if (props.mode === "flat") return getFlatRangeByPath(path);
+
+  const m = editor.getModel();
+  if (!m) return null;
+
+  const r = index.leaf.get(path) ?? index.node.get(path);
+  if (!r) return null;
+
+  const a = m.getPositionAt(r.start);
+  const b = m.getPositionAt(r.end);
+  return new monaco.Range(a.lineNumber, 1, b.lineNumber, 1);
+}
+
+function applyDecorations() {
+  if (!editor || !monaco) return;
+  ensureDecs();
+
+  const list = (props.decorations ?? [])
+      .map((d) => {
+        const range = rgForPath(d.path);
+        if (!range) return null;
+        return { range, options: { isWholeLine: true, className: classFor(d.kind) } };
+      })
+      .filter(Boolean) as any[];
+
+  decMarks!.set(list);
+}
+
+watch(() => currentText(), (t) => {
+  index = buildJsonIndex(t || "{}");
+  applySelected();
+  applyDecorations();
 });
 
+watch(() => props.decorations, applyDecorations, {deep: true});
+
+watch(() => props.revealPath, (p) => {
+  if (!p || !editor) return;
+  const r = rgForPath(p);
+  if (r) editor.revealRangeInCenter(r);
+});
 const emit = defineEmits<{
   (e: "update:modelValue", v: string): void;
   (e: "select", key: string): void;
@@ -33,20 +91,23 @@ const el = ref<HTMLDivElement | null>(null);
 
 let monaco: typeof import("monaco-editor") | null = null;
 let editor: E.IStandaloneCodeEditor | null = null;
-let dec: E.IEditorDecorationsCollection | null = null;
 
 let isProgrammatic = false;
 
-function ensureDec() {
+let decSel: E.IEditorDecorationsCollection | null = null;
+let decMarks: E.IEditorDecorationsCollection | null = null;
+
+function ensureDecs() {
   if (!editor) return;
-  if (!dec) dec = editor.createDecorationsCollection();
+  if (!decSel) decSel = editor.createDecorationsCollection();
+  if (!decMarks) decMarks = editor.createDecorationsCollection();
 }
 
 function model() {
   return editor?.getModel() ?? null;
 }
 
-function currentText() {
+function currentText(): string {
   return props.modelValue ?? props.text ?? "";
 }
 
@@ -64,10 +125,6 @@ function rangeFromOffsets(start: number, end: number) {
   return new monaco.Range(a.lineNumber, 1, b.lineNumber, 1);
 }
 
-/**
- * JSON: найти node по path и вернуть диапазон (whole line)
- * path: "a.b.0.c"
- */
 function getJsonRangeByPath(path: string) {
   if (!editor || props.mode !== "json") return null;
   const m = model();
@@ -109,9 +166,6 @@ function getJsonRangeByPath(path: string) {
   return rangeFromOffsets(cur.offset, cur.offset + cur.length);
 }
 
-/**
- * FLAT: ищем строку "path = ..."
- */
 function getFlatRangeByPath(path: string) {
   if (!editor || props.mode !== "flat") return null;
   const m = model();
@@ -134,9 +188,6 @@ function getRangeByPath(path: string) {
   return props.mode === "json" ? getJsonRangeByPath(path) : getFlatRangeByPath(path);
 }
 
-/**
- * JSON: получить полный path по offset клика (точно, через дерево).
- */
 function getJsonPathAtOffset(offset: number): string | null {
   const m = model();
   if (!m) return null;
@@ -187,28 +238,21 @@ function getJsonPathAtOffset(offset: number): string | null {
 
 function applySelected() {
   if (!editor || !monaco) return;
-  ensureDec();
+  ensureDecs();
 
   const key = props.selectedKey?.trim();
   if (!key) {
-    dec!.clear();
-    editor.setHiddenAreas([]);
+    decSel!.clear();
     return;
   }
 
-  const rg = getRangeByPath(key);
-  const hidden = (props.hiddenKeys ?? [])
-      .map((k) => getRangeByPath(k))
-      .filter(Boolean) as any[];
-
-  editor.setHiddenAreas(hidden);
-
+  const rg = rgForPath(key);
   if (!rg) {
-    dec!.clear();
+    decSel!.clear();
     return;
   }
 
-  dec!.set([
+  decSel!.set([
     {
       range: rg,
       options: { isWholeLine: true, className: "jm__hlLine" },
@@ -217,6 +261,7 @@ function applySelected() {
 
   editor.revealRangeInCenter(rg);
 }
+
 
 function openFind() {
   editor?.trigger("keyboard", "actions.find", null);
@@ -231,7 +276,7 @@ onMounted(async () => {
     value: currentText(),
     language: props.mode === "json" ? "json" : "plaintext",
     readOnly: props.readonly,
-    minimap: { enabled: false },
+    minimap: {enabled: false},
     scrollBeyondLastLine: false,
     automaticLayout: true,
     wordWrap: "on",
@@ -239,7 +284,7 @@ onMounted(async () => {
     renderLineHighlight: "none",
     fontSize: 12,
     lineNumbersMinChars: 3,
-    padding: { top: 10, bottom: 10 },
+    padding: {top: 10, bottom: 10},
   });
 
   editor.onDidChangeModelContent((e) => {
@@ -268,20 +313,21 @@ onMounted(async () => {
     if (path) emit("select", path);
   });
 
-  emit("ready", { openFind, revealKey: (k) => emit("select", k) });
+  emit("ready", {openFind, revealKey: (k) => emit("select", k)});
 
   applySelected();
+  applyDecorations();
 });
 
 watch(
     () => props.readonly,
-    (ro) => editor?.updateOptions({ readOnly: ro })
+    (ro) => editor?.updateOptions({readOnly: ro})
 );
 
 watch(
     () => props.mode,
     (mode) => {
-      editor?.updateOptions({ language: mode === "json" ? "json" : "plaintext" } as any);
+      editor?.updateOptions({language: mode === "json" ? "json" : "plaintext"} as any);
     }
 );
 
@@ -296,6 +342,8 @@ watch(
       editor.setValue(v);
       isProgrammatic = false;
 
+      index = buildJsonIndex(v || "{}");
+      applyDecorations();
       applySelected();
     }
 );
@@ -303,18 +351,22 @@ watch(
 watch(
     () => [props.selectedKey, props.hiddenKeys, props.mode],
     () => applySelected(),
-    { deep: true }
+    {deep: true}
 );
 
 onBeforeUnmount(() => {
   editor?.dispose();
   editor = null;
   monaco = null;
+  decSel?.clear();
+  decMarks?.clear();
+  decSel = null;
+  decMarks = null;
 });
 </script>
 
 <template>
-  <div class="jm" ref="el" />
+  <div class="jm" ref="el"/>
 </template>
 
 <style scoped>
@@ -325,8 +377,5 @@ onBeforeUnmount(() => {
   overflow: hidden;
   border: 1px solid var(--ui-border);
   background: rgba(0, 0, 0, 0.12);
-}
-:global(.jm__hlLine) {
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.35) inset;
 }
 </style>

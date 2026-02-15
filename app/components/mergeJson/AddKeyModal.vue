@@ -1,7 +1,10 @@
 <script setup lang="ts">
-const props = defineProps<{
-  modelValue: boolean;
-}>();
+const props = defineProps({
+  modelValue: {
+    type: Boolean,
+    default: false,
+  },
+});
 
 const emit = defineEmits<{
   (e: "update:modelValue", v: boolean): void;
@@ -18,6 +21,7 @@ function close() {
 function submit() {
   const key = keyInput.value.trim();
   if (!key) return;
+
   emit("submit", { key, value: valueInput.value });
   keyInput.value = "";
   valueInput.value = "";
