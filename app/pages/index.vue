@@ -124,7 +124,6 @@ const {data: animatedText} = await useAsyncData<AnimatedTextItem[]>(
               :quality="80"
               sizes="(max-width: 1024px) 100vw, 988px"
               :widths="[480, 640, 768, 988, 1200, 1976]"
-              fetchpriority=high
           />
         </div>
       </u-container>

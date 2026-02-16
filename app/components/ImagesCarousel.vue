@@ -24,6 +24,7 @@ defineProps({
             height="34"
             fit="contain"
             :widths="[204, 272, 340]"
+            loading="lazy"
         />
       </div>
     </div>

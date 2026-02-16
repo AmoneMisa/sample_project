@@ -7,8 +7,8 @@
       </u-container>
     </u-main>
     <custom-footer/>
-    <under-footer />
-    <i18n-loader-overlay />
+    <under-footer/>
+    <i18n-loader-overlay/>
   </u-app>
 </template>
 <script setup lang="ts">
@@ -23,7 +23,18 @@ const localeHead = useLocaleHead({
   lang: true
 });
 
-useHead(localeHead);
+useHead({
+  ...localeHead,
+  link: [
+    {
+      rel: 'preload',
+      as: 'image',
+      href: '/images/admin-panel.png',
+      fetchpriority: 'high',
+      type: 'image/webp'
+    }
+  ]
+});
 </script>
 <style lang="scss">
 
