@@ -2,7 +2,6 @@
 import {safeFetch} from "~/utils/safeFetch";
 import PageHeader from "~/components/common/PageHeader.vue";
 import type {OfferCardType} from "~/types/OfferCardType";
-import CustomButton from "~/components/common/CustomButton.vue";
 
 const config = useRuntimeConfig();
 

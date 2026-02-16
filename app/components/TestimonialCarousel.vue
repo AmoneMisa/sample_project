@@ -113,15 +113,6 @@ watch(
 </template>
 
 <style scoped lang="scss">
-.testimonial__image {
-  max-width: 60px;
-}
-
-.testimonial__image_logo {
-  height: auto;
-  max-width: 100%;
-}
-
 .testimonial__border {
   position: absolute;
   inset: 0;
@@ -151,12 +142,6 @@ watch(
     .testimonial__border-image_border {
       opacity: 1;
     }
-  }
-}
-
-@media (max-width: 640px) {
-  .testimonial__image_logo {
-    height: 48px;
   }
 }
 </style>

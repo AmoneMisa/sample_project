@@ -29,7 +29,7 @@ useHead({
     {
       rel: 'preload',
       as: 'image',
-      href: '/images/admin-panel.png',
+      href: '/_ipx/w_988&f_webp&q_80/images/admin-panel.png',
       fetchpriority: 'high',
       type: 'image/webp'
     }

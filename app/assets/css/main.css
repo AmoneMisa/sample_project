@@ -326,24 +326,6 @@ textarea:active {
     }
 }
 
-.custom-border {
-    min-height: 320px;
-    min-width: 320px;
-}
-
-.custom-border:after {
-    position: absolute;
-    left: 0;
-    top: 0;
-    transition: all 0.3s;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    background: linear-gradient(180deg, var(--color-primary-gradient-start) 0%, var(--color-primary-gradient-end), transparent 77%);
-    content: "";
-    border-radius: 20px;
-}
-
 .h-fill-available {
     height: -webkit-fill-available;
 }
@@ -361,10 +343,6 @@ textarea:active {
     backface-visibility: hidden;
     color: transparent;
     text-shadow: 0 0 24px rgba(128, 90, 245, 0.18);
-}
-
-.gradient-text_up {
-    text-transform: uppercase;
 }
 
 .tab-circle-button {

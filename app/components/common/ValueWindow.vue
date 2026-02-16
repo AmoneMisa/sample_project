@@ -158,7 +158,6 @@ async function copy() {
   padding: 0 10px;
 }
 
-/* light */
 .light .vw,
 .light .vw__badge,
 .light .vw__ta {

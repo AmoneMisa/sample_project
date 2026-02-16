@@ -218,11 +218,6 @@ function applySelected() {
   editor.revealRangeInCenter(rg);
 }
 
-
-function openFind() {
-  editor?.trigger("keyboard", "actions.find", null);
-}
-
 onMounted(async () => {
   if (!el.value) return;
 

@@ -101,50 +101,6 @@ const emit = defineEmits<{
 </template>
 
 <style scoped lang="scss">
-.header__menu {
-  margin: 0;
-  padding: 0 16px;
-  border: 1px solid var(--ui-border);
-  border-radius: 50px;
-  background: var(--color-blackest);
-  max-height: 52px;
-
-  ul li > a,
-  ul li > button {
-    position: relative;
-    padding: 13px 17px;
-    font-size: 16px;
-    font-weight: 500;
-    color: var(--color-link);
-    transition: color 0.3s ease;
-
-    &::after {
-      content: "";
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      margin: 0 auto;
-      width: 0;
-      height: 4px;
-      background: linear-gradient(
-              90deg,
-              var(--color-primary-gradient-start),
-              var(--color-primary-gradient-end)
-      );
-      border-radius: 12px;
-      opacity: 0;
-      transition: 0.3s ease;
-      z-index: 1;
-    }
-
-    &:hover::after {
-      opacity: 1;
-      width: 45px;
-    }
-  }
-}
-
 .header-menu__list {
   display: flex;
   padding: 0 16px;
@@ -380,38 +336,4 @@ const emit = defineEmits<{
   text-transform: uppercase;
   margin-left: 5px;
 }
-
-.header-menu_mobile {
-  .header-menu__list {
-    flex-direction: column;
-    padding: 0;
-    border-radius: 16px;
-    max-height: none;
-  }
-
-  .header-menu__link {
-    width: 100%;
-    padding: 12px 14px;
-  }
-
-  .header-menu__dropdown,
-  .header-menu__mega {
-    position: static;
-    opacity: 1;
-    visibility: visible;
-    transform: none;
-    width: 100%;
-    margin-top: 6px;
-  }
-
-  .header-menu__mega {
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .header-menu__mega-image {
-    display: none;
-  }
-}
-
 </style>

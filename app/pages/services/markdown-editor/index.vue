@@ -1175,7 +1175,6 @@ onBeforeUnmount(() => {
   word-break: break-word;
 }
 
-/* preview inner */
 .markdown-editor__preview :deep(.pv-link) {
   color: var(--color-link);
   text-decoration: none;
@@ -1226,7 +1225,6 @@ onBeforeUnmount(() => {
   text-shadow: none;
 }
 
-/* modal */
 :deep(.markdown-editor__modal) {
   border-radius: 18px;
   border: 1px solid var(--ui-border);
@@ -1264,7 +1262,6 @@ onBeforeUnmount(() => {
   height: 40px;
 }
 
-/* light overrides */
 .light .markdown-editor__card {
   background: rgba(255, 255, 255, 0.55);
   backdrop-filter: blur(12px) saturate(180%);
