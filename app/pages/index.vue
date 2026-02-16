@@ -203,7 +203,7 @@ const {data: animatedText} = await useAsyncData<AnimatedTextItem[]>(
               loading="lazy"
           />
         </div>
-        <u-container class="w-full lg:w-1/4 gap-6 flex flex-col items-center lg:items-start justify-center">
+        <u-container class="w-full lg:w-1/4 gap-6 flex flex-col items-center justify-center">
           <nuxt-img
               class="flex-none mx-auto w-[120px]"
               src="/images/myself.png"
