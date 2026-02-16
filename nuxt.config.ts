@@ -1,6 +1,26 @@
 import svgLoader from 'vite-svg-loader';
 
 export default defineNuxtConfig({
+    app: {
+        head: {
+            link: [
+                {
+                    rel: "preload",
+                    as: "font",
+                    href: "/fonts/PT Root UI_Bold.woff2",
+                    type: "font/woff2",
+                    crossorigin: "anonymous"
+                },
+                {
+                    rel: "preload",
+                    as: "font",
+                    href: "/fonts/PT Root UI_Medium.woff2",
+                    type: "font/woff2",
+                    crossorigin: "anonymous"
+                }
+            ]
+        }
+    },
     compatibilityDate: '2025-07-15',
     devtools: {enabled: true},
     modules: ['@nuxt/ui', '@nuxtjs/i18n', '@nuxt/icon', '@nuxt/image'],
@@ -23,9 +43,9 @@ export default defineNuxtConfig({
         defaultLocale: 'ru',
         langDir: null,
         locales: [
-            {code: 'en', name: 'English'},
-            {code: 'ru', name: 'Русский'},
-            {code: 'kk', name: 'Қазақша'}
+            { code: 'en', iso: 'en-US', name: 'English' },
+            { code: 'ru', iso: 'ru-RU', name: 'Русский' },
+            { code: 'kk', iso: 'kk-KZ', name: 'Қазақша' }
         ],
         strategy: 'no_prefix',
         detectBrowserLanguage: {
