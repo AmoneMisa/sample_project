@@ -115,12 +115,16 @@ onBeforeUnmount(() => {
                     </custom-button>
                   </div>
                   <div class="tabs-card__media">
-                    <img
+                    <nuxt-img
+                        class="tabs-card__img"
                         :src="item.image"
                         :alt="t(item.titleKey)"
-                        class="tabs-card__img"
+                        format="webp"
+                        quality="100"
+                        widths="[1280]"
+                        sizes="(max-width: 768px) 100vw, 1200px"
+                        loading="lazy"
                         decoding="async"
-                        loading="eager"
                         fetchpriority="high"
                     />
                   </div>

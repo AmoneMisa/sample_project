@@ -36,15 +36,26 @@ defineProps<{
                 download="RusticPriceConvertor_v1.0_WhitesLove.apk"
                 class="store-btn"
             >
-              <img src="/images/download.png" alt="Download"/>
+              <nuxt-img
+                  src="/images/download.png"
+                  alt="Download"
+                  format="png"
+                  quality="100"
+                  widths="[1280]"
+                  sizes="(max-width: 768px) 100vw, 1200px"
+              />
             </a>
           </div>
         </div>
         <div class="relative hidden md:flex justify-center lg:justify-end px-6 pb-10 lg:pb-0">
-          <img
-              alt="mobile view"
-              src="/images/mobile-app.png"
+          <nuxt-img
               class="app-image max-h-[520px] w-full drop-shadow-[0_30px_60px_rgba(0,0,0,0.55)]"
+              src="/images/mobile-app.png"
+              alt="Mobile App"
+              format="webp"
+              quality="100"
+              widths="[360, 480, 768, 1024, 1200, 1600]"
+              sizes="(max-width: 768px) 100vw, 1200px"
           />
         </div>
       </div>

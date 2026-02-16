@@ -93,7 +93,15 @@ const isMenuOpen = ref(false);
   >
     <template #left>
       <a class="header__logo" href="/">
-        <img alt="Logo" class="header__logo-image" src="/images/logo.png">
+        <nuxt-img
+            class="header__logo-image"
+            src="/images/logo.png"
+            alt="Logo"
+            format="png"
+            quality="100"
+            widths="[1280]"
+            sizes="(max-width: 768px) 100vw, 1200px"
+        />
       </a>
     </template>
     <template #default>
@@ -125,7 +133,7 @@ const isMenuOpen = ref(false);
               class="ui-pill-btn__inner text-sm font-semibold dark:text-white/90 text-[var(--ui-text)]/90 dark:hover:text-white hover:text-[var(--ui-text)] whitespace-nowrap"
               @click="toggleTheme"
           >
-            Сменить тему
+            t('header.button.changeTheme')
           </button>
         </div>
         <div class="ui-pill-btn ui-pill-btn_animated">
@@ -164,7 +172,7 @@ const isMenuOpen = ref(false);
               class="h-11 w-full rounded-xl border border-white/10 bg-white/5 text-sm font-semibold dark:text-white/90 text-[var(--ui-text)]/90 dark:hover:text-white hover:text-[var(--ui-text)]"
               @click="toggleTheme(); close?.()"
           >
-            Сменить тему
+            t('header.button.changeTheme')
           </button>
 
           <u-link

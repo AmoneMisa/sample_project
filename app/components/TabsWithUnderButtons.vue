@@ -60,21 +60,30 @@ watch(
         <div class="tabs-content tabs-under-button__content">
           <div class="tabs-image tabs-under-button__image">
             <div class="tabs-image__frame tabs-under-button__image-frame">
-              <img v-if="currentImg"
-                  :src="currentImg"
-                  :alt="activeTab ? t(activeTab.titleKey) : 'tab image'"
+              <nuxt-img
+                  v-if="currentImg"
                   class="tabs-image__img tabs-under-button__image-img"
                   :class="{ 'tabs-under-button__image-img_is-dim': imgSwapping }"
+                  :src="currentImg"
+                  :alt="activeTab ? t(activeTab.titleKey) : 'tab image'"
+                  format="webp"
+                  quality="100"
+                  widths="[460, 768, 1280]"
+                  sizes="(max-width: 768px) 100vw, 1200px"
                   loading="eager"
                   decoding="async"
                   fetchpriority="high"
                   draggable="false"
               />
-
-              <img v-if="nextImg"
+              <nuxt-img
+                  v-if="nextImg"
+                  class="tabs-image__img tabs-under-button__image-img tabs-under-button__image-img_is-next"
                   :src="nextImg"
                   :alt="activeTab ? t(activeTab.titleKey) : 'tab image'"
-                  class="tabs-image__img tabs-under-button__image-img tabs-under-button__image-img_is-next"
+                  format="webp"
+                  quality="100"
+                  widths="[460, 768, 1280]"
+                  sizes="(max-width: 768px) 100vw, 1200px"
                   loading="eager"
                   decoding="async"
                   fetchpriority="high"

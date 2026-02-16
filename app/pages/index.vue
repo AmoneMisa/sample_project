@@ -91,7 +91,15 @@ const {data: animatedText} = await useAsyncData<AnimatedTextItem[]>(
         <div class="admin-panel__image">
           <h3 class="text-pretty font-bold text-highlighted mx-auto whitespace-normal [overflow-wrap:anywhere] text-3xl sm:text-4xl lg:text-5xl mb-9 gradient-text text-center">
             {{ t('adminPanel.title') }}</h3>
-          <img src="/images/admin-panel.png" class="w-full rounded-lg" alt="admin panel"/>
+          <nuxt-img
+              class="w-full rounded-lg"
+              src="/images/admin-panel.png"
+              alt="Admin panel"
+              format="webp"
+              :quality="100"
+              sizes="(max-width: 1280px) 100vw, 1280px"
+              :widths="[480, 768, 1024, 1280, 1600]"
+          />
         </div>
       </u-container>
       <u-container class="flex items-center flex-col justify-center min-w-0 mb-0">
@@ -124,11 +132,25 @@ const {data: animatedText} = await useAsyncData<AnimatedTextItem[]>(
         </custom-button>
         <div class="relative logo-shadow">
           <div
-              class="logo-shadow__logo absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-12 py-8 rounded-xl ring-2 dark:ring-neutral-900 ring-[#d1d1ff] max-w-[330px]">
-            <img alt="AI Collaboration" src="/images/letter-logo.png"
-                 class=""/>
+              class="logo-shadow__logo absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 sm:px-12 sm:py-8 px-6 py-4 rounded-xl ring-2 dark:ring-neutral-900 ring-[#d1d1ff] max-w-[330px]">
+            <nuxt-img
+                src="/images/letter-logo.png"
+                alt="Letter Logo"
+                format="png"
+                :quality="100"
+                :widths="[480, 768, 1024, 1280]"
+                sizes="(max-width: 768px) 100vw, 1280px"
+            />
           </div>
-          <img alt="AI Collaboration" src="/images/split-2-background.png"/>
+          <nuxt-img
+              class="w-fill-available"
+              src="/images/split-2-background.png"
+              alt="Letter Logo Background"
+              format="webp"
+              :quality="75"
+              :widths="[480, 768, 1024, 1280, 1600]"
+              sizes="(max-width: 1280px) 100vw, 1280px"
+          />
         </div>
       </u-container>
 
@@ -141,10 +163,25 @@ const {data: animatedText} = await useAsyncData<AnimatedTextItem[]>(
               description: 'text-white'
             }"/>
         <div class="items-center justify-center lg:justify-start hidden lg:flex">
-          <img src="/images/bg-shape-01.png" :alt="t('page.community.title')">
+          <nuxt-img
+              src="/images/bg-shape-01.png"
+              :alt="t('page.community.title')"
+              format="webp"
+              quality="100"
+              :widths="[480, 768, 1024, 1280]"
+              sizes="(max-width: 768px) 100vw, 1200px"
+          />
         </div>
         <u-container class="w-full lg:w-1/4 gap-6 flex flex-col items-center lg:items-start justify-center">
-          <img src="/images/myself.png" alt="team on GitHub" class="flex-none mx-auto w-[120px]">
+          <nuxt-img
+              class="flex-none mx-auto w-[120px]"
+              src="/images/myself.png"
+              alt="My GitHub"
+              format="png"
+              quality="100"
+              :widths="[480, 768, 1024, 1280]"
+              sizes="(max-width: 768px) 100vw, 1200px"
+          />
           <a href="https://github.com/AmoneMisa" target="_blank" rel="noopener noreferrer">
             <custom-button class="justify-center h-12 text-base w-max" button-type="white">
               {{ t('page.community.cta') }}
@@ -159,7 +196,7 @@ const {data: animatedText} = await useAsyncData<AnimatedTextItem[]>(
       <u-container class="mb-0 flex flex-col lg:flex-row gap-8 lg:gap-20">
         <service-cards-grid :cards="(featureCards || []).filter((featureCard) => featureCard.isVisible)"/>
       </u-container>
-      <testimonial-carousel v-if="!pending" headline="testimonials.headline" title="testimonials.title"
+      <testimonial-carousel headline="testimonials.headline" title="testimonials.title"
                             :testimonials="(testimonials || []).filter((testimonial) => testimonial.isVisible)"
       />
       <review-logos

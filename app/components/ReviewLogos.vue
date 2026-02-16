@@ -16,9 +16,14 @@ const {t} = useI18n();
 
     <div class="flex flex-wrap justify-center gap-8 mt-6 items-center">
       <div class="max-w-[100px]" v-for="(logo, index) in logos" :key="index">
-        <img :src="logo.src"
-             :alt="t(logo.alt)"
+        <nuxt-img
             class="transition hover:brightness-125 hover:drop-shadow-md cursor-pointer w-full h-fit"
+            :src="logo.src"
+            :alt="t(logo.alt)"
+            format="webp"
+            quality="100"
+            widths="[1280]"
+            sizes="(max-width: 768px) 100vw, 1200px"
         />
       </div>
     </div>

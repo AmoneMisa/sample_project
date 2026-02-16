@@ -30,10 +30,14 @@ const {t} = useI18n();
         <div
             class="grid place-items-center overflow-hidden rounded-full border border-white/10 bg-white/5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] size-12 sm:size-14"
         >
-          <img
+          <nuxt-img
+              class="h-full w-full object-cover"
               :src="image"
               :alt="t(title)"
-              class="h-full w-full object-cover"
+              format="webp"
+              quality="100"
+              widths="[1280]"
+              sizes="(max-width: 768px) 100vw, 1200px"
               loading="lazy"
               decoding="async"
           />

@@ -83,7 +83,15 @@ const emit = defineEmits<{
               'header-menu__mega-image_left': item.image.position === 'left'
             }"
             >
-              <img :src="item.image.src" alt=""/>
+              <nuxt-img
+                  class="w-full"
+                  :src="item.image.src"
+                  alt=""
+                  format="webp"
+                  quality="100"
+                  widths="[460, 768, 1280]"
+                  sizes="(max-width: 768px) 100vw, 1200px"
+              />
             </div>
           </div>
         </div>

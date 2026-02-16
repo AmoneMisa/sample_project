@@ -15,7 +15,15 @@ defineProps({
           :key="i"
           class="carousel__slide"
       >
-        <img :src="img" :alt="img" class="carousel__item" />
+        <nuxt-img
+            class="carousel__item"
+            :src="img"
+            :alt="img"
+            format="webp"
+            quality="100"
+            widths="[460, 768, 1280]"
+            sizes="(max-width: 768px) 100vw, 1200px"
+        />
       </div>
     </div>
   </div>

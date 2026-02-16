@@ -15,7 +15,15 @@ const {t} = useI18n();
       <div class="footer__column">
         <div class="footer__col-item">
           <a class="footer__logo max-h-[35px] min-w-[160px]" href="/">
-            <img class="footer__logo-image" alt="Logo" src="/images/logo.png"/>
+            <nuxt-img
+                class="footer__logo-image"
+                src="/images/logo.png"
+                alt="Logo"
+                format="png"
+                quality="100"
+                widths="[480, 768, 1200, 1600]"
+                sizes="(max-width: 768px) 100vw, 1200px"
+            />
           </a>
         </div>
 

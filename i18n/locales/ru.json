@@ -1,4 +1,9 @@
 {
+  "header": {
+    "button": {
+      "changeTheme": "Изменить тему"
+    }
+  },
   "services": {
     "mergeJson": {
       "viewModes": {

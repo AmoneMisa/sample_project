@@ -12,6 +12,7 @@ const props = defineProps({
 const currentIndex = ref(0);
 const displayedText = ref(props.textsList[0]?.titleKey ?? '');
 const isFlipping = ref(false);
+const animationEnabled = ref(false);
 
 let timer: ReturnType<typeof setInterval> | undefined;
 let midTimeout: ReturnType<typeof setTimeout> | undefined;
@@ -33,14 +34,15 @@ function clearAll() {
 
 function flipNext() {
   if (!import.meta.client) return;
+  if (!animationEnabled.value) return;
   if (props.textsList.length <= 1) return;
 
   const nextIndex = (currentIndex.value + 1) % props.textsList.length;
 
-  isFlipping.value = false
+  isFlipping.value = false;
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      isFlipping.value = true
+      isFlipping.value = true;
     });
   });
 
@@ -68,15 +70,46 @@ watch(
       displayedText.value = list?.[0]?.titleKey ?? '';
       isFlipping.value = false;
 
-      if (import.meta.client) startTimer();
+      if (import.meta.client && animationEnabled.value) {
+        startTimer();
+      }
     },
-    {deep: true}
-)
+    { deep: true }
+);
+
+function enableAnimationLater() {
+  if (document.readyState === 'complete') {
+    scheduleIdle();
+  } else {
+    window.addEventListener('load', scheduleIdle, { once: true });
+  }
+}
+
+function scheduleIdle() {
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(() => {
+      animationEnabled.value = true;
+      startTimer();
+    }, { timeout: 2000 });
+  } else {
+    setTimeout(() => {
+      animationEnabled.value = true;
+      startTimer();
+    }, 1500);
+  }
+}
 
 onMounted(() => {
   displayedText.value = props.textsList[0]?.titleKey ?? '';
-  startTimer();
-})
+
+  if (!import.meta.client) return;
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      enableAnimationLater();
+    });
+  });
+});
 
 onUnmounted(clearAll);
 </script>

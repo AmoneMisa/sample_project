@@ -3,9 +3,18 @@ import svgLoader from 'vite-svg-loader';
 export default defineNuxtConfig({
     compatibilityDate: '2025-07-15',
     devtools: {enabled: true},
-    modules: ['@nuxt/ui', '@nuxtjs/i18n', '@nuxt/icon'],
+    modules: ['@nuxt/ui', '@nuxtjs/i18n', '@nuxt/icon', '@nuxt/image'],
     css: ['~/assets/css/main.css'],
+    sourcemap: {
+        client: true,
+        server: true
+    },
     vite: {
+        build: {
+            sourcemap: true,
+            minify: 'esbuild',
+            cssMinify: 'esbuild'
+        },
         plugins: [svgLoader()], optimizeDeps: {
             exclude: ["monaco-editor"],
         }

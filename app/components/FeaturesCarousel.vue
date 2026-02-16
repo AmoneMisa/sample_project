@@ -57,7 +57,15 @@ const canPaginate = computed(() => (props.cards?.length ?? 0) > 1);
             <div
                 class="w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center rounded-full dark:bg-primary/10 ring-1 dark:ring-white/5 bg-white/70 backdrop-blur-md ring-black/10 shadow-inner"
             >
-              <img :alt="t(item.title)" :src="item.icon" class="w-full"/>
+              <nuxt-img
+                  class="w-full"
+                  :src="item.icon"
+                  :alt="t(item.title)"
+                  format="webp"
+                  quality="100"
+                  widths="[1280]"
+                  sizes="(max-width: 768px) 100vw, 1200px"
+              />
             </div>
             <h3 class="dark:text-white text-[var(--ui-text)] text-lg sm:text-xl font-semibold leading-snug">
               {{ t(item.title) }}
