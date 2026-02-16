@@ -9,6 +9,19 @@ import MonacoJsonView from "~/components/mergeJson/MonacoJsonView.client.vue";
 import {useMergeJsonState} from "~/composables/mergeJson/useMergeJsonState";
 
 const {t} = useI18n();
+
+useSeoMeta({
+  title: () => t('seo.pages.mergeJson.title'),
+  description: () => t('seo.pages.mergeJson.description'),
+  robots: () => t('seo.common.robots'),
+  ogType: () => t('seo.common.ogType'),
+  ogSiteName: () => t('seo.common.siteName'),
+  ogTitle: () => t('seo.pages.mergeJson.ogTitle'),
+  ogDescription: () => t('seo.pages.mergeJson.ogDescription'),
+  twitterCard: () => t('seo.common.twitterCard'),
+  twitterTitle: () => t('seo.pages.mergeJson.twitterTitle'),
+  twitterDescription: () => t('seo.pages.mergeJson.twitterDescription')
+});
 const ui = proxyRefs(useMergeJsonState());
 
 const viewModeItems = computed(() => [

@@ -4,6 +4,19 @@ import CustomButton from "~/components/common/CustomButton.vue";
 
 const { t } = useI18n();
 
+useSeoMeta({
+  title: () => t('seo.pages.converter.title'),
+  description: () => t('seo.pages.converter.description'),
+  robots: () => t('seo.common.robots'),
+  ogType: () => t('seo.common.ogType'),
+  ogSiteName: () => t('seo.common.siteName'),
+  ogTitle: () => t('seo.pages.converter.ogTitle'),
+  ogDescription: () => t('seo.pages.converter.ogDescription'),
+  twitterCard: () => t('seo.common.twitterCard'),
+  twitterTitle: () => t('seo.pages.converter.twitterTitle'),
+  twitterDescription: () => t('seo.pages.converter.twitterDescription')
+});
+
 type Mode = "media" | "data" | "document";
 type MediaTarget = "png" | "jpg" | "jpeg" | "webp";
 type DataTarget = "csv" | "json" | "xml" | "xlsx";

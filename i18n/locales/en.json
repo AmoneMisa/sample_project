@@ -647,5 +647,79 @@
       "title": "Join a Newsletter",
       "placeholder": "Enter Your Email Here"
     }
+  },
+  "seo": {
+    "common": {
+      "siteName": "WhitesLove Services",
+      "robots": "index, follow",
+      "ogType": "website",
+      "twitterCard": "summary_large_image"
+    },
+    "pages": {
+      "home": {
+        "title": "WhitesLove — Online tools for daily tasks",
+        "description": "Homepage of WhitesLove platform with practical online services for content, data, and documents.",
+        "ogTitle": "WhitesLove — Online tools for daily tasks",
+        "ogDescription": "Choose the right service: converters, editors, and productivity utilities.",
+        "twitterTitle": "WhitesLove — Online tools for daily tasks",
+        "twitterDescription": "Convert files, edit content, and automate routine workflows online."
+      },
+      "services": {
+        "title": "All services — WhitesLove tools catalog",
+        "description": "Browse all WhitesLove services, filter by category, and find the right tool in seconds.",
+        "ogTitle": "WhitesLove services catalog",
+        "ogDescription": "One place for file, content, and automation tools.",
+        "twitterTitle": "WhitesLove services catalog",
+        "twitterDescription": "Fast access to online tools for development and daily work."
+      },
+      "converter": {
+        "title": "Online file converter — media, data, and documents",
+        "description": "Convert images, tabular data, and documents into target formats directly in your browser.",
+        "ogTitle": "WhitesLove online file converter",
+        "ogDescription": "Support for popular media, data, and document formats with minimal steps.",
+        "twitterTitle": "WhitesLove online file converter",
+        "twitterDescription": "Upload a file, choose output format, and get the result in a few clicks."
+      },
+      "dockerSearch": {
+        "title": "Docker tags and aliases search",
+        "description": "Find relevant Docker tags, aliases, and best-fit image variants for your use case.",
+        "ogTitle": "Docker tag search tool",
+        "ogDescription": "Speed up image selection with simple and advanced Docker search.",
+        "twitterTitle": "Docker tags and aliases search",
+        "twitterDescription": "Convenient utility for Docker tag analysis and image selection."
+      },
+      "markdownEditor": {
+        "title": "Markdown editor for messengers",
+        "description": "Prepare formatted text for Telegram, WhatsApp, and other platforms with live preview.",
+        "ogTitle": "WhitesLove online Markdown editor",
+        "ogDescription": "Edit, validate, and export text with markdown formatting support.",
+        "twitterTitle": "Markdown editor for messengers",
+        "twitterDescription": "Create clean, readable messages with a fast markdown workflow."
+      },
+      "mergeJson": {
+        "title": "Merge JSON online — compare and combine translations",
+        "description": "Compare JSON files, merge keys, and download a valid result in minutes.",
+        "ogTitle": "WhitesLove Merge JSON service",
+        "ogDescription": "A practical tool for localization workflows and structured data merges.",
+        "twitterTitle": "Merge JSON online",
+        "twitterDescription": "Combine and validate JSON structures in a few clicks."
+      },
+      "pdfEditor": {
+        "title": "Online PDF editor — upload and prepare your document",
+        "description": "Upload a PDF and start editing: text, signature, annotations, and export.",
+        "ogTitle": "WhitesLove online PDF editor",
+        "ogDescription": "Quickly start editing PDF files in browser without installing software.",
+        "twitterTitle": "Online PDF editor",
+        "twitterDescription": "Add notes and export updated PDF files directly from browser."
+      },
+      "pdfEditorDoc": {
+        "title": "Edit PDF document online",
+        "description": "Modify a specific PDF document with text, shapes, signatures, and export.",
+        "ogTitle": "Edit PDF document in WhitesLove",
+        "ogDescription": "A full editing workspace for real-time PDF page updates.",
+        "twitterTitle": "Edit PDF document online",
+        "twitterDescription": "Work with PDF pages and download the final file after edits."
+      }
+    }
   }
 }

@@ -11,6 +11,19 @@ type ViewMode = "md" | "preview";
 
 const {t, locale} = useI18n();
 
+useSeoMeta({
+  title: () => t('seo.pages.markdownEditor.title'),
+  description: () => t('seo.pages.markdownEditor.description'),
+  robots: () => t('seo.common.robots'),
+  ogType: () => t('seo.common.ogType'),
+  ogSiteName: () => t('seo.common.siteName'),
+  ogTitle: () => t('seo.pages.markdownEditor.ogTitle'),
+  ogDescription: () => t('seo.pages.markdownEditor.ogDescription'),
+  twitterCard: () => t('seo.common.twitterCard'),
+  twitterTitle: () => t('seo.pages.markdownEditor.twitterTitle'),
+  twitterDescription: () => t('seo.pages.markdownEditor.twitterDescription')
+});
+
 const MAX = 8000;
 const STORAGE_KEY = "services:markdown-editor:v3";
 

@@ -9,6 +9,19 @@ import { BaseFabricObject, Canvas, Ellipse, FabricImage, FabricObject, PencilBru
 
 const config = useRuntimeConfig();
 const { t } = useI18n();
+
+useSeoMeta({
+  title: () => t('seo.pages.pdfEditorDoc.title'),
+  description: () => t('seo.pages.pdfEditorDoc.description'),
+  robots: () => t('seo.common.robots'),
+  ogType: () => t('seo.common.ogType'),
+  ogSiteName: () => t('seo.common.siteName'),
+  ogTitle: () => t('seo.pages.pdfEditorDoc.ogTitle'),
+  ogDescription: () => t('seo.pages.pdfEditorDoc.ogDescription'),
+  twitterCard: () => t('seo.common.twitterCard'),
+  twitterTitle: () => t('seo.pages.pdfEditorDoc.twitterTitle'),
+  twitterDescription: () => t('seo.pages.pdfEditorDoc.twitterDescription')
+});
 const route = useRoute();
 const router = useRouter();
 

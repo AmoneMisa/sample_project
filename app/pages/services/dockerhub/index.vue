@@ -27,6 +27,19 @@ const simpleResultsSorted = computed(() => {
 
 const {t} = useI18n();
 
+useSeoMeta({
+  title: () => t('seo.pages.dockerSearch.title'),
+  description: () => t('seo.pages.dockerSearch.description'),
+  robots: () => t('seo.common.robots'),
+  ogType: () => t('seo.common.ogType'),
+  ogSiteName: () => t('seo.common.siteName'),
+  ogTitle: () => t('seo.pages.dockerSearch.ogTitle'),
+  ogDescription: () => t('seo.pages.dockerSearch.ogDescription'),
+  twitterCard: () => t('seo.common.twitterCard'),
+  twitterTitle: () => t('seo.pages.dockerSearch.twitterTitle'),
+  twitterDescription: () => t('seo.pages.dockerSearch.twitterDescription')
+});
+
 type ResolveResponse = {
   repo: string;
   major: number;
