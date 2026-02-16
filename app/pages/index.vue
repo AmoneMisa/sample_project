@@ -110,9 +110,9 @@ const {data: animatedText} = await useAsyncData<AnimatedTextItem[]>(
               src="/images/admin-panel.png"
               alt="Admin panel"
               format="webp"
-              :quality="100"
-              sizes="(max-width: 1280px) 100vw, 1280px"
-              :widths="[480, 768, 1024, 1280, 1600]"
+              :quality="80"
+              sizes="(max-width: 1024px) 100vw, 988px"
+              :widths="[480, 640, 768, 988, 1200, 1976]"
           />
         </div>
       </u-container>
@@ -145,12 +145,19 @@ const {data: animatedText} = await useAsyncData<AnimatedTextItem[]>(
           <div
               class="logo-shadow__logo absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 sm:px-12 sm:py-8 px-6 py-4 rounded-xl ring-2 dark:ring-neutral-900 ring-[#d1d1ff] max-w-[330px]">
             <nuxt-img
+                class="letter-logo"
                 src="/images/letter-logo.png"
                 alt="Letter Logo"
                 format="png"
-                :quality="100"
-                :widths="[480, 768, 1024, 1280]"
-                sizes="(max-width: 768px) 100vw, 1280px"
+                :quality="80"
+                width="234"
+                height="154"
+                fit="contain"
+                sizes="(max-width: 480px) 80px,
+         (max-width: 768px) 120px,
+         234px"
+                :widths="[80, 120, 160, 200, 234, 320, 468]"
+                loading="lazy"
             />
           </div>
           <nuxt-img
@@ -158,9 +165,10 @@ const {data: animatedText} = await useAsyncData<AnimatedTextItem[]>(
               src="/images/split-2-background.png"
               alt="Letter Logo Background"
               format="webp"
-              :quality="75"
-              :widths="[480, 768, 1024, 1280, 1600]"
-              sizes="(max-width: 1280px) 100vw, 1280px"
+              :quality="80"
+              sizes="(max-width: 1152px) 100vw, 1152px"
+              :widths="[480, 768, 1024, 1152, 1440, 2304]"
+              loading="lazy"
           />
         </div>
       </u-container>
@@ -178,9 +186,10 @@ const {data: animatedText} = await useAsyncData<AnimatedTextItem[]>(
               src="/images/bg-shape-01.png"
               :alt="t('page.community.title')"
               format="webp"
-              quality="100"
-              :widths="[480, 768, 1024, 1280]"
-              sizes="(max-width: 768px) 100vw, 1200px"
+              quality="80"
+              sizes="184px"
+              :widths="[92, 184, 368]"
+              loading="lazy"
           />
         </div>
         <u-container class="w-full lg:w-1/4 gap-6 flex flex-col items-center lg:items-start justify-center">
@@ -190,8 +199,11 @@ const {data: animatedText} = await useAsyncData<AnimatedTextItem[]>(
               alt="My GitHub"
               format="png"
               quality="100"
-              :widths="[480, 768, 1024, 1280]"
-              sizes="(max-width: 768px) 100vw, 1200px"
+              width="120"
+              height="113"
+              fit="cover"
+              sizes="120px"
+              :widths="[120, 240]"
           />
           <a href="https://github.com/AmoneMisa" target="_blank" rel="noopener noreferrer">
             <custom-button class="justify-center h-12 text-base w-max" button-type="white">

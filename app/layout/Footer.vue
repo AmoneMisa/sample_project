@@ -21,8 +21,11 @@ const {t} = useI18n();
                 alt="Logo"
                 format="png"
                 quality="100"
-                widths="[480, 768, 1200, 1600]"
-                sizes="(max-width: 768px) 100vw, 1200px"
+                width="159"
+                height="35"
+                fit="contain"
+                sizes="159px"
+                :widths="[159, 318]"
             />
           </a>
         </div>

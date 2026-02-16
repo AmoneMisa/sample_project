@@ -20,9 +20,10 @@ defineProps({
             :src="img"
             :alt="img"
             format="webp"
-            quality="100"
-            widths="[460, 768, 1280]"
-            sizes="(max-width: 768px) 100vw, 1200px"
+            :quality="80"
+            height="34"
+            fit="contain"
+            :widths="[204, 272, 340]"
         />
       </div>
     </div>
@@ -87,7 +88,10 @@ defineProps({
   opacity: 0.6;
   transition: opacity 0.3s ease;
   max-height: 34px;
+  height: 34px;
   cursor: pointer;
+  width: auto;
+  max-width: none;
 
   &:hover {
     opacity: 1;

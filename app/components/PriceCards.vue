@@ -111,10 +111,6 @@ const {t} = useI18n();
         <u-separator class="my-4"/>
 
         <div class="flex flex-col items-center gap-4">
-          <custom-button variant="full" class="w-full justify-center">
-            {{ t('pricing.actions.getStarted') }}
-          </custom-button>
-
           <span class="text-xs text-muted">
             {{ t('pricing.limitedOffer') }}
           </span>

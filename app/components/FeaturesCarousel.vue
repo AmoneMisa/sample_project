@@ -77,12 +77,6 @@ const canPaginate = computed(() => (props.cards?.length ?? 0) > 1);
               {{ t(item.description) }}
             </p>
           </div>
-
-          <div class="pt-2 mt-auto">
-            <custom-button buttonType="link" _class="btn_link">
-              {{ t(buttonText) }}
-            </custom-button>
-          </div>
         </div>
       </u-card>
     </div>

@@ -99,8 +99,11 @@ const isMenuOpen = ref(false);
             alt="Logo"
             format="png"
             quality="100"
-            widths="[1280]"
-            sizes="(max-width: 768px) 100vw, 1200px"
+            width="159"
+            height="35"
+            fit="contain"
+            sizes="159px"
+            :widths="[159, 318]"
         />
       </a>
     </template>

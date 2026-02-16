@@ -40,22 +40,25 @@ defineProps<{
                   src="/images/download.png"
                   alt="Download"
                   format="png"
-                  quality="100"
-                  widths="[1280]"
-                  sizes="(max-width: 768px) 100vw, 1200px"
+                  :quality="80"
+                  width="157"
+                  height="55"
+                  fit="contain"
+                  sizes="157px"
+                  :widths="[157, 314]"
               />
             </a>
           </div>
         </div>
         <div class="relative hidden md:flex justify-center lg:justify-end px-6 pb-10 lg:pb-0">
           <nuxt-img
-              class="app-image max-h-[520px] w-full drop-shadow-[0_30px_60px_rgba(0,0,0,0.55)]"
+              class="app-image w-full max-h-[520px] drop-shadow-[0_30px_60px_rgba(0,0,0,0.55)]"
               src="/images/mobile-app.png"
               alt="Mobile App"
               format="webp"
-              quality="100"
-              widths="[360, 480, 768, 1024, 1200, 1600]"
-              sizes="(max-width: 768px) 100vw, 1200px"
+              :quality="100"
+              sizes="(max-width: 400px) 280px, 320px"
+              :widths="[280, 320, 560, 640]"
           />
         </div>
       </div>
