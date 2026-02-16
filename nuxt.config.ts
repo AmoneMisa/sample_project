@@ -7,14 +7,7 @@ export default defineNuxtConfig({
                 {
                     rel: "preload",
                     as: "font",
-                    href: "/fonts/PT Root UI_Bold.woff2",
-                    type: "font/woff2",
-                    crossorigin: "anonymous"
-                },
-                {
-                    rel: "preload",
-                    as: "font",
-                    href: "/fonts/PT Root UI_Medium.woff2",
+                    href: "/fonts/PT Root UI_Regular.woff2",
                     type: "font/woff2",
                     crossorigin: "anonymous"
                 }
@@ -40,6 +33,7 @@ export default defineNuxtConfig({
         }
     },
     i18n: {
+        baseUrl: 'https://whiteslove.me',
         defaultLocale: 'ru',
         langDir: null,
         locales: [
