@@ -269,7 +269,7 @@ onMounted(async () => {
     if (path) emit("select", path);
   });
 
-  emit("ready", {openFind, revealKey: (k) => emit("select", k)});
+  emit("ready", {revealKey: (k) => emit("select", k)});
   editor.addCommand(monaco.KeyCode.UpArrow, () => emit("nav", -1));
   editor.addCommand(monaco.KeyCode.DownArrow, () => emit("nav", 1));
   editor.addCommand(monaco.KeyCode.Enter, () => emit("nav", 1));

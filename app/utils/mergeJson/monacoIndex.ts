@@ -53,9 +53,3 @@ export function buildJsonIndex(text: string): JsonIndex {
     return { leaf, node, key };
 }
 
-export function parsePath(path: string): (string | number)[] {
-    return path
-        .split(".")
-        .filter(Boolean)
-        .map((x) => (isNum(x) ? Number(x) : x));
-}

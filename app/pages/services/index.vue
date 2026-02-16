@@ -6,10 +6,10 @@ import type {ServiceType} from "~/types/ServiceType";
 const {t} = useI18n();
 const config = useRuntimeConfig();
 
-const {data: rawServicesData, error: servicesError} = await safeFetch<ServiceType[]>(
+const {data: rawServicesData} = await safeFetch<ServiceType[]>(
     `${config.public.apiBase}/services`
 );
-const {data: serviceCategoriesData, error: categoriesError} = await safeFetch<any[]>(
+const {data: serviceCategoriesData} = await safeFetch<any[]>(
     `${config.public.apiBase}/service-categories`
 );
 

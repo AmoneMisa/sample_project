@@ -123,7 +123,7 @@ const scrollNext = () => { carousel.value?.emblaApi?.scrollNext(); };
   align-items: center;
   justify-content: center;
   transition: color .3s ease;
-  color: var(--ui-text-inverted);
+  color: var(--text-white);
 
   &:before {
     opacity: 0.6;

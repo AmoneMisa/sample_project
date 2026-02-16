@@ -56,25 +56,13 @@ watch(
       >
         <div class="testimonial__border">
           <picture>
-            <nuxt-img
-                class="testimonial__border-image"
-                src="/svg/folder.svg"
-                alt="border"
-                format="svg"
-                quality="100"
-                widths="[460, 768, 1280]"
-                sizes="(max-width: 768px) 100vw, 1200px"
-            />
+            <img alt="border" src="/svg/folder.svg" class="testimonial__border-image "/>
           </picture>
           <picture>
-            <nuxt-img
-                class="testimonial__border-image testimonial__border-image_border"
-                src="/svg/folder-border.svg"
+            <img
                 alt="border"
-                format="svg"
-                quality="100"
-                widths="[460, 768, 1280]"
-                sizes="(max-width: 768px) 100vw, 1200px"
+                src="/svg/folder-border.svg"
+                class="testimonial__border-image testimonial__border-image_border"
             />
           </picture>
         </div>

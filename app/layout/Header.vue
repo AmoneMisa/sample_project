@@ -14,7 +14,7 @@ const {locale, setLocaleCookie, setLocale, t} = useI18n();
 const config = useRuntimeConfig();
 const api = config.public.apiBase;
 
-const {data: langs, pending: langsPending, error: langsError} = await useFetch<Lang[]>(
+const {data: langs, pending: langsPending} = await useFetch<Lang[]>(
     '/languages/enabled',
     {baseURL: api}
 );
