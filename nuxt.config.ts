@@ -37,9 +37,9 @@ export default defineNuxtConfig({
         defaultLocale: 'ru',
         langDir: null,
         locales: [
-            { code: 'en', iso: 'en-US', name: 'English' },
-            { code: 'ru', iso: 'ru-RU', name: 'Русский' },
-            { code: 'kk', iso: 'kk-KZ', name: 'Қазақша' }
+            {code: 'en', language: 'en-US', name: 'English'},
+            {code: 'ru', language: 'ru-RU', name: 'Русский'},
+            {code: 'kk', language: 'kk-KZ', name: 'Қазақша'}
         ],
         strategy: 'no_prefix',
         detectBrowserLanguage: {

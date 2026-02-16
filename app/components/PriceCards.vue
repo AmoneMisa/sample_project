@@ -24,6 +24,7 @@ const {t} = useI18n();
           title="pricing.title"
           headline="pricing.headline"
           class="mb-8"
+          :is-centered="true"
       />
       <div class="price-cards__switcher mb-4">
         <button

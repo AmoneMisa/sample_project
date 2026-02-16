@@ -2,7 +2,6 @@
 import type {TabsItem} from '#ui/components/Tabs.vue';
 import {nextTick, onBeforeUnmount, onMounted, ref} from 'vue';
 import PageHeader from "~/components/common/PageHeader.vue";
-import CustomButton from "~/components/common/CustomButton.vue";
 
 defineProps<{
   tabs: TabsItem[]
@@ -100,9 +99,9 @@ onBeforeUnmount(() => {
               <section class="tabs-card">
                 <div class="tabs-card__inner">
                   <div class="tabs-card__content">
-                    <h2 class="tabs-card__title mb-4 mt-2">
+                    <h4 class="tabs-card__title mb-4 mt-2">
                       {{ t(item.titleKey) }}
-                    </h2>
+                    </h4>
                     <p v-if="item?.textKey" class="tabs-card__description text-white/70">{{ t(item.textKey) }}</p>
                     <ul v-if="item.list" class="flex flex-col tabs-card__list mb-6">
                       <li class="flex items-center gap-2" v-for="(li, idx) in item.list" :key="idx">
@@ -110,9 +109,6 @@ onBeforeUnmount(() => {
                         <span>{{ t(li.textKey) }}</span>
                       </li>
                     </ul>
-                    <custom-button class="tabs-card__cta w-[240px] mb-4 justify-center" variant="full" v-if="item?.buttonTextKey">
-                      {{ t(item.buttonTextKey) }}
-                    </custom-button>
                   </div>
                   <div class="tabs-card__media">
                     <nuxt-img

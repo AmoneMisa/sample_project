@@ -94,7 +94,7 @@ const {data: animatedText} = await useAsyncData<AnimatedTextItem[]>(
                                      :texts-list="animatedText"/>
         </span>
       </h1>
-      <page-header description="hero.subtitle" descriptionSize="24" class="mt-2"/>
+      <page-header description="hero.subtitle" descriptionSize="24" class="mt-2" :is-centered="true"/>
     </div>
     <u-page-body class="mt-4 pb-0 gap-16 flex flex-col justify-center">
       <textarea-request-form
@@ -139,11 +139,8 @@ const {data: animatedText} = await useAsyncData<AnimatedTextItem[]>(
             title="page.collaboration.title"
             headline="page.collaboration.headline"
             titleClasses="max-w-[530px]"
+            :is-centered="true"
         />
-        <custom-button class="m-auto justify-center h-16 w-48 text-lg mt-5" variant="full">{{
-            t('page.collaboration.cta')
-          }}
-        </custom-button>
         <div class="relative logo-shadow">
           <div
               class="logo-shadow__logo absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 sm:px-12 sm:py-8 px-6 py-4 rounded-xl ring-2 dark:ring-neutral-900 ring-[#d1d1ff] max-w-[330px]">
@@ -222,8 +219,7 @@ const {data: animatedText} = await useAsyncData<AnimatedTextItem[]>(
     { src: '/images/postgre-gradient.png', alt: 'postgreSql' },
     { src: '/images/scss-gradient.png', alt: 'scss' }
   ]"/>
-      <app-download-promo headline="download.headline" title="download.title
-" description="download.description"/>
+      <app-download-promo headline="download.headline" title="download.title" description="download.description"/>
     </u-page-body>
   </u-page>
 </template>
