@@ -86,5 +86,4 @@ const canPaginate = computed(() => (props.cards?.length ?? 0) > 1);
 </template>
 
 <style scoped lang="scss">
-}
 </style>
