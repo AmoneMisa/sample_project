@@ -36,8 +36,11 @@ const {t} = useI18n();
               :alt="t(title)"
               format="webp"
               quality="100"
-              widths="[1280]"
-              sizes="(max-width: 768px) 100vw, 1200px"
+              width="55"
+              height="55"
+              fit="contain"
+              sizes="55px"
+              :widths="[55, 110]"
               loading="lazy"
               decoding="async"
           />

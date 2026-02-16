@@ -63,8 +63,11 @@ const canPaginate = computed(() => (props.cards?.length ?? 0) > 1);
                   :alt="t(item.title)"
                   format="webp"
                   quality="100"
-                  widths="[1280]"
-                  sizes="(max-width: 768px) 100vw, 1200px"
+                  width="48"
+                  height="48"
+                  sizes="48px"
+                  :widths="[48, 96]"
+                  loading="lazy"
               />
             </div>
             <h3 class="dark:text-white text-[var(--ui-text)] text-lg sm:text-xl font-semibold leading-snug">

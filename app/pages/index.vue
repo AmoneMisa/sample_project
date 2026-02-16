@@ -23,6 +23,17 @@ useSeoMeta({
   twitterTitle: () => t('seo.pages.home.twitterTitle'),
   twitterDescription: () => t('seo.pages.home.twitterDescription')
 });
+const isPageLoaded = ref(false);
+
+onMounted(() => {
+  const markLoaded = () => { isPageLoaded.value = true }
+
+  if (document.readyState === 'complete') {
+    markLoaded();
+  } else {
+    window.addEventListener('load', markLoaded, { once: true });
+  }
+});
 
 const cards = [
   {
@@ -113,6 +124,7 @@ const {data: animatedText} = await useAsyncData<AnimatedTextItem[]>(
               :quality="80"
               sizes="(max-width: 1024px) 100vw, 988px"
               :widths="[480, 640, 768, 988, 1200, 1976]"
+              fetchpriority=high
           />
         </div>
       </u-container>
@@ -141,7 +153,7 @@ const {data: animatedText} = await useAsyncData<AnimatedTextItem[]>(
             titleClasses="max-w-[530px]"
             :is-centered="true"
         />
-        <div class="relative logo-shadow">
+        <div class="relative logo-shadow" :class="{'logo-shadow_animated': isPageLoaded}">
           <div
               class="logo-shadow__logo absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 sm:px-12 sm:py-8 px-6 py-4 rounded-xl ring-2 dark:ring-neutral-900 ring-[#d1d1ff] max-w-[330px]">
             <nuxt-img
@@ -204,6 +216,7 @@ const {data: animatedText} = await useAsyncData<AnimatedTextItem[]>(
               fit="cover"
               sizes="120px"
               :widths="[120, 240]"
+              loading="lazy"
           />
           <a href="https://github.com/AmoneMisa" target="_blank" rel="noopener noreferrer">
             <custom-button class="justify-center h-12 text-base w-max" button-type="white">
@@ -258,7 +271,6 @@ const {data: animatedText} = await useAsyncData<AnimatedTextItem[]>(
     width: 320px;
     height: 320px;
     border-radius: 24px;
-    animation: styles_moving-gradient 16s linear infinite;
 
     @media screen and (max-width: 768px) {
       width: 260px;
@@ -270,6 +282,10 @@ const {data: animatedText} = await useAsyncData<AnimatedTextItem[]>(
       height: 240px;
     }
   }
+}
+
+.logo-shadow_animated {
+  animation: styles_moving-gradient 16s linear infinite;
 }
 
 .logo-shadow__logo {

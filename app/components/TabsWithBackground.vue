@@ -111,17 +111,18 @@ onBeforeUnmount(() => {
                     </ul>
                   </div>
                   <div class="tabs-card__media">
-                    <nuxt-img
+                    <NuxtImg
                         class="tabs-card__img"
                         :src="item.image"
                         :alt="t(item.titleKey)"
                         format="webp"
-                        quality="100"
-                        widths="[1280]"
-                        sizes="(max-width: 768px) 100vw, 1200px"
+                        :quality="80"
+                        width="487"
+                        height="304"
+                        sizes="(max-width: 520px) 100vw, 487px"
+                        :widths="[320, 400, 487, 640, 974]"
                         loading="lazy"
                         decoding="async"
-                        fetchpriority="high"
                     />
                   </div>
                 </div>

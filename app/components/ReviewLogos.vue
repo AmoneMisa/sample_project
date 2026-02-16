@@ -26,6 +26,7 @@ const {t} = useI18n();
             width="100"
             height="100"
             fit="contain"
+            loading="lazy"
             sizes="100px"
             :widths="[100, 200]"
         />

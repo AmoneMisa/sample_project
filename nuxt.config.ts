@@ -26,7 +26,7 @@ export default defineNuxtConfig({
         build: {
             sourcemap: true,
             minify: 'esbuild',
-            cssMinify: 'esbuild'
+            cssMinify: 'lightningcss'
         },
         plugins: [svgLoader()], optimizeDeps: {
             exclude: ["monaco-editor"],

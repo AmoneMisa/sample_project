@@ -56,13 +56,14 @@ watch(
       >
         <div class="testimonial__border">
           <picture>
-            <img alt="border" src="/svg/folder.svg" class="testimonial__border-image "/>
+            <img alt="border" src="/svg/folder.svg" class="testimonial__border-image" loading="lazy"/>
           </picture>
           <picture>
             <img
                 alt="border"
                 src="/svg/folder-border.svg"
                 class="testimonial__border-image testimonial__border-image_border"
+                loading="lazy"
             />
           </picture>
         </div>
@@ -74,8 +75,11 @@ watch(
                 :src="item.avatar"
                 format="svg"
                 quality="100"
-                widths="[460, 768, 1280]"
-                sizes="(max-width: 768px) 100vw, 1200px"
+                width="48"
+                height="48"
+                fit="contain"
+                sizes="48px"
+                :widths="[48, 96]"
                 loading="lazy"
                 decoding="async"
             />

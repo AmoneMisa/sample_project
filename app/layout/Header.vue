@@ -73,6 +73,17 @@ function toggleTheme() {
 }
 
 const isMenuOpen = ref(false);
+const isPageLoaded = ref(false);
+
+onMounted(() => {
+  const markLoaded = () => { isPageLoaded.value = true }
+
+  if (document.readyState === 'complete') {
+    markLoaded();
+  } else {
+    window.addEventListener('load', markLoaded, { once: true });
+  }
+});
 </script>
 
 <template>
@@ -114,7 +125,7 @@ const isMenuOpen = ref(false);
     </template>
     <template #right>
       <div class="hidden xl:flex items-center gap-2 xl:gap-3">
-        <div class="ui-pill-btn ui-pill-btn_animated">
+        <div class="ui-pill-btn" :class="{ 'ui-pill-btn_animated': isPageLoaded }">
           <u-locale-select
               class="ui-pill-btn__inner ui-locale"
               :model-value="locale"
@@ -130,7 +141,7 @@ const isMenuOpen = ref(false);
             }"
           />
         </div>
-        <div class="ui-pill-btn ui-pill-btn_animated">
+        <div class="ui-pill-btn" :class="{ 'ui-pill-btn_animated': isPageLoaded }">
           <button
               type="button"
               class="ui-pill-btn__inner text-sm font-semibold dark:text-white/90 text-[var(--ui-text)]/90 dark:hover:text-white hover:text-[var(--ui-text)] whitespace-nowrap"
@@ -139,7 +150,7 @@ const isMenuOpen = ref(false);
             t('header.button.changeTheme')
           </button>
         </div>
-        <div class="ui-pill-btn ui-pill-btn_animated">
+        <div class="ui-pill-btn" :class="{ 'ui-pill-btn_animated': isPageLoaded }">
           <u-link
               href="https://amonemisa.github.io/personal/"
               no-rel
