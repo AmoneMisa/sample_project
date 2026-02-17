@@ -147,7 +147,7 @@ onMounted(() => {
               class="ui-pill-btn__inner text-sm font-semibold dark:text-white/90 text-[var(--ui-text)]/90 dark:hover:text-white hover:text-[var(--ui-text)] whitespace-nowrap"
               @click="toggleTheme"
           >
-            t('header.button.changeTheme')
+            {{t('header.button.changeTheme')}}
           </button>
         </div>
         <div class="ui-pill-btn" :class="{ 'ui-pill-btn_animated': isPageLoaded }">

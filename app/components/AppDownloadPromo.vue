@@ -39,11 +39,10 @@ defineProps<{
               <nuxt-img
                   src="/images/download.png"
                   alt="Download"
-                  format="png"
+                  format="webp"
                   :quality="80"
-                  width="157"
                   height="55"
-                  sizes="157px"
+                  fit="cover"
                   :widths="[157, 314]"
               />
             </a>
@@ -133,7 +132,7 @@ defineProps<{
 
 .store-btn {
   display: inline-flex;
-  width: 157px;
+  width: 200px;
   height: 55px;
   transition: transform .25s ease, filter .25s ease;
   filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .35));
