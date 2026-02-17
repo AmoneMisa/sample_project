@@ -43,7 +43,6 @@ defineProps<{
                   :quality="80"
                   width="157"
                   height="55"
-                  fit="contain"
                   sizes="157px"
                   :widths="[157, 314]"
               />
