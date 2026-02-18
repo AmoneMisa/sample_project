@@ -102,23 +102,21 @@ async function openTelegramShare() {
 
   const finalText = `@${TG_USERNAME}\n\n${message.value.trim()}`;
   const encoded = encodeURIComponent(finalText);
-
-  const tgProto = `tg://msg?text=${encoded}`;
-  const tgShare = `https://t.me/share/url?url=&text=${encoded}`;
-  const tgProfile = `https://t.me/${TG_USERNAME}`;
-
+  const tgResolve = `tg://resolve?domain=${encodeURIComponent(TG_USERNAME)}&text=${encoded}`;
+  const tgWebChat = `https://t.me/${encodeURIComponent(TG_USERNAME)}?text=${encoded}`;
+  const tgProfile = `https://t.me/${encodeURIComponent(TG_USERNAME)}`;
   const copiedOk = await copyToClipboard(finalText);
+  const openedResolve = await tryOpen(tgResolve);
+  if (openedResolve) return;
 
-  const openedProto = await tryOpen(tgProto);
-  if (openedProto) return;
-
-  const openedShare = await tryOpen(tgShare);
-  if (openedShare) return;
+  const openedWebChat = await tryOpen(tgWebChat);
+  if (openedWebChat) return;
 
   await tryOpen(tgProfile);
 
   if (!copiedOk) await copyToClipboard(finalText);
 }
+
 </script>
 
 <template>
