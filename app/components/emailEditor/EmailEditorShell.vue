@@ -6,25 +6,28 @@ import ColorPickerPopover from "./modals/ColorPickerPopover.vue";
 
 import { useEmailEditorState } from "~/composables/emailEditor/useEmailEditorState";
 import { useEmailEditorActions } from "~/composables/emailEditor/useEmailEditorActions";
+
 import InsertImageModal from "~/components/emailEditor/modals/InsertImageModal.vue";
 import InsertLinkModal from "~/components/emailEditor/modals/InsertLinkModal.vue";
 import InsertTemplateModal from "~/components/emailEditor/modals/InsertTemplateModal.vue";
+
+const { t } = useI18n();
 
 const state = useEmailEditorState();
 const actions = useEmailEditorActions(state);
 </script>
 
 <template>
-  <section class="email-editor ">
+  <section class="email-editor">
     <div class="email-editor__inner">
       <div class="email-editor__header">
         <div class="email-editor__title">
           <u-icon name="i-lucide-mail" />
-          <span>Email editor</span>
+          <span>{{ t("services.emailEditor.title") }}</span>
         </div>
       </div>
 
-      <EmailEditorToolbar
+      <email-editor-toolbar
           :template-engine="state.templateEngine.value"
           :preview-client="state.previewClient.value"
           :is-busy="state.isBusy.value"
@@ -33,7 +36,7 @@ const actions = useEmailEditorActions(state);
           @action="actions.onToolbarAction"
       />
 
-      <EmailEditorLayout
+      <email-editor-layout
           :code="state.code.value"
           :template-engine="state.templateEngine.value"
           :preview-client="state.previewClient.value"
@@ -46,22 +49,23 @@ const actions = useEmailEditorActions(state);
           @monaco-ready="state.monacoApi.value = $event"
       />
 
-      <InsertTemplateModal
-          v-model:open="state.modals.insertTemplate"
-          :template-engine="state.templateEngine.value"
-          @insert="actions.insertTemplate"
+      <insert-image-modal
+          v-model:open="state.modals.insertImage"
+          @insert="actions.insertImage"
       />
-      <InsertLinkModal
+
+      <insert-link-modal
           v-model:open="state.modals.insertLink"
           @insert="actions.insertLink"
       />
-      <InsertTemplateModal
+
+      <insert-template-modal
           v-model:open="state.modals.insertTemplate"
           :template-engine="state.templateEngine.value"
           @insert="actions.insertTemplate"
       />
 
-      <ColorPickerPopover
+      <color-picker-popover
           v-model:open="state.colorPicker.open"
           v-model:color="state.colorPicker.color"
           v-model:prefer-hex="state.colorPicker.preferHex"

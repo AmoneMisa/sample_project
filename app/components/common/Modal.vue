@@ -92,6 +92,22 @@ const props = defineProps<{
   flex-wrap: wrap;
 }
 
+.app-modal__close {
+  height: 36px;
+  width: 36px;
+  border-radius: 12px;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.18);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: filter 160ms ease, transform 140ms ease;
+}
+
+.app-modal__close:hover {
+  filter: brightness(1.06);
+}
+
 .light .app-modal {
   background: rgba(255, 255, 255, 0.78);
   backdrop-filter: blur(12px) saturate(180%);

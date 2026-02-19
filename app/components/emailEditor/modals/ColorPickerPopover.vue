@@ -3,6 +3,8 @@ import CustomInput from "~/components/common/CustomInput.vue";
 import CustomCheckbox from "~/components/common/CustomCheckbox.vue";
 import CustomButton from "~/components/common/CustomButton.vue";
 
+const { t } = useI18n();
+
 const open = defineModel<boolean>("open", { default: false });
 const color = defineModel<string>("color", { default: "#15162A" });
 const preferHex = defineModel<boolean>("preferHex", { default: true });
@@ -29,10 +31,7 @@ function apply() {
 const style = computed(() => {
   const x = Math.max(12, props.anchorClientX);
   const y = Math.max(12, props.anchorClientY);
-  return {
-    left: `${x}px`,
-    top: `${y}px`,
-  };
+  return { left: `${x}px`, top: `${y}px` };
 });
 </script>
 
@@ -43,10 +42,15 @@ const style = computed(() => {
         <div class="color-picker-popover__header">
           <div class="color-picker-popover__title">
             <u-icon name="i-lucide-palette" />
-            <span>Color</span>
+            <span>{{ t("services.emailEditor.modals.colorPicker.title") }}</span>
           </div>
 
-          <button type="button" class="color-picker-popover__close" @click="close" aria-label="Close">
+          <button
+              type="button"
+              class="color-picker-popover__close"
+              @click="close"
+              :aria-label="t('services.emailEditor.modals.common.close')"
+          >
             <u-icon name="i-lucide-x" />
           </button>
         </div>
@@ -57,13 +61,24 @@ const style = computed(() => {
             <div class="color-picker-popover__preview" :style="{ background: color }" />
           </div>
 
-          <CustomInput v-model="color" label="HEX" placeholder="#RRGGBB" />
+          <custom-input
+              v-model="color"
+              :label="t('services.emailEditor.modals.colorPicker.hex')"
+              :placeholder="t('services.emailEditor.modals.colorPicker.placeholders.hex')"
+          />
 
-          <CustomCheckbox v-model="preferHex" label="Prefer HEX when applying" />
+          <custom-checkbox
+              v-model="preferHex"
+              :label="t('services.emailEditor.modals.colorPicker.preferHex')"
+          />
 
           <div class="color-picker-popover__actions">
-            <CustomButton variant="secondary" @click="close">Close</CustomButton>
-            <CustomButton variant="full" @click="apply">Apply</CustomButton>
+            <custom-button variant="secondary" @click="close">
+              {{ t("services.emailEditor.modals.colorPicker.close") }}
+            </custom-button>
+            <custom-button variant="full" @click="apply">
+              {{ t("services.emailEditor.modals.colorPicker.apply") }}
+            </custom-button>
           </div>
         </div>
       </div>
@@ -123,8 +138,8 @@ const style = computed(() => {
   height: 34px;
   width: 34px;
   border-radius: 12px;
-  border: 1px solid var(--ui-border);
-  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.18);
   display: grid;
   place-items: center;
   cursor: pointer;
@@ -133,8 +148,6 @@ const style = computed(() => {
 }
 
 .light .color-picker-popover__close {
-  background: rgba(255, 255, 255, 0.85);
-  border-color: rgba(0, 0, 0, 0.08);
   color: rgba(21, 22, 42, 0.86);
 }
 

@@ -4,6 +4,7 @@ import CustomInput from "~/components/common/CustomInput.vue";
 import CustomButton from "~/components/common/CustomButton.vue";
 import { reactive, watch } from "vue";
 
+const { t } = useI18n();
 const open = defineModel<boolean>("open", { default: false });
 
 const emit = defineEmits<{
@@ -39,16 +40,28 @@ function submit() {
 
 <template>
   <modal v-model:open="open" max-width-class="sm:max-w-xl">
-    <template #title>Insert link</template>
+    <template #title>{{ t("services.emailEditor.modals.insertLink.title") }}</template>
 
     <div class="email-editor-insert">
-      <CustomInput v-model="form.href" label="URL" placeholder="https://..." />
-      <CustomInput v-model="form.text" label="Text" placeholder="Link text" />
+      <custom-input
+          v-model="form.href"
+          :label="t('services.emailEditor.modals.insertLink.url')"
+          :placeholder="t('services.emailEditor.modals.insertLink.placeholders.url')"
+      />
+      <custom-input
+          v-model="form.text"
+          :label="t('services.emailEditor.modals.insertLink.text')"
+          :placeholder="t('services.emailEditor.modals.insertLink.placeholders.text')"
+      />
     </div>
 
     <template #actions="{ close }">
-      <CustomButton variant="secondary" @click="close()">Cancel</CustomButton>
-      <CustomButton variant="full" @click="submit">Insert</CustomButton>
+      <custom-button variant="secondary" @click="close()">
+        {{ t("services.emailEditor.modals.insertLink.cancel") }}
+      </custom-button>
+      <custom-button variant="full" @click="submit">
+        {{ t("services.emailEditor.modals.insertLink.insert") }}
+      </custom-button>
     </template>
   </modal>
 </template>

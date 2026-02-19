@@ -12,8 +12,22 @@ const emit = defineEmits<{
   (e: "jump", id: string): void;
 }>();
 
+const { t } = useI18n();
+
 function iconFor(sev: string) {
   return sev === "error" ? "i-lucide-octagon-alert" : "i-lucide-triangle-alert";
+}
+
+function sevLabel(sev: string) {
+  return sev === "error"
+      ? t("services.emailEditor.diagnostics.severity.error")
+      : t("services.emailEditor.diagnostics.severity.warning");
+}
+
+function metaText(d: any) {
+  const line = d?.approxLine ?? null;
+  const lineText = line ? `${t("services.emailEditor.diagnostics.line")} ${line}` : t("services.emailEditor.diagnostics.lineUnknown");
+  return `${sevLabel(d.severity)} • ${d.ruleId} • ${lineText}`;
 }
 </script>
 
@@ -22,12 +36,14 @@ function iconFor(sev: string) {
     <div class="ui-anim-border__inner email-editor-diagnostics__inner">
       <div class="email-editor-diagnostics__title">
         <u-icon name="i-lucide-list-checks" />
-        <span>Diagnostics</span>
-        <span class="email-editor-diagnostics__count text-muted">({{ props.diagnostics.length }})</span>
+        <span>{{ t("services.emailEditor.diagnostics.title") }}</span>
+        <span class="email-editor-diagnostics__count text-muted">
+          ({{ props.diagnostics.length }})
+        </span>
       </div>
 
       <div v-if="!props.diagnostics.length" class="email-editor-diagnostics__empty text-muted">
-        No issues found.
+        {{ t("services.emailEditor.diagnostics.noIssues") }}
       </div>
 
       <ul v-else class="email-editor-diagnostics__list">
@@ -41,16 +57,18 @@ function iconFor(sev: string) {
         >
           <u-icon :name="iconFor(d.severity)" />
           <div class="email-editor-diagnostics__item-body">
-            <div class="email-editor-diagnostics__item-message">{{ d.message }}</div>
+            <div class="email-editor-diagnostics__item-message">
+              {{ t(d.messageKey, d.messageParams || {}) }}
+            </div>
             <div class="email-editor-diagnostics__item-meta text-muted">
-              {{ d.ruleId }} • line {{ d.approxLine ?? "?" }}
+              {{ metaText(d) }}
             </div>
           </div>
         </li>
       </ul>
 
       <div class="email-editor-diagnostics__help text-muted">
-        Tip: double click an item to jump to its location.
+        {{ t("services.emailEditor.diagnostics.tip") }}
       </div>
     </div>
   </div>
@@ -60,6 +78,7 @@ function iconFor(sev: string) {
 .email-editor-diagnostics {
   border-radius: 18px;
 }
+
 .email-editor-diagnostics__inner {
   border-radius: 16px;
   padding: 12px;
@@ -73,6 +92,7 @@ function iconFor(sev: string) {
   color: rgba(255, 255, 255, 0.9);
   margin-bottom: 10px;
 }
+
 .light .email-editor-diagnostics__title {
   color: rgba(21, 22, 42, 0.85);
 }
@@ -106,6 +126,7 @@ function iconFor(sev: string) {
   font-weight: 800;
   color: rgba(255, 255, 255, 0.88);
 }
+
 .light .email-editor-diagnostics__item-message {
   color: rgba(21, 22, 42, 0.86);
 }

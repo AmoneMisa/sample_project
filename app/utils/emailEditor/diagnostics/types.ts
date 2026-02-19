@@ -4,7 +4,8 @@ export type DiagnosticItem = {
     id: string;
     ruleId: string;
     severity: DiagnosticSeverity;
-    message: string;
+    messageKey: string;
+    messageParams?: Record<string, any>;
     startOffset: number;
     endOffset: number;
     approxLine?: number;

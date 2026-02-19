@@ -46,11 +46,51 @@
         "hint": "Алдын ала қарау шамамен көрсетіледі. Нақты пошта клиенттері өзгеше көрсетуі мүмкін."
       },
       "diagnostics": {
+        "line": "жол",
         "title": "Диагностика",
         "noIssues": "Қателер табылмады.",
-        "tip": "Кеңес: элементке екі рет басып, кодтағы орнына өтіңіз."
+        "tip": "Кеңес: элементке екі рет басып, кодтағы орнына өтіңіз.",
+        "severity": {
+          "error": "Қате",
+          "warning": "Ескерту"
+        },
+        "lineUnknown": "жол белгісіз",
+        "messages": {
+          "html": {
+            "unexpectedClosingTag": "Күтпеген жабу тегі </{tag}>.",
+            "tagNotClosed": "<{tag}> тегі жабылмаған.",
+            "imgMissingAlt": "<img> тегінде alt атрибуты болуы керек.",
+            "imgMissingSrc": "<img> тегінде src атрибуты болуы керек.",
+            "linkMissingHref": "<a> тегінде href атрибуты болуы керек.",
+            "tableShouldHaveRolePresentation": "Хаттағы кестеде role=\"presentation\" болуы керек.",
+            "tableShouldHaveCellspacing0": "Хаттағы кестеде cellspacing=\"0\" болуы керек.",
+            "tableShouldHaveCellpadding0": "Хаттағы кестеде cellpadding=\"0\" болуы керек.",
+            "tableShouldHaveBorder0": "Хаттағы кестеде border=\"0\" болуы керек.",
+            "missingMetaCharset": "<meta charset=\"...\"> жоқ.",
+            "missingMetaViewport": "<meta name=\"viewport\" ...> жоқ.",
+            "missingRootPresentationTable": "Негізгі кесте жоқ: <table role=\"presentation\" width=\"100%\">.",
+            "outlookAvoidDiv": "Outlook профилі: хат құрылымында <div> қолданбаңыз. Кестелерді пайдаланыңыз."
+          },
+          "css": {
+            "duplicateClassSelector": "<style> ішінде класс селекторы қайталанған: {selector}.",
+            "duplicateClassSelectorHint": "Псевдо-кластар/элементтер және @media ішіндегі селекторлар қайталану болып саналмайды."
+          },
+          "template": {
+            "unexpectedEnd": "Үлгі блогының соңы күтпеген жерде аяқталды.",
+            "unclosedIf": "Шарт блогы (if) жабылмаған.",
+            "unclosedLoop": "Цикл блогы (loop/foreach/list) жабылмаған.",
+            "unclosedExpression": "Үлгі өрнегі жабылмаған.",
+            "invalidSyntax": "Үлгі синтаксисі қате."
+          },
+          "images": {
+            "badFormat": "\"{ext}\" сурет форматы пошта клиенттерінде нашар қолдау табуы мүмкін."
+          }
+        }
       },
       "modals": {
+        "common": {
+          "close": "Жабу"
+        },
         "insertImage": {
           "title": "Сурет қосу",
           "url": "Сурет URL",
@@ -58,14 +98,24 @@
           "width": "Ені",
           "height": "Биіктігі",
           "insert": "Қосу",
-          "cancel": "Бас тарту"
+          "cancel": "Бас тарту",
+          "placeholders": {
+            "url": "https://...",
+            "alt": "Сипаттама",
+            "width": "мысалы 600",
+            "height": "мысалы 300"
+          }
         },
         "insertLink": {
           "title": "Сілтеме қосу",
           "url": "URL",
           "text": "Сілтеме мәтіні",
           "insert": "Қосу",
-          "cancel": "Бас тарту"
+          "cancel": "Бас тарту",
+          "placeholders": {
+            "url": "https://...",
+            "text": "Сілтеме мәтіні"
+          }
         },
         "insertTemplate": {
           "title": "Үлгі конструкциясын қосу",
@@ -93,6 +143,9 @@
           "cancel": "Бас тарту"
         },
         "colorPicker": {
+          "placeholders": {
+            "hex": "#RRGGBB"
+          },
           "title": "Түс",
           "hex": "HEX түсі",
           "preferHex": "Қолданғанда HEX пайдалану",

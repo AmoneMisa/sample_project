@@ -6,13 +6,12 @@ import { cssDuplicateClassRule } from "./rules/cssDuplicateClassRule";
 import { templateSyntaxRule } from "./rules/templateSyntaxRule";
 import { imageFormatRule } from "./rules/imageFormatRule";
 
-export function collectDiagnostics(input: { code: string; templateEngine: TemplateEngine; previewClient: PreviewClient }): DiagnosticItem[] {
-    const rules = [
-        htmlEmailRule,
-        cssDuplicateClassRule,
-        templateSyntaxRule,
-        imageFormatRule,
-    ];
+export function collectDiagnostics(input: {
+    code: string;
+    templateEngine: TemplateEngine;
+    previewClient: PreviewClient;
+}): DiagnosticItem[] {
+    const rules = [htmlEmailRule, cssDuplicateClassRule, templateSyntaxRule, imageFormatRule];
 
     const list = rules.flatMap((r) => r.check(input)).map((d) => ({
         ...d,

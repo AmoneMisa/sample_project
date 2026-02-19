@@ -28,21 +28,74 @@
         "hint": "Предпросмотр является приблизительным. Реальные почтовые клиенты могут отображать иначе."
       },
       "diagnostics": {
+        "line": "строка",
         "title": "Диагностика",
         "noIssues": "Проблем не найдено.",
-        "tip": "Совет: дважды кликните по элементу, чтобы перейти к нему в коде."
+        "tip": "Совет: дважды кликните по элементу, чтобы перейти к нему в коде.",
+        "severity": {
+          "error": "Ошибка",
+          "warning": "Предупреждение"
+        },
+        "lineUnknown": "строка неизвестна",
+        "messages": {
+          "html": {
+            "unexpectedClosingTag": "Неожиданный закрывающий тег </{tag}>.",
+            "tagNotClosed": "Тег <{tag}> не закрыт.",
+            "imgMissingAlt": "Тег <img> должен содержать атрибут alt.",
+            "imgMissingSrc": "Тег <img> должен содержать атрибут src.",
+            "linkMissingHref": "Тег <a> должен содержать атрибут href.",
+            "tableShouldHaveRolePresentation": "Таблица для письма должна содержать role=\"presentation\".",
+            "tableShouldHaveCellspacing0": "Таблица для письма должна содержать cellspacing=\"0\".",
+            "tableShouldHaveCellpadding0": "Таблица для письма должна содержать cellpadding=\"0\".",
+            "tableShouldHaveBorder0": "Таблица для письма должна содержать border=\"0\".",
+            "missingMetaCharset": "Отсутствует <meta charset=\"...\">.",
+            "missingMetaViewport": "Отсутствует <meta name=\"viewport\" ...>.",
+            "missingRootPresentationTable": "Отсутствует корневая таблица разметки: <table role=\"presentation\" width=\"100%\">.",
+            "outlookAvoidDiv": "Профиль Outlook: избегайте <div> в разметке письма. Используйте таблицы."
+          },
+          "css": {
+            "duplicateClassSelector": "Дублирование селектора класса в <style>: {selector}.",
+            "duplicateClassSelectorHint": "Не считаются дубликатами варианты с псевдоклассами/псевдоэлементами и внутри @media."
+          },
+          "template": {
+            "unexpectedEnd": "Неожиданный конец блока шаблона.",
+            "unclosedIf": "Не закрыт блок условия (if).",
+            "unclosedLoop": "Не закрыт блок цикла (loop/foreach/list).",
+            "unclosedExpression": "Не закрыто выражение шаблона.",
+            "invalidSyntax": "Некорректный синтаксис шаблонной конструкции."
+          },
+          "images": {
+            "badFormat": "Формат изображения \"{ext}\" может плохо поддерживаться почтовыми клиентами."
+          }
+        }
       },
       "modals": {
+        "common": {
+          "close": "Закрыть"
+        },
         "insertImage": {
+          "placeholders": {
+            "url": "https://...",
+            "alt": "Описание",
+            "width": "например 600",
+            "height": "например 300"
+          },
           "title": "Вставка изображения",
           "url": "URL изображения",
           "alt": "Альтернативный текст",
           "width": "Ширина",
           "height": "Высота",
           "insert": "Вставить",
-          "cancel": "Отмена"
+          "cancel": "Отмена",
+          "common": {
+            "close": "Закрыть"
+          }
         },
         "insertLink": {
+          "placeholders": {
+            "url": "https://...",
+            "text": "Текст ссылки"
+          },
           "title": "Вставка ссылки",
           "url": "URL",
           "text": "Текст ссылки",
@@ -79,7 +132,10 @@
           "hex": "HEX-цвет",
           "preferHex": "Использовать HEX при вставке",
           "apply": "Применить",
-          "close": "Закрыть"
+          "close": "Закрыть",
+          "placeholders": {
+            "hex": "#RRGGBB"
+          }
         }
       }
     },

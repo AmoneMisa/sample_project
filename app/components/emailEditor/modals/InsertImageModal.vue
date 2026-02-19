@@ -4,6 +4,7 @@ import CustomInput from "~/components/common/CustomInput.vue";
 import CustomButton from "~/components/common/CustomButton.vue";
 import { reactive, watch } from "vue";
 
+const { t } = useI18n();
 const open = defineModel<boolean>("open", { default: false });
 
 const emit = defineEmits<{
@@ -50,21 +51,43 @@ function submit() {
 
 <template>
   <modal v-model:open="open" max-width-class="sm:max-w-xl">
-    <template #title>Insert image</template>
+    <template #title>{{ t("services.emailEditor.modals.insertImage.title") }}</template>
 
     <div class="email-editor-insert">
-      <CustomInput v-model="form.src" label="Image URL" placeholder="https://..." />
-      <CustomInput v-model="form.alt" label="Alt text" placeholder="Description" />
+      <custom-input
+          v-model="form.src"
+          :label="t('services.emailEditor.modals.insertImage.url')"
+          :placeholder="t('services.emailEditor.modals.insertImage.placeholders.url')"
+      />
+      <custom-input
+          v-model="form.alt"
+          :label="t('services.emailEditor.modals.insertImage.alt')"
+          :placeholder="t('services.emailEditor.modals.insertImage.placeholders.alt')"
+      />
 
       <div class="email-editor-insert__row">
-        <CustomInput v-model="form.width" type="number" label="Width" placeholder="e.g. 600" />
-        <CustomInput v-model="form.height" type="number" label="Height" placeholder="e.g. 300" />
+        <custom-input
+            v-model="form.width"
+            type="number"
+            :label="t('services.emailEditor.modals.insertImage.width')"
+            :placeholder="t('services.emailEditor.modals.insertImage.placeholders.width')"
+        />
+        <custom-input
+            v-model="form.height"
+            type="number"
+            :label="t('services.emailEditor.modals.insertImage.height')"
+            :placeholder="t('services.emailEditor.modals.insertImage.placeholders.height')"
+        />
       </div>
     </div>
 
     <template #actions="{ close }">
-      <CustomButton variant="secondary" @click="close()">Cancel</CustomButton>
-      <CustomButton variant="full" @click="submit">Insert</CustomButton>
+      <custom-button variant="secondary" @click="close()">
+        {{ t("services.emailEditor.modals.insertImage.cancel") }}
+      </custom-button>
+      <custom-button variant="full" @click="submit">
+        {{ t("services.emailEditor.modals.insertImage.insert") }}
+      </custom-button>
     </template>
   </modal>
 </template>

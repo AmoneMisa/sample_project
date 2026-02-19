@@ -46,12 +46,58 @@
         "hint": "Preview is approximate. Real email clients may differ."
       },
       "diagnostics": {
+        "line": "line",
         "title": "Diagnostics",
         "noIssues": "No issues found.",
-        "tip": "Tip: double click an item to jump to its location."
+        "tip": "Tip: double click an item to jump to its location.",
+        "severity": {
+          "error": "Error",
+          "warning": "Warning"
+        },
+        "lineUnknown": "line unknown",
+        "messages": {
+          "html": {
+            "unexpectedClosingTag": "Unexpected closing tag </{tag}>.",
+            "tagNotClosed": "Tag <{tag}> is not closed.",
+            "imgMissingAlt": "<img> tag must include alt attribute.",
+            "imgMissingSrc": "<img> tag must include src attribute.",
+            "linkMissingHref": "<a> tag must include href attribute.",
+            "tableShouldHaveRolePresentation": "Email table should include role=\"presentation\".",
+            "tableShouldHaveCellspacing0": "Email table should include cellspacing=\"0\".",
+            "tableShouldHaveCellpadding0": "Email table should include cellpadding=\"0\".",
+            "tableShouldHaveBorder0": "Email table should include border=\"0\".",
+            "missingMetaCharset": "Missing <meta charset=\"...\">.",
+            "missingMetaViewport": "Missing <meta name=\"viewport\" ...>.",
+            "missingRootPresentationTable": "Missing root layout table: <table role=\"presentation\" width=\"100%\">.",
+            "outlookAvoidDiv": "Outlook profile: avoid <div> in email layout. Prefer tables."
+          },
+          "css": {
+            "duplicateClassSelector": "Duplicate class selector in <style>: {selector}.",
+            "duplicateClassSelectorHint": "Pseudo-classes/elements and selectors inside @media are not considered duplicates."
+          },
+          "template": {
+            "unexpectedEnd": "Unexpected end of template block.",
+            "unclosedIf": "Unclosed conditional block (if).",
+            "unclosedLoop": "Unclosed loop block (loop/foreach/list).",
+            "unclosedExpression": "Unclosed template expression.",
+            "invalidSyntax": "Invalid template syntax."
+          },
+          "images": {
+            "badFormat": "Image format \"{ext}\" may be poorly supported by email clients."
+          }
+        }
       },
       "modals": {
+        "common": {
+          "close": "Close"
+        },
         "insertImage": {
+          "placeholders": {
+            "url": "https://...",
+            "alt": "Description",
+            "width": "e.g. 600",
+            "height": "e.g. 300"
+          },
           "title": "Insert image",
           "url": "Image URL",
           "alt": "Alt text",
@@ -65,7 +111,11 @@
           "url": "URL",
           "text": "Link text",
           "insert": "Insert",
-          "cancel": "Cancel"
+          "cancel": "Cancel",
+          "placeholders": {
+            "url": "https://...",
+            "text": "Link text"
+          }
         },
         "insertTemplate": {
           "title": "Insert template construct",
@@ -97,7 +147,10 @@
           "hex": "HEX color",
           "preferHex": "Prefer HEX when applying",
           "apply": "Apply",
-          "close": "Close"
+          "close": "Close",
+          "placeholders": {
+            "hex": "#RRGGBB"
+          }
         }
       }
     },
