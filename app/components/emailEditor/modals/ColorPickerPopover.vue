@@ -308,6 +308,18 @@ watch(
                 :items="formatItems"
                 option-attribute="label"
                 value-attribute="value"
+                :ui="{
+    base: 'w-full',
+    trigger:
+      'h-11 rounded-[14px] border border-white/28 bg-white/12 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] hover:bg-white/16 hover:border-white/34',
+    leadingIcon: 'text-white/95',
+    trailingIcon: 'text-white/95',
+    content:
+      'z-[100000] rounded-[14px] border border-white/18 bg-[rgba(8,7,12,0.98)] backdrop-blur-xl shadow-[0_22px_70px_rgba(0,0,0,0.55)]',
+    item: 'text-white/92',
+    itemActive: 'bg-[rgba(128,90,245,0.24)]',
+    itemSelected: 'bg-[rgba(128,90,245,0.30)]'
+  }"
             />
           </div>
 
