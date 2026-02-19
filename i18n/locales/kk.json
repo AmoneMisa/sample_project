@@ -143,14 +143,33 @@
           "cancel": "Бас тарту"
         },
         "colorPicker": {
-          "placeholders": {
-            "hex": "#RRGGBB"
-          },
           "title": "Түс",
           "hex": "HEX түсі",
           "preferHex": "Қолданғанда HEX пайдалану",
           "apply": "Қолдану",
-          "close": "Жабу"
+          "close": "Жабу",
+          "code": "Түс коды",
+          "formats": {
+            "hex": "HEX",
+            "rgb": "RGB",
+            "rgba": "RGBA"
+          },
+          "lightness": "Жарықтық",
+          "opacity": "Мөлдірлік",
+          "titles": {
+            "nativePicker": "Жүйелік түс таңдағышты ашу",
+            "eyedropper": "Пипетка: экраннан түсті таңдау",
+            "darker": "1 қадамға қоюлау ету",
+            "lighter": "1 қадамға ашығырақ ету",
+            "moreTransparent": "0.05-ке мөлдірлеу ету",
+            "lessTransparent": "0.05-ке мөлдірлігін азайту"
+          },
+          "placeholders": {
+            "code": "#RRGGBB немесе rgb(...) немесе rgba(...)"
+          },
+          "errors": {
+            "invalidColorCode": "Түс коды қате."
+          }
         }
       }
     },

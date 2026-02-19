@@ -148,8 +148,27 @@
           "preferHex": "Prefer HEX when applying",
           "apply": "Apply",
           "close": "Close",
+          "code": "Color code",
+          "formats": {
+            "hex": "HEX",
+            "rgb": "RGB",
+            "rgba": "RGBA"
+          },
+          "lightness": "Lightness",
+          "opacity": "Opacity",
+          "titles": {
+            "nativePicker": "Open system color picker",
+            "eyedropper": "Eyedropper: pick a color from the screen",
+            "darker": "Make darker by 1 step",
+            "lighter": "Make lighter by 1 step",
+            "moreTransparent": "Make more transparent by 0.05",
+            "lessTransparent": "Make less transparent by 0.05"
+          },
           "placeholders": {
-            "hex": "#RRGGBB"
+            "code": "#RRGGBB or rgb(...) or rgba(...)"
+          },
+          "errors": {
+            "invalidColorCode": "Invalid color code."
           }
         }
       }

@@ -128,13 +128,32 @@
           "cancel": "Отмена"
         },
         "colorPicker": {
+          "code": "Код цвета",
+          "formats": {
+            "hex": "HEX",
+            "rgb": "RGB",
+            "rgba": "RGBA"
+          },
+          "lightness": "Яркость",
+          "opacity": "Прозрачность",
+          "titles": {
+            "nativePicker": "Открыть системный выбор цвета",
+            "eyedropper": "Пипетка: выбрать цвет с экрана",
+            "darker": "Сделать темнее на 1 шаг",
+            "lighter": "Сделать светлее на 1 шаг",
+            "moreTransparent": "Сделать более прозрачным на 0.05",
+            "lessTransparent": "Сделать менее прозрачным на 0.05"
+          },
+          "errors": {
+            "invalidColorCode": "Некорректный код цвета."
+          },
           "title": "Цвет",
           "hex": "HEX-цвет",
           "preferHex": "Использовать HEX при вставке",
           "apply": "Применить",
           "close": "Закрыть",
           "placeholders": {
-            "hex": "#RRGGBB"
+            "code": "#RRGGBB или rgb(...) или rgba(...)"
           }
         }
       }
