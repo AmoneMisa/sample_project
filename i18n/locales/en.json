@@ -822,6 +822,14 @@
         "twitterTitle": "WhitesLove services catalog",
         "twitterDescription": "Fast access to online tools for development and daily work."
       },
+      "emailEditor": {
+        "title": "HTML Email Editor",
+        "description": "Online HTML email editor with validation, templates, and preview for Gmail, Outlook, and Yandex Mail.",
+        "ogTitle": "HTML Email Editor",
+        "ogDescription": "Create and validate HTML emails with template support and real-client previews.",
+        "twitterTitle": "HTML Email Editor",
+        "twitterDescription": "Build and preview HTML emails for Gmail, Outlook, and Yandex Mail."
+      },
       "converter": {
         "title": "Online file converter — media, data, and documents",
         "description": "Convert images, tabular data, and documents into target formats directly in your browser.",
