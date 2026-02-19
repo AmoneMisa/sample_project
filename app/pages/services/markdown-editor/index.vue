@@ -636,11 +636,10 @@ onBeforeUnmount(() => {
       <page-header
           title="services.markdownEditor.title"
           headline="services.markdownEditor.headline"
+          description="services.markdownEditor.subtitle"
           class="mb-6"
+          :is-centered="true"
       />
-      <p class="markdown-editor__subtitle text-muted mx-auto">
-        {{ t("services.markdownEditor.subtitle") }}
-      </p>
     </div>
     <section class="markdown-editor__card">
       <div class="markdown-editor__top">

@@ -286,23 +286,18 @@ const targetItems = computed(() =>
 
 <template>
   <u-page :ui="{ center: 'flex flex-col gap-[28px] lg:gap-[32px] xl:gap-[40px] py-12' }">
-    <div class="background-hero">
-      <h1 class="page-main-header mx-auto max-w-[26ch] text-center font-bold tracking-tight leading-[0.95] text-[clamp(2.1rem,5vw,3.4rem)]">
-        <span class="block dark:text-white/90 text-[var(--ui-text)]/90">
-          {{ t('services.converter.hero.titleLine1') }}
-        </span>
-        <span class="mt-2 block dark:text-white/90 text-[var(--ui-text)]/90">
-          {{ t('services.converter.hero.titleLine2') }}
-        </span>
-      </h1>
-
+    <div class="converter__header background-hero text-center space-y-3">
       <page-header
-          class="mt-2"
-          :description="t('services.converter.hero.description')"
-          descriptionSize="20"
+          title="services.converter.hero.titleLine1"
+          headline="services.emailEditor.headline"
+          description="services.converter.hero.description"
+          class="mb-6"
+          :is-centered="true"
       />
+      <p class="converter__subtitle text-muted mx-auto">
+        {{ t("services.emailEditor.subtitle") }}
+      </p>
     </div>
-
     <u-page-body class="mt-4 pb-0 gap-16 flex flex-col justify-center">
       <u-container class="max-w-6xl mx-auto mb-0">
         <div class="mode-grid">

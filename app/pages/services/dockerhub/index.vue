@@ -265,16 +265,14 @@ function chooseAdvancedTag(tag: string) {
 
 <template>
   <u-container class="docker-search">
-    <div class="background-hero docker-search__header text-center space-y-3">
+    <div class="docker-search__header background-hero text-center space-y-3">
       <page-header
           title="services.dockerSearch.title"
           headline="services.dockerSearch.headline"
+          description="services.dockerSearch.subtitle"
           class="mb-6"
+          :is-centered="true"
       />
-
-      <p class="docker-search__subtitle text-muted mx-auto">
-        {{ t("services.dockerSearch.subtitle") }}
-      </p>
     </div>
     <div class="tabs-row">
       <div ref="tabsScroll" class="tabs-scroll">

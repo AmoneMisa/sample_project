@@ -22,13 +22,12 @@ useSeoMeta({
   <u-container class="email-editor">
     <div class="email-editor__header background-hero text-center space-y-3">
       <page-header
-          title="services.markdownEditor.title"
-          headline="services.markdownEditor.headline"
+          title="services.emailEditor.title"
+          headline="services.emailEditor.headline"
+          description="services.emailEditor.subtitle"
           class="mb-6"
+          :is-centered="true"
       />
-      <p class="email-editor__subtitle text-muted mx-auto">
-        {{ t("services.markdownEditor.subtitle") }}
-      </p>
     </div>
 
     <EmailEditorShell />

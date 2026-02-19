@@ -39,10 +39,13 @@ function onDownload() {
 <template>
   <u-container class="merge">
     <div class="merge__header background-hero text-center space-y-3">
-      <page-header title="services.mergeJson.title" headline="services.mergeJson.headline" class="mb-6"/>
-      <p class="merge__subtitle text-muted mx-auto">
-        {{ t("services.mergeJson.subtitle") }}
-      </p>
+      <page-header
+          title="services.mergeJson.title"
+          headline="services.mergeJson.headline"
+          description="services.mergeJson.subtitle"
+          class="mb-6"
+          :is-centered="true"
+      />
     </div>
 
     <section class="merge__card">
