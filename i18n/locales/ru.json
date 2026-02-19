@@ -5,6 +5,84 @@
     }
   },
   "services": {
+    "emailEditor": {
+      "title": "Редактор писем",
+      "subtitle": "Создание, проверка и предпросмотр HTML-писем для популярных почтовых клиентов.",
+      "actions": {
+        "moveInlineStylesToStyle": "Перенести inline-стили в <style>",
+        "insertImage": "Вставить изображение",
+        "insertLink": "Вставить ссылку",
+        "insertTemplate": "Вставить шаблон"
+      },
+      "template": {
+        "label": "Шаблонный движок",
+        "cleanHtml": "Чистый HTML",
+        "freemarker": "Freemarker",
+        "velocity": "Velocity"
+      },
+      "preview": {
+        "label": "Предпросмотр",
+        "gmail": "Gmail",
+        "yandex": "Яндекс Почта",
+        "outlook": "Outlook",
+        "hint": "Предпросмотр является приблизительным. Реальные почтовые клиенты могут отображать иначе."
+      },
+      "diagnostics": {
+        "title": "Диагностика",
+        "noIssues": "Проблем не найдено.",
+        "tip": "Совет: дважды кликните по элементу, чтобы перейти к нему в коде."
+      },
+      "modals": {
+        "insertImage": {
+          "title": "Вставка изображения",
+          "url": "URL изображения",
+          "alt": "Альтернативный текст",
+          "width": "Ширина",
+          "height": "Высота",
+          "insert": "Вставить",
+          "cancel": "Отмена"
+        },
+        "insertLink": {
+          "title": "Вставка ссылки",
+          "url": "URL",
+          "text": "Текст ссылки",
+          "insert": "Вставить",
+          "cancel": "Отмена"
+        },
+        "insertTemplate": {
+          "title": "Вставка шаблонной конструкции",
+          "notice": "Переключите режим на Freemarker или Velocity.",
+          "kind": {
+            "if": "Условие If",
+            "variable": "Вывод переменной",
+            "loop": "Цикл",
+            "declare": "Объявление переменной"
+          },
+          "fields": {
+            "condition": "Условие",
+            "variableName": "Имя переменной",
+            "collection": "Коллекция",
+            "itemName": "Имя элемента",
+            "declareType": "Тип переменной"
+          },
+          "types": {
+            "string": "Строка",
+            "number": "Число",
+            "object": "Объект",
+            "array": "Массив"
+          },
+          "insert": "Вставить",
+          "cancel": "Отмена"
+        },
+        "colorPicker": {
+          "title": "Цвет",
+          "hex": "HEX-цвет",
+          "preferHex": "Использовать HEX при вставке",
+          "apply": "Применить",
+          "close": "Закрыть"
+        }
+      }
+    },
     "mergeJson": {
       "viewModes": {
         "json": "JSON",

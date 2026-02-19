@@ -23,6 +23,84 @@
     }
   },
   "services": {
+    "emailEditor": {
+      "title": "Хат редакторы",
+      "subtitle": "HTML хаттарды жасау, тексеру және негізгі пошта клиенттерінде алдын ала қарау.",
+      "actions": {
+        "moveInlineStylesToStyle": "Inline стильдерді <style>-ге көшіру",
+        "insertImage": "Сурет қосу",
+        "insertLink": "Сілтеме қосу",
+        "insertTemplate": "Үлгі қосу"
+      },
+      "template": {
+        "label": "Үлгі қозғалтқышы",
+        "cleanHtml": "Таза HTML",
+        "freemarker": "Freemarker",
+        "velocity": "Velocity"
+      },
+      "preview": {
+        "label": "Алдын ала қарау",
+        "gmail": "Gmail",
+        "yandex": "Yandex Mail",
+        "outlook": "Outlook",
+        "hint": "Алдын ала қарау шамамен көрсетіледі. Нақты пошта клиенттері өзгеше көрсетуі мүмкін."
+      },
+      "diagnostics": {
+        "title": "Диагностика",
+        "noIssues": "Қателер табылмады.",
+        "tip": "Кеңес: элементке екі рет басып, кодтағы орнына өтіңіз."
+      },
+      "modals": {
+        "insertImage": {
+          "title": "Сурет қосу",
+          "url": "Сурет URL",
+          "alt": "Балама мәтін",
+          "width": "Ені",
+          "height": "Биіктігі",
+          "insert": "Қосу",
+          "cancel": "Бас тарту"
+        },
+        "insertLink": {
+          "title": "Сілтеме қосу",
+          "url": "URL",
+          "text": "Сілтеме мәтіні",
+          "insert": "Қосу",
+          "cancel": "Бас тарту"
+        },
+        "insertTemplate": {
+          "title": "Үлгі конструкциясын қосу",
+          "notice": "Freemarker немесе Velocity режимін таңдаңыз.",
+          "kind": {
+            "if": "If шарты",
+            "variable": "Айнымалыны шығару",
+            "loop": "Цикл",
+            "declare": "Айнымалы жариялау"
+          },
+          "fields": {
+            "condition": "Шарт",
+            "variableName": "Айнымалы атауы",
+            "collection": "Коллекция",
+            "itemName": "Элемент атауы",
+            "declareType": "Айнымалы түрі"
+          },
+          "types": {
+            "string": "Жол",
+            "number": "Сан",
+            "object": "Объект",
+            "array": "Массив"
+          },
+          "insert": "Қосу",
+          "cancel": "Бас тарту"
+        },
+        "colorPicker": {
+          "title": "Түс",
+          "hex": "HEX түсі",
+          "preferHex": "Қолданғанда HEX пайдалану",
+          "apply": "Қолдану",
+          "close": "Жабу"
+        }
+      }
+    },
     "markdownEditor": {
       "title": "Markdown редакторы",
       "headline": "Мессенджерлерге арналған мәтін пішімдеу",

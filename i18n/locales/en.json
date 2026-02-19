@@ -23,6 +23,84 @@
     }
   },
   "services": {
+    "emailEditor": {
+      "title": "Email editor",
+      "subtitle": "Create, validate and preview HTML emails compatible with major email clients.",
+      "actions": {
+        "moveInlineStylesToStyle": "Move inline styles to <style>",
+        "insertImage": "Insert image",
+        "insertLink": "Insert link",
+        "insertTemplate": "Insert template"
+      },
+      "template": {
+        "label": "Template engine",
+        "cleanHtml": "Clean HTML",
+        "freemarker": "Freemarker",
+        "velocity": "Velocity"
+      },
+      "preview": {
+        "label": "Preview client",
+        "gmail": "Gmail",
+        "yandex": "Yandex Mail",
+        "outlook": "Outlook",
+        "hint": "Preview is approximate. Real email clients may differ."
+      },
+      "diagnostics": {
+        "title": "Diagnostics",
+        "noIssues": "No issues found.",
+        "tip": "Tip: double click an item to jump to its location."
+      },
+      "modals": {
+        "insertImage": {
+          "title": "Insert image",
+          "url": "Image URL",
+          "alt": "Alt text",
+          "width": "Width",
+          "height": "Height",
+          "insert": "Insert",
+          "cancel": "Cancel"
+        },
+        "insertLink": {
+          "title": "Insert link",
+          "url": "URL",
+          "text": "Link text",
+          "insert": "Insert",
+          "cancel": "Cancel"
+        },
+        "insertTemplate": {
+          "title": "Insert template construct",
+          "notice": "Switch template mode to Freemarker or Velocity.",
+          "kind": {
+            "if": "If condition",
+            "variable": "Variable output",
+            "loop": "Loop",
+            "declare": "Declare variable"
+          },
+          "fields": {
+            "condition": "Condition",
+            "variableName": "Variable name",
+            "collection": "Collection",
+            "itemName": "Item name",
+            "declareType": "Variable type"
+          },
+          "types": {
+            "string": "String",
+            "number": "Number",
+            "object": "Object",
+            "array": "Array"
+          },
+          "insert": "Insert",
+          "cancel": "Cancel"
+        },
+        "colorPicker": {
+          "title": "Color",
+          "hex": "HEX color",
+          "preferHex": "Prefer HEX when applying",
+          "apply": "Apply",
+          "close": "Close"
+        }
+      }
+    },
     "markdownEditor": {
       "title": "Markdown Editor",
       "headline": "Text formatting for messengers",
