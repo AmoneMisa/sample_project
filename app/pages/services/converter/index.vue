@@ -289,14 +289,11 @@ const targetItems = computed(() =>
     <div class="converter__header background-hero text-center space-y-3">
       <page-header
           title="services.converter.hero.titleLine1"
-          headline="services.emailEditor.headline"
-          description="services.converter.hero.description"
+          headline="services.converter.headline"
+          description="services.emailEditor.subtitle"
           class="mb-6"
           :is-centered="true"
       />
-      <p class="converter__subtitle text-muted mx-auto">
-        {{ t("services.emailEditor.subtitle") }}
-      </p>
     </div>
     <u-page-body class="mt-4 pb-0 gap-16 flex flex-col justify-center">
       <u-container class="max-w-6xl mx-auto mb-0">
