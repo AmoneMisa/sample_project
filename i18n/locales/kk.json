@@ -23,6 +23,101 @@
     }
   },
   "services": {
+    "svgEditor": {
+      "title": "SVG редакторы",
+      "subtitle": "Файл жүктеңіз немесе SVG кодын қойыңыз. Алдын ала қарау бірден жаңарады, артықтарын өшіріп, түс пен stroke-ты өңдей аласыз.",
+      "sections": {
+        "input": {
+          "title": "Енгізу"
+        },
+        "preview": {
+          "title": "Алдын ала қарау"
+        }
+      },
+      "inputs": {
+        "file": "SVG файлы",
+        "code": "SVG коды",
+        "codePlaceholder": "SVG белгілеуін осы жерге қойыңыз..."
+      },
+      "outputs": {
+        "normalized": "Ағымдағы SVG",
+        "normalizedPlaceholder": "Нәтиже осында пайда болады..."
+      },
+      "actions": {
+        "apply": "Қолдану",
+        "minify": "Минификациялау",
+        "removeDimensions": "Өлшемдерді алып тастау",
+        "replaceColors": "Түстерді ауыстыру",
+        "editStroke": "Stroke өңдеу"
+      },
+      "titles": {
+        "apply": "Кодты алдын ала қарауға қолдану",
+        "minify": "Артық тегтер мен пікірлерді жою",
+        "removeDimensions": "Түбір <svg> ішіндегі width және height атрибуттарын жою",
+        "replaceColors": "Fill/stroke түстерін ауыстыру (currentColor қоса)",
+        "editStroke": "Stroke және stroke-width қосу/алып тастау/өңдеу"
+      },
+      "preview": {
+        "emptyTitle": "SVG әлі жоқ",
+        "emptySubtitle": "Файл жүктеңіз немесе код қойып, «Қолдану» басыңыз."
+      },
+      "errors": {
+        "empty": "SVG коды бос.",
+        "noSvgRoot": "Түбір <svg> элементі табылмады.",
+        "parse": "SVG талдау мүмкін болмады. Белгілеуді тексеріңіз.",
+        "fileNotSvg": "Таңдалған файл .svg емес.",
+        "fileRead": "Файлды оқу мүмкін болмады.",
+        "fileTooLarge": "Файл тым үлкен."
+      },
+      "modals": {
+        "common": {
+          "close": "Жабу",
+          "apply": "Қолдану"
+        },
+        "colors": {
+          "title": "Түстерді ауыстыру",
+          "empty": "Түстер табылмады.",
+          "from": "Бұрын",
+          "to": "Қазір",
+          "count": "Кездесуі",
+          "pick": "Таңдау",
+          "useCurrentColor": "currentColor қолдану",
+          "currentColor": "currentColor",
+          "placeholders": {
+            "color": "Мысалы: #AABBCC немесе rgb(...)"
+          },
+          "titles": {
+            "pickColor": "Ауыстыру түсін таңдау",
+            "nativePicker": "Түс таңдау"
+          },
+          "errors": {
+            "invalidColor": "Түс қате."
+          }
+        },
+        "stroke": {
+          "title": "Stroke редакторы",
+          "elements": "Элементтер",
+          "edit": "Өңдеу",
+          "strokeWidth": "stroke-width",
+          "strokeColor": "stroke",
+          "useCurrentColor": "currentColor қолдану",
+          "saveElement": "Элементті сақтау",
+          "placeholders": {
+            "strokeWidth": "Мысалы: 2",
+            "strokeColor": "Мысалы: #FF00AA немесе rgb(...)"
+          },
+          "titles": {
+            "pickColor": "Stroke түсін таңдау",
+            "nativePicker": "Stroke түсін таңдау",
+            "saveElement": "Таңдалған элементтің өзгерісін сақтау"
+          },
+          "errors": {
+            "strokeWidth": "stroke-width теріс емес сан болуы керек.",
+            "invalidColor": "Түс қате."
+          }
+        }
+      }
+    },
     "emailEditor": {
       "title": "Хат редакторы",
       "subtitle": "HTML хаттарды жасау, тексеру және негізгі пошта клиенттерінде алдын ала қарау.",
@@ -829,6 +924,14 @@
         "ogDescription": "HTML хаттарды шаблондармен жасап, пошта клиенттерінде алдын ала қарау.",
         "twitterTitle": "HTML хаттар редакторы",
         "twitterDescription": "HTML хаттарды құру және алдын ала қарау."
+      },
+      "svgEditor": {
+        "title": "SVG редакторы",
+        "description": "SVG өңдеу: тірі алдын ала қарау, минификация, түстерді ауыстыру, stroke басқару.",
+        "ogTitle": "SVG редакторы",
+        "ogDescription": "SVG өңдеу: тірі алдын ала қарау, минификация, түстерді ауыстыру, stroke басқару.",
+        "twitterTitle": "SVG редакторы",
+        "twitterDescription": "SVG өңдеу: тірі алдын ала қарау, минификация, түстерді ауыстыру, stroke басқару."
       },
       "converter": {
         "title": "Онлайн файл түрлендіргіш — медиа, деректер және құжаттар",

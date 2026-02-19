@@ -23,6 +23,101 @@
     }
   },
   "services": {
+    "svgEditor": {
+      "title": "SVG Editor",
+      "subtitle": "Upload a file or paste SVG code. Preview updates instantly, clean up and edit colors/stroke.",
+      "sections": {
+        "input": {
+          "title": "Input"
+        },
+        "preview": {
+          "title": "Preview"
+        }
+      },
+      "inputs": {
+        "file": "SVG file",
+        "code": "SVG code",
+        "codePlaceholder": "Paste SVG markup here..."
+      },
+      "outputs": {
+        "normalized": "Current SVG",
+        "normalizedPlaceholder": "Result will appear here..."
+      },
+      "actions": {
+        "apply": "Apply",
+        "minify": "Minify",
+        "removeDimensions": "Remove size",
+        "replaceColors": "Replace colors",
+        "editStroke": "Edit stroke"
+      },
+      "titles": {
+        "apply": "Apply code to preview",
+        "minify": "Remove extra tags and comments",
+        "removeDimensions": "Remove width and height from root <svg>",
+        "replaceColors": "Replace fill/stroke colors (including currentColor)",
+        "editStroke": "Add/remove/edit stroke and stroke-width"
+      },
+      "preview": {
+        "emptyTitle": "No SVG yet",
+        "emptySubtitle": "Upload a file or paste code and click Apply."
+      },
+      "errors": {
+        "empty": "SVG code is empty.",
+        "noSvgRoot": "SVG root element <svg> not found.",
+        "parse": "Unable to parse SVG. Please check the markup.",
+        "fileNotSvg": "Selected file is not an .svg file.",
+        "fileRead": "Failed to read file.",
+        "fileTooLarge": "File is too large."
+      },
+      "modals": {
+        "common": {
+          "close": "Close",
+          "apply": "Apply"
+        },
+        "colors": {
+          "title": "Replace colors",
+          "empty": "No colors found.",
+          "from": "From",
+          "to": "To",
+          "count": "Occurrences",
+          "pick": "Pick",
+          "useCurrentColor": "Use currentColor",
+          "currentColor": "currentColor",
+          "placeholders": {
+            "color": "e.g. #AABBCC or rgb(...)"
+          },
+          "titles": {
+            "pickColor": "Pick replacement color",
+            "nativePicker": "Pick color"
+          },
+          "errors": {
+            "invalidColor": "Invalid color."
+          }
+        },
+        "stroke": {
+          "title": "Stroke editor",
+          "elements": "Elements",
+          "edit": "Edit",
+          "strokeWidth": "stroke-width",
+          "strokeColor": "stroke",
+          "useCurrentColor": "Use currentColor",
+          "saveElement": "Save element",
+          "placeholders": {
+            "strokeWidth": "e.g. 2",
+            "strokeColor": "e.g. #FF00AA or rgb(...)"
+          },
+          "titles": {
+            "pickColor": "Pick stroke color",
+            "nativePicker": "Pick stroke color",
+            "saveElement": "Save changes for selected element"
+          },
+          "errors": {
+            "strokeWidth": "stroke-width must be a non-negative number.",
+            "invalidColor": "Invalid color."
+          }
+        }
+      }
+    },
     "emailEditor": {
       "title": "Email editor",
       "subtitle": "Create, validate and preview HTML emails compatible with major email clients.",
@@ -829,6 +924,14 @@
         "ogDescription": "Create and validate HTML emails with template support and real-client previews.",
         "twitterTitle": "HTML Email Editor",
         "twitterDescription": "Build and preview HTML emails for Gmail, Outlook, and Yandex Mail."
+      },
+      "svgEditor": {
+        "title": "SVG Editor",
+        "description": "Edit SVG: live preview, minify, replace colors, manage stroke.",
+        "ogTitle": "SVG Editor",
+        "ogDescription": "Edit SVG: live preview, minify, replace colors, manage stroke.",
+        "twitterTitle": "SVG Editor",
+        "twitterDescription": "Edit SVG: live preview, minify, replace colors, manage stroke."
       },
       "converter": {
         "title": "Online file converter — media, data, and documents",
