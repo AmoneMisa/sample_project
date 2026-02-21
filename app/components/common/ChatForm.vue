@@ -537,7 +537,7 @@ onBeforeUnmount(() => {
 
 .floating-chat-header__title {
   font-weight: 800;
-  color: var(--ui-text-inverted);
+  color: var(--text-white);
 }
 
 .floating-chat-header__status {
@@ -611,7 +611,7 @@ onBeforeUnmount(() => {
 }
 
 .floating-chat-message__text {
-  color: var(--ui-text-inverted);
+  color: var(--text-white);
   white-space: pre-wrap;
   word-break: break-word;
   font-size: 14px;
