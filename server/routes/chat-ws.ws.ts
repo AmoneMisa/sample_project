@@ -1,5 +1,7 @@
 import WebSocket from "ws";
 
+const upstreamMap = new Map<string, WebSocket>();
+
 function getClientId(url: string) {
     try {
         const u = new URL(url, "http://local");
@@ -9,16 +11,22 @@ function getClientId(url: string) {
     }
 }
 
+function makeUpstreamUrl(peerUrl: string) {
+    const config = useRuntimeConfig();
+    const backendHttp = String(config.apiBase || "http://backend:8000").replace(/\/$/, "");
+    const backendWs = backendHttp.replace(/^http/i, (m) => (m.toLowerCase() === "https" ? "wss" : "ws"));
+
+    const clientId = getClientId(peerUrl);
+    return `${backendWs}/chat/ws?clientId=${encodeURIComponent(clientId)}`;
+}
+
 export default defineWebSocketHandler({
     open(peer) {
-        const config = useRuntimeConfig();
-        const backendHttp = String(config.apiBase || "http://backend:8000").replace(/\/$/, "");
-        const backendWs = backendHttp.replace(/^http/i, (m) => (m.toLowerCase() === "https" ? "wss" : "ws"));
-
-        const clientId = getClientId(peer.request.url || "");
-        const upstreamUrl = `${backendWs}/chat/ws?clientId=${encodeURIComponent(clientId)}`;
+        const peerId = String(peer.id);
+        const upstreamUrl = makeUpstreamUrl(peer.request.url || "");
 
         const upstream = new WebSocket(upstreamUrl);
+        upstreamMap.set(peerId, upstream);
 
         upstream.on("message", (data) => {
             peer.send(data.toString());
@@ -31,15 +39,21 @@ export default defineWebSocketHandler({
         upstream.on("error", () => {
             try { peer.close(); } catch {}
         });
+    },
 
-        peer.on("message", (event) => {
-            if (upstream.readyState === WebSocket.OPEN) {
-                upstream.send(typeof event.data === "string" ? event.data : String(event.data));
-            }
-        });
+    message(peer, message) {
+        const upstream = upstreamMap.get(String(peer.id));
+        if (!upstream) return;
 
-        peer.on("close", () => {
-            try { upstream.close(); } catch {}
-        });
+        if (upstream.readyState === WebSocket.OPEN) {
+            upstream.send(String(message));
+        }
+    },
+
+    close(peer) {
+        const key = String(peer.id);
+        const upstream = upstreamMap.get(key);
+        upstreamMap.delete(key);
+        try { upstream?.close(); } catch {}
     },
 });

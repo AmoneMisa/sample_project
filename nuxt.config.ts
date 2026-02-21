@@ -58,6 +58,9 @@ export default defineNuxtConfig({
         }
     },
     nitro: {
+        experimental: {
+            websocket: true
+        },
         routeRules: {
             '/api/**': {proxy: 'http://backend:8000/**'} //http://backend:8000/** - prod
         }
