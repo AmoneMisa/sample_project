@@ -10,9 +10,13 @@ type ChatMessage = {
   createdAt: string;
 };
 
+type SessionStatus = "active" | "awaiting_username" | "moved_to_telegram" | "closed" | string;
+type SessionStage = "choose" | "awaiting_username" | "active" | "closed";
+
 type ChatSession = {
   id: number;
-  status: "new" | "awaiting_username" | "active" | "closed" | string;
+  status: SessionStatus;
+  stage: SessionStage;
   tgUsername?: string | null;
 };
 
@@ -34,7 +38,6 @@ const isSending = ref(false);
 const hasUnread = ref(false);
 
 const session = ref<ChatSession | null>(null);
-
 const messages = ref<ChatMessage[]>([]);
 const messageText = ref("");
 
@@ -47,15 +50,12 @@ const socketConnected = ref(false);
 const chatListRef = ref<HTMLElement | null>(null);
 const clientId = ref<string>("");
 
+const stage = computed<SessionStage>(() => session.value?.stage || "choose");
+
 const canSend = computed(() => {
-  if (session.value?.status !== "active") return false;
+  if (stage.value !== "active") return false;
   return !isSending.value && !!messageText.value.trim();
 });
-
-const isChoiceStage = computed(() => session.value?.status === "new");
-const isUsernameStage = computed(() => session.value?.status === "awaiting_username");
-const isClosedStage = computed(() => session.value?.status === "closed");
-const isActiveStage = computed(() => session.value?.status === "active");
 
 function ensureClientId() {
   const key = "whiteslove_chat_client_id";
@@ -102,7 +102,8 @@ function toggleChat() {
 function isDuplicateIncoming(incoming: ChatMessage) {
   const last = messages.value[messages.value.length - 1];
   if (!last) return false;
-  return last.sender === incoming.sender && last.text === incoming.text;
+  if (incoming.id && last.id === incoming.id) return true;
+  return last.sender === incoming.sender && last.text === incoming.text && last.createdAt === incoming.createdAt;
 }
 
 async function loadHistory() {
@@ -120,7 +121,7 @@ async function loadHistory() {
     session.value = data.session ?? null;
     messages.value = (data.messages ?? []) as ChatMessage[];
 
-    if (isUsernameStage.value) {
+    if (stage.value === "awaiting_username") {
       tgUsername.value = session.value?.tgUsername || "";
     }
 
@@ -202,7 +203,7 @@ async function submitTelegramUsername() {
 async function sendMessage() {
   const text = messageText.value.trim();
   if (!text) return;
-  if (session.value?.status !== "active") return;
+  if (stage.value !== "active") return;
 
   const optimistic: ChatMessage = {
     sender: "client",
@@ -267,8 +268,20 @@ function connectSocket() {
       return;
     }
 
+    if (payload?.type === "session_update") {
+      if (!session.value || session.value.id !== payload.sessionId) return;
+      session.value = {
+        ...session.value,
+        status: payload.status ?? session.value.status,
+        stage: payload.stage ?? session.value.stage,
+        tgUsername: payload.tgUsername ?? session.value.tgUsername,
+      };
+      return;
+    }
+
     if (payload?.type === "message") {
       const msg: ChatMessage = {
+        id: payload.id,
         sender: payload.sender,
         text: payload.text ?? "",
         createdAt: payload.createdAt ?? new Date().toISOString(),
@@ -284,17 +297,10 @@ function connectSocket() {
     }
 
     if (payload?.type === "session_closed") {
-      session.value = session.value
-          ? { ...session.value, status: "closed" }
-          : { id: payload.sessionId, status: "closed" };
+      if (session.value && session.value.id === payload.sessionId) {
+        session.value = { ...session.value, stage: "closed", status: "closed" };
+      }
 
-      const msg: ChatMessage = {
-        sender: "owner",
-        text: payload.reason === "telegram" ? "Диалог закрыт. Мы свяжемся с вами в Telegram." : "Диалог закрыт.",
-        createdAt: new Date().toISOString(),
-      };
-
-      if (!isDuplicateIncoming(msg)) messages.value.push(msg);
       await scrollChatToBottom();
     }
   };
@@ -344,7 +350,7 @@ onBeforeUnmount(() => {
               <span>{{ $t(props.titleKey) }}</span>
             </div>
 
-            <div class="floating-chat-header__status" :class="{ 'floating-chat-header__status_connected': socketConnected }">
+            <div class="floating-chat-header__status" :class="{ floating-chat-header__status_connected: socketConnected }">
               <u-icon
                   :name="socketConnected ? 'i-lucide-wifi' : 'i-lucide-wifi-off'"
                   class="floating-chat-header__status-icon"
@@ -369,7 +375,7 @@ onBeforeUnmount(() => {
               class="floating-chat-message"
               :class="{
               'floating-chat-message_client': m.sender === 'client',
-              'floating-chat-message_owner': m.sender === 'owner'
+              'floating-chat-message_owner': m.sender === 'owner',
             }"
           >
             <div class="floating-chat-message__bubble">
@@ -380,7 +386,7 @@ onBeforeUnmount(() => {
         </div>
 
         <footer class="floating-chat-footer">
-          <div v-if="isChoiceStage" class="floating-chat-stage">
+          <div v-if="stage === 'choose'" class="floating-chat-stage">
             <div class="floating-chat-stage__title">
               {{ $t("chat.stage.chooseChannel") }}
             </div>
@@ -398,7 +404,7 @@ onBeforeUnmount(() => {
             </div>
           </div>
 
-          <div v-else-if="isUsernameStage" class="floating-chat-stage">
+          <div v-else-if="stage === 'awaiting_username'" class="floating-chat-stage">
             <div class="floating-chat-stage__title">
               {{ $t("chat.stage.enterTelegram") }}
             </div>
@@ -420,7 +426,7 @@ onBeforeUnmount(() => {
             <div v-if="tgError" class="floating-chat-stage__error">{{ tgError }}</div>
           </div>
 
-          <div v-else-if="isClosedStage" class="floating-chat-stage">
+          <div v-else-if="stage === 'closed'" class="floating-chat-stage">
             <div class="floating-chat-stage__title">
               {{ $t("chat.stage.closed") }}
             </div>
@@ -435,12 +441,7 @@ onBeforeUnmount(() => {
                   @update:modelValue="(v: string) => (messageText = v)"
               />
 
-              <custom-button
-                  class="floating-chat-input__send"
-                  :variant="'primary'"
-                  :disabled="!canSend"
-                  @click="sendMessage"
-              >
+              <custom-button class="floating-chat-input__send" :variant="'primary'" :disabled="!canSend" @click="sendMessage">
                 <u-icon name="i-lucide-send" class="floating-chat-input__send-icon" />
                 <span>{{ $t("chat.send") }}</span>
               </custom-button>
@@ -518,15 +519,6 @@ onBeforeUnmount(() => {
   backdrop-filter: blur(12px);
   display: flex;
   flex-direction: column;
-}
-
-.light .floating-chat-panel__inner {
-  background: rgba(255, 255, 255, 0.82);
-}
-
-.light .floating-chat-toggle {
-  background: rgba(255, 255, 255, 0.82);
-  color: var(--ui-text-inverted);
 }
 
 .floating-chat-header {
@@ -616,14 +608,6 @@ onBeforeUnmount(() => {
 .floating-chat-message_client .floating-chat-message__bubble {
   background: rgba(128, 90, 245, 0.16);
   border-color: rgba(205, 153, 255, 0.22);
-}
-
-.light .floating-chat-message__bubble {
-  background: rgba(0, 0, 0, 0.03);
-}
-
-.light .floating-chat-message_client .floating-chat-message__bubble {
-  background: rgba(128, 90, 245, 0.10);
 }
 
 .floating-chat-message__text {
