@@ -350,7 +350,7 @@ onBeforeUnmount(() => {
               <span>{{ $t(props.titleKey) }}</span>
             </div>
 
-            <div class="floating-chat-header__status" :class="{ floating-chat-header__status_connected: socketConnected }">
+            <div class="floating-chat-header__status" :class="{ 'floating-chat-header__status_connected': socketConnected }">
               <u-icon
                   :name="socketConnected ? 'i-lucide-wifi' : 'i-lucide-wifi-off'"
                   class="floating-chat-header__status-icon"
