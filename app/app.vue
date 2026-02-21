@@ -6,7 +6,7 @@
         <NuxtPage/>
       </u-container>
     </u-main>
-<!--    <chat-form />-->
+    <chat-form />
     <custom-footer/>
     <under-footer/>
     <i18n-loader-overlay/>
