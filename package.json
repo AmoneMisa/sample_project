@@ -27,10 +27,12 @@
     "vite-svg-loader": "^5.1.0",
     "vue": "^3.5.26",
     "vue-router": "^4.6.4",
+    "ws": "^8.19.0",
     "yaml": "^2.8.2"
   },
   "devDependencies": {
     "@types/papaparse": "^5.5.2",
+    "@types/ws": "^8.18.1",
     "sass-embedded": "^1.97.2"
   }
 }

@@ -23,10 +23,6 @@ const props = withDefaults(
 
 const { public: publicConfig } = useRuntimeConfig();
 const apiBase = computed(() => (publicConfig.apiBase || "").replace(/\/$/, ""));
-const wsBase = computed(() => {
-  const base = apiBase.value;
-  return base.replace(/^http/i, (m) => (m.toLowerCase() === "https" ? "wss" : "ws"));
-});
 
 const isOpen = ref(false);
 const isLoading = ref(false);
@@ -184,9 +180,12 @@ async function sendMessage() {
 }
 
 function connectSocket() {
-  if (!wsBase.value) return;
+  const originWs = window.location.origin.replace(
+      /^http/i,
+      (m) => (m.toLowerCase() === "https" ? "wss" : "ws")
+  );
 
-  const url = `${wsBase.value}/chat/ws?clientId=${encodeURIComponent(clientId.value)}`;
+  const url = `${originWs}/chat-ws?clientId=${encodeURIComponent(clientId.value)}`;
 
   try {
     socket.value?.close();
