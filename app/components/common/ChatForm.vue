@@ -139,37 +139,21 @@ async function sendMessage() {
   isSending.value = true;
 
   try {
-    let res: Response;
+    const form = new FormData();
+    form.append("text", text);
+    if (attachedFile.value) form.append("file", attachedFile.value);
 
-    if (attachedFile.value) {
-      const form = new FormData();
-      form.append("text", text);
-      form.append("file", attachedFile.value);
-
-      res = await fetch(`${apiBase.value}/chat/send`, {
-        method: "POST",
-        headers: {
-          "X-Client-Id": clientId.value,
-        },
-        body: form,
-        credentials: "include",
-      });
-    } else {
-      res = await fetch(`${apiBase.value}/chat/send`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Client-Id": clientId.value,
-        },
-        body: JSON.stringify({ text }),
-        credentials: "include",
-      });
-    }
+    const res = await fetch(`${apiBase.value}/chat/send`, {
+      method: "POST",
+      headers: {
+        "X-Client-Id": clientId.value,
+      },
+      body: form,
+      credentials: "include",
+    });
 
     const data = await res.json();
-    if (!data?.ok) {
-      return;
-    }
+    if (!data?.ok) return;
 
     messageText.value = "";
     clearAttachment();
