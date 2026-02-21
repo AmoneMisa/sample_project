@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from "vue";
-import FileInput from "~/components/common/FileInput.vue";
 import CustomInput from "~/components/common/CustomInput.vue";
 import CustomButton from "~/components/common/CustomButton.vue";
 
@@ -9,7 +8,12 @@ type ChatMessage = {
   sender: "client" | "owner";
   text: string;
   createdAt: string;
-  imageUrl?: string | null;
+};
+
+type ChatSession = {
+  id: number;
+  status: "new" | "awaiting_username" | "active" | "closed" | string;
+  tgUsername?: string | null;
 };
 
 const props = withDefaults(
@@ -29,31 +33,35 @@ const isLoading = ref(false);
 const isSending = ref(false);
 const hasUnread = ref(false);
 
+const session = ref<ChatSession | null>(null);
+
 const messages = ref<ChatMessage[]>([]);
 const messageText = ref("");
 
-const attachedFile = ref<File | null>(null);
-const attachedPreviewUrl = ref<string | null>(null);
-const attachedError = ref<string | null>(null);
+const tgUsername = ref("");
+const tgError = ref<string | null>(null);
 
 const socket = ref<WebSocket | null>(null);
 const socketConnected = ref(false);
 
 const chatListRef = ref<HTMLElement | null>(null);
-
 const clientId = ref<string>("");
 
-const allowedImageTypes = ["image/png", "image/jpeg", "image/webp"];
-
 const canSend = computed(() => {
-  return !isSending.value && (!!messageText.value.trim() || !!attachedFile.value);
+  if (session.value?.status !== "active") return false;
+  return !isSending.value && !!messageText.value.trim();
 });
+
+const isChoiceStage = computed(() => session.value?.status === "new");
+const isUsernameStage = computed(() => session.value?.status === "awaiting_username");
+const isClosedStage = computed(() => session.value?.status === "closed");
+const isActiveStage = computed(() => session.value?.status === "active");
 
 function ensureClientId() {
   const key = "whiteslove_chat_client_id";
   const existing = localStorage.getItem(key);
   if (existing) return existing;
-  const id = (crypto?.randomUUID?.() ?? `${Date.now()}_${Math.random().toString(16).slice(2)}`);
+  const id = crypto?.randomUUID?.() ?? `${Date.now()}_${Math.random().toString(16).slice(2)}`;
   localStorage.setItem(key, id);
   return id;
 }
@@ -91,73 +99,142 @@ function toggleChat() {
   else openChat();
 }
 
+function isDuplicateIncoming(incoming: ChatMessage) {
+  const last = messages.value[messages.value.length - 1];
+  if (!last) return false;
+  return last.sender === incoming.sender && last.text === incoming.text;
+}
+
 async function loadHistory() {
   isLoading.value = true;
   try {
     const res = await fetch(`${apiBase.value}/chat/history`, {
       method: "GET",
-      headers: {
-        "X-Client-Id": clientId.value,
-      },
-      credentials: "include",
-    });
-    const data = await res.json();
-    if (data?.ok) {
-      messages.value = (data.messages ?? []) as ChatMessage[];
-      await scrollChatToBottom(false);
-    }
-  } finally {
-    isLoading.value = false;
-  }
-}
-
-function clearAttachment() {
-  if (attachedPreviewUrl.value) URL.revokeObjectURL(attachedPreviewUrl.value);
-  attachedFile.value = null;
-  attachedPreviewUrl.value = null;
-  attachedError.value = null;
-}
-
-function onFiles(files: File[]) {
-  clearAttachment();
-  if (!files.length) return;
-
-  const file = files[0];
-  if (!allowedImageTypes.includes(file.type)) {
-    attachedError.value = "Only PNG / JPEG / WEBP";
-    return;
-  }
-
-  attachedFile.value = file;
-  attachedPreviewUrl.value = URL.createObjectURL(file);
-}
-
-async function sendMessage() {
-  const text = messageText.value.trim();
-  if (!text && !attachedFile.value) return;
-
-  isSending.value = true;
-
-  try {
-    const form = new FormData();
-    form.append("text", text);
-    if (attachedFile.value) form.append("file", attachedFile.value);
-
-    const res = await fetch(`${apiBase.value}/chat/send`, {
-      method: "POST",
-      headers: {
-        "X-Client-Id": clientId.value,
-      },
-      body: form,
+      headers: { "X-Client-Id": clientId.value },
       credentials: "include",
     });
 
     const data = await res.json();
     if (!data?.ok) return;
 
-    messageText.value = "";
-    clearAttachment();
+    session.value = data.session ?? null;
+    messages.value = (data.messages ?? []) as ChatMessage[];
+
+    if (isUsernameStage.value) {
+      tgUsername.value = session.value?.tgUsername || "";
+    }
+
+    await scrollChatToBottom(false);
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+async function chooseChannel(channel: "site" | "telegram") {
+  if (isSending.value) return;
+  isSending.value = true;
+  tgError.value = null;
+
+  try {
+    const res = await fetch(`${apiBase.value}/chat/choose`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Client-Id": clientId.value,
+      },
+      body: JSON.stringify({ channel }),
+      credentials: "include",
+    });
+
+    const data = await res.json();
+    if (!data?.ok) return;
+
+    await loadHistory();
     await scrollChatToBottom();
+  } finally {
+    isSending.value = false;
+  }
+}
+
+function validateTgUsername(value: string) {
+  const v = value.trim();
+  if (!v) return "Введите ник в формате @username";
+  if (!/^@[A-Za-z0-9_]{5,32}$/.test(v)) return "Ник должен быть в формате @username";
+  return null;
+}
+
+async function submitTelegramUsername() {
+  if (isSending.value) return;
+
+  const err = validateTgUsername(tgUsername.value);
+  if (err) {
+    tgError.value = err;
+    return;
+  }
+
+  isSending.value = true;
+  tgError.value = null;
+
+  try {
+    const res = await fetch(`${apiBase.value}/chat/set-telegram`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Client-Id": clientId.value,
+      },
+      body: JSON.stringify({ tgUsername: tgUsername.value.trim() }),
+      credentials: "include",
+    });
+
+    const data = await res.json();
+    if (!data?.ok) {
+      tgError.value = data?.error === "invalid_username" ? "Ник должен быть в формате @username" : "Ошибка отправки";
+      return;
+    }
+
+    await loadHistory();
+    await scrollChatToBottom();
+  } finally {
+    isSending.value = false;
+  }
+}
+
+async function sendMessage() {
+  const text = messageText.value.trim();
+  if (!text) return;
+  if (session.value?.status !== "active") return;
+
+  const optimistic: ChatMessage = {
+    sender: "client",
+    text,
+    createdAt: new Date().toISOString(),
+  };
+
+  messages.value.push(optimistic);
+  messageText.value = "";
+  await scrollChatToBottom();
+
+  isSending.value = true;
+  try {
+    const res = await fetch(`${apiBase.value}/chat/send`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Client-Id": clientId.value,
+      },
+      body: JSON.stringify({ text }),
+      credentials: "include",
+    });
+
+    const data = await res.json();
+    if (!data?.ok) {
+      messages.value.push({
+        sender: "owner",
+        text: "Не удалось отправить сообщение. Попробуйте ещё раз.",
+        createdAt: new Date().toISOString(),
+      });
+      await scrollChatToBottom();
+    }
   } finally {
     isSending.value = false;
   }
@@ -195,22 +272,29 @@ function connectSocket() {
         sender: payload.sender,
         text: payload.text ?? "",
         createdAt: payload.createdAt ?? new Date().toISOString(),
-        imageUrl: payload.imageUrl ?? null,
       };
 
-      messages.value.push(msg);
+      if (!isDuplicateIncoming(msg)) {
+        messages.value.push(msg);
+      }
 
       if (!isOpen.value) hasUnread.value = true;
-
       await scrollChatToBottom();
+      return;
     }
 
     if (payload?.type === "session_closed") {
-      messages.value.push({
+      session.value = session.value
+          ? { ...session.value, status: "closed" }
+          : { id: payload.sessionId, status: "closed" };
+
+      const msg: ChatMessage = {
         sender: "owner",
-        text: "Диалог закрыт.",
+        text: payload.reason === "telegram" ? "Диалог закрыт. Мы свяжемся с вами в Telegram." : "Диалог закрыт.",
         createdAt: new Date().toISOString(),
-      });
+      };
+
+      if (!isDuplicateIncoming(msg)) messages.value.push(msg);
       await scrollChatToBottom();
     }
   };
@@ -242,7 +326,6 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   disconnectSocket();
-  clearAttachment();
 });
 </script>
 
@@ -270,12 +353,7 @@ onBeforeUnmount(() => {
             </div>
           </div>
 
-          <u-button
-              variant="ghost"
-              class="floating-chat-header__close"
-              type="button"
-              @click="closeChat"
-          >
+          <u-button variant="ghost" class="floating-chat-header__close" type="button" @click="closeChat">
             <u-icon name="i-lucide-x" class="floating-chat-header__close-icon" />
           </u-button>
         </header>
@@ -295,9 +373,6 @@ onBeforeUnmount(() => {
             }"
           >
             <div class="floating-chat-message__bubble">
-              <div v-if="m.imageUrl" class="floating-chat-message__image">
-                <img :src="m.imageUrl" alt="" class="floating-chat-message__image-img" />
-              </div>
               <div class="floating-chat-message__text">{{ m.text }}</div>
               <div class="floating-chat-message__meta">{{ normalizeTime(m.createdAt) }}</div>
             </div>
@@ -305,32 +380,53 @@ onBeforeUnmount(() => {
         </div>
 
         <footer class="floating-chat-footer">
-          <div v-if="attachedPreviewUrl" class="floating-chat-attachment">
-            <img :src="attachedPreviewUrl" alt="" class="floating-chat-attachment__preview" />
-            <u-button
-                variant="ghost"
-                type="button"
-                class="floating-chat-attachment__remove"
-                @click="clearAttachment"
-            >
-              <u-icon name="i-lucide-x" class="floating-chat-attachment__remove-icon" />
-            </u-button>
+          <div v-if="isChoiceStage" class="floating-chat-stage">
+            <div class="floating-chat-stage__title">
+              {{ $t("chat.stage.chooseChannel") }}
+            </div>
+
+            <div class="floating-chat-stage__row">
+              <custom-button class="floating-chat-stage__button" :variant="'primary'" @click="chooseChannel('site')">
+                <u-icon name="i-lucide-monitor" class="floating-chat-stage__button-icon" />
+                <span>{{ $t("chat.stage.site") }}</span>
+              </custom-button>
+
+              <custom-button class="floating-chat-stage__button" :variant="'secondary'" @click="chooseChannel('telegram')">
+                <u-icon name="i-lucide-send" class="floating-chat-stage__button-icon" />
+                <span>{{ $t("chat.stage.telegram") }}</span>
+              </custom-button>
+            </div>
           </div>
 
-          <div v-if="attachedError" class="floating-chat-footer__error">
-            {{ attachedError }}
+          <div v-else-if="isUsernameStage" class="floating-chat-stage">
+            <div class="floating-chat-stage__title">
+              {{ $t("chat.stage.enterTelegram") }}
+            </div>
+
+            <div class="floating-chat-stage__row">
+              <custom-input
+                  class="floating-chat-stage__input"
+                  :model-value="tgUsername"
+                  placeholder="@username"
+                  @update:modelValue="(v: string) => (tgUsername = v)"
+              />
+
+              <custom-button class="floating-chat-stage__button" :variant="'primary'" @click="submitTelegramUsername">
+                <u-icon name="i-lucide-check" class="floating-chat-stage__button-icon" />
+                <span>{{ $t("chat.stage.submit") }}</span>
+              </custom-button>
+            </div>
+
+            <div v-if="tgError" class="floating-chat-stage__error">{{ tgError }}</div>
           </div>
 
-          <div class="floating-chat-input">
-            <file-input
-                class="floating-chat-input__file"
-                label-key="chat.attach.label"
-                accept="image/png,image/jpeg,image/webp"
-                :multiple="false"
-                :error="null"
-                @files="onFiles"
-            />
+          <div v-else-if="isClosedStage" class="floating-chat-stage">
+            <div class="floating-chat-stage__title">
+              {{ $t("chat.stage.closed") }}
+            </div>
+          </div>
 
+          <div v-else class="floating-chat-input">
             <div class="floating-chat-input__row">
               <custom-input
                   class="floating-chat-input__text"
@@ -530,19 +626,6 @@ onBeforeUnmount(() => {
   background: rgba(128, 90, 245, 0.10);
 }
 
-.floating-chat-message__image {
-  margin-bottom: 8px;
-}
-
-.floating-chat-message__image-img {
-  display: block;
-  max-width: 220px;
-  width: 100%;
-  border-radius: 12px;
-  border: 1px solid var(--ui-border);
-  object-fit: cover;
-}
-
 .floating-chat-message__text {
   color: var(--ui-text-inverted);
   white-space: pre-wrap;
@@ -564,44 +647,41 @@ onBeforeUnmount(() => {
   border-top: 1px solid var(--ui-border);
 }
 
-.floating-chat-footer__error {
-  margin-bottom: 8px;
-  font-size: 12px;
-  font-weight: 800;
-  color: var(--color-error, #ef4444);
-}
-
-.floating-chat-attachment {
+.floating-chat-stage {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 10px;
-  margin-bottom: 10px;
 }
 
-.floating-chat-attachment__preview {
-  width: 86px;
-  height: 56px;
-  border-radius: 12px;
-  object-fit: cover;
-  border: 1px solid var(--ui-border);
+.floating-chat-stage__title {
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--ui-text-muted);
 }
 
-.floating-chat-attachment__remove {
-  width: 34px;
-  height: 34px;
-  border-radius: 12px;
-  border: 1px solid var(--ui-border);
+.floating-chat-stage__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }
 
-.floating-chat-attachment__remove-icon {
+.floating-chat-stage__button {
+  height: 44px;
+}
+
+.floating-chat-stage__button-icon {
   width: 16px;
   height: 16px;
 }
 
-.floating-chat-input {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.floating-chat-stage__input {
+  min-width: 0;
+}
+
+.floating-chat-stage__error {
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--color-error, #ef4444);
 }
 
 .floating-chat-input__row {
@@ -638,6 +718,10 @@ onBeforeUnmount(() => {
   .floating-chat-toggle {
     right: 12px;
     bottom: 12px;
+  }
+
+  .floating-chat-stage__row {
+    grid-template-columns: 1fr;
   }
 
   .floating-chat-input__row {
