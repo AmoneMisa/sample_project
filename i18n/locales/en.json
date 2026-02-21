@@ -1,4 +1,33 @@
 {
+  "chat": {
+    "title": "Chat with developer",
+    "loading": "Loading messages…",
+    "send": "Send",
+    "input": {
+      "placeholder": "Type a message…"
+    },
+    "attach": {
+      "label": "File"
+    },
+    "status": {
+      "online": "Online",
+      "connecting": "Connecting…"
+    },
+    "system": {
+      "language_notice": "Please note that a real person speaks only Russian, English and Ukrainian. Kazakh is supported via a translator.",
+      "choose_language": "Would you like to continue in the current language ({language}) or choose another one?",
+      "choose_channel": "Where would you like to continue chatting with the developer?",
+      "channel_site": "Stay on the website",
+      "channel_telegram": "Switch to Telegram",
+      "enter_tg": "Please enter your Telegram username starting with @ so the developer can contact you directly.",
+      "telegram_done": "Thank you. The developer will contact you as soon as possible from @WhitesLove.",
+      "session_closed": "The conversation has been closed."
+    },
+    "errors": {
+      "empty": "Message cannot be empty",
+      "closed": "The conversation is already closed"
+    }
+  },
   "errors": {
     "kicker": {
       "notFound": "Page not found",
