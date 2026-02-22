@@ -115,10 +115,6 @@ watch(
                 {{ t(activeTab.descriptionKey) }}
               </p>
             </div>
-
-            <custom-button class="mt-6 w-fit" variant="full" v-if="activeTab?.buttonTextKey">
-              {{ t(activeTab.buttonTextKey) }}
-            </custom-button>
           </div>
         </div>
       </div>

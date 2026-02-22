@@ -21,7 +21,7 @@ defineProps<{
               :ui="{
               title: 'text-4xl sm:text-5xl lg:text-6xl dark:text-highlighted text-white/90',
               headline: 'my-0',
-              description: 'text-base sm:text-lg dark:text-white/70'
+              description: 'text-base sm:text-lg text-white/70'
             }"
           />
           <div class="mt-7 flex flex-wrap gap-4">
